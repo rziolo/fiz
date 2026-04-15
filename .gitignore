@@ -1,0 +1,12 @@
+# Środowisko wirtualne
+venv/
+*.pyc
+__pycache__/
+
+# Dane wrażliwe i konfiguracja lokalna
+.env
+*.db
+*.log
+
+# Pliki systemowe
+.DS_Store
