@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="alert alert-info">
-    <h2>Strona Finanse OK</h2>
-    <p>Połączono z bazą na: {{ db_host }}</p>
+<div style="text-align: center; padding: 20px;">
+    <h2>Panel Finanse</h2>
+    {% if db_ok %}
+        <div style="color: #2ecc71; border: 1px solid #2ecc71; padding: 10px;">● Połączenie OK</div>
+    {% else %}
+        <div style="color: #e74c3c; border: 1px solid #e74c3c; padding: 10px;">
+            ○ BŁĄD: {{ db_msg }}
+        </div>
+    {% endif %}
+    <p><a href="http://192.168.1.156/aplikacje">Powrót</a></p>
 </div>
 {% endblock %}
