@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Wydruk Pomiarów Ciśnienia</title>
+    <style>
+        body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 9pt; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        h2 { text-align: center; }
+    </style>
+</head>
+<body onload="window.print()">
+    <h2>Historia Pomiarów Ciśnienia</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Dzień</th>
+                <th>Godzina</th>
+                <th>Skurcz.</th>
+                <th>Rozkurcz.</th>
+                <th>Puls</th>
+                <th>Waga</th>
+                <th>Miasto</th>
+                <th>Ciśn.</th>
+                <th>Temp.</th>
+                <th>Wilgot.</th>
+                <th>Uwagi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{% if row.Date is string %}{{ row.Date.split('T')[0] }}{% else %}{{ row.Date.strftime('%Y-%m-%d') }}{% endif %}</td>
+                <td>{% if row.Date is string %}{{ row.Date.split('T')[1][:5] if 'T' in row.Date else '' }}{% else %}{{ row.Date.strftime('%H:%M') }}{% endif %}</td>
+                <td><strong>{{ row.P_skurczowe }}</strong></td>
+                <td><strong>{{ row.P_rozkurczowe }}</strong></td>
+                <td>{{ row.Puls }}</td>
+                <td>{{ row.waga|string|replace('.', ',') }}</td>
+                <td>{{ row.miasto }}</td>
+                <td>{{ row['atmosf.'] }}</td>
+                <td>{{ row.temperatura }}</td>
+                <td>{{ row.wilgotnosc }}</td>
+                <td style="text-align: left; font-size: 8pt;">{{ row.uwagi }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
