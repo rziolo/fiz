@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-heartbeat text-danger"></i> Historia Pomiarów Ciśnienia</h2>
+<div class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-heartbeat text-danger"></i> Pomiary Ciśnienia</h2>
         <div>
             <a href="{{ url_for('pressure.print_pressure') }}" target="_blank" class="btn btn-secondary"><i class="fas fa-print"></i> Drukuj</a>
-            <a href="{{ url_for('pressure.manage_pressure') }}" class="btn btn-success"><i class="fas fa-plus"></i> Dodaj</a>
+            <a href="{{ url_for('pressure.manage_pressure') }}" class="btn btn-success"><i class="fas fa-plus"></i> Nowy pomiar</a>
         </div>
     </div>
 
-    <div class="table-responsive shadow-sm bg-white p-3 rounded">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="table-dark">
                 <tr>
-                    <th>Dzień</th>
-                    <th>Godzina</th>
+                    <th>Data</th>
                     <th>Skurcz.</th>
                     <th>Rozkurcz.</th>
                     <th>Puls</th>
@@ -23,52 +22,33 @@
                     <th>Ciśn.</th>
                     <th>Temp.</th>
                     <th>Wilgot.</th>
-                    <th class="text-center">Uwagi</th>
-                    <th class="text-center">Akcje</th>
+                    <th>Akcje</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in rows %}
                 <tr>
-                    <td>
-                        {% if row.Date is string %}{{ row.Date.split('T')[0] }}{% else %}{{ row.Date.strftime('%Y-%m-%d') }}{% endif %}
-                    </td>
-                    <td>
-                        {% if row.Date is string %}{{ row.Date.split('T')[1][:5] if 'T' in row.Date else '' }}{% else %}{{ row.Date.strftime('%H:%M') }}{% endif %}
-                    </td>
+                    <td>{{ row.Date.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td><strong>{{ row.P_skurczowe }}</strong></td>
                     <td><strong>{{ row.P_rozkurczowe }}</strong></td>
-                    <td><strong>{{ row.Puls }}</strong></td>
-                    {# Formatowanie wagi: kropka na przecinek i brak kg #}
-                    <td>{{ row.waga|string|replace('.', ',') }}</td>
+                    <td>{{ row.Puls }}</td>
+                    <td>{{ row.waga }}</td>
                     <td>{{ row.miasto }}</td>
                     <td>{{ row['atmosf.'] }}</td>
                     <td>{{ row.temperatura }}</td>
                     <td>{{ row.wilgotnosc }}</td>
                     <td class="text-center">
-                        {% if row.uwagi and row.uwagi|length > 0 %}
-                        <button type="button" class="btn btn-link btn-sm text-secondary" data-bs-toggle="modal" data-bs-target="#modal{{ row.id_ha_fit }}">
-                            <i class="fas fa-sticky-note fa-lg"></i>
-                        </button>
-                        <div class="modal fade" id="modal{{ row.id_ha_fit }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Uwagi do pomiaru - {{ row.Date }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body text-start">
-                                        {{ row.uwagi }}
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="btn-group btn-group-sm">
+                            <a href="/zdrowie/pressure/view/{{ row.id_ha_fit }}" class="btn btn-outline-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="/zdrowie/pressure/edit/{{ row.id_ha_fit }}" class="btn btn-outline-primary">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="/zdrowie/pressure/delete/{{ row.id_ha_fit }}" class="btn btn-outline-danger" onclick="return confirm('Usunąć?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
                         </div>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ url_for('pressure.manage_pressure', id=row.id_ha_fit) }}?view=1" class="text-info me-2"><i class="fas fa-eye"></i></a>
-                        <a href="{{ url_for('pressure.manage_pressure', id=row.id_ha_fit) }}" class="text-primary me-2"><i class="fas fa-edit"></i></a>
-                        <a href="{{ url_for('pressure.delete_pressure', id=row.id_ha_fit) }}" class="text-danger" onclick="return confirm('Usunąć pomiar?')"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
                 {% endfor %}

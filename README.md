@@ -21,15 +21,18 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 - **Automatyczna integracja:** Pobieranie danych pogodowych (temp, ciśnienie, wilgotność) z Home Assistant podczas dodawania pomiaru.
 - Interaktywna historia z okienkami modalnymi dla uwag.
 - System generowania wydruków dla lekarza.
+- **Udogodnienia:** Obsługa wprowadzania wagi z przecinkiem (automatyczna konwersja na kropkę dla DB).
 
 ## 🛠 Zarządzanie i Logi
 - **Restart aplikacji:** `sudo systemctl restart flask-zdrowie`
 - **Podgląd błędów:** `sudo journalctl -u flask-zdrowie -f`
-- **Konfiguracja Apache:** `/etc/apache2/sites-enabled/000-default.conf`
+- **Czyszczenie cache Pythona:** `sudo find . -name "*.pyc" -delete && sudo find . -name "__pycache__" -delete`
 
-## 🔄 Synchronizacja i Backup
-- Kod przechowywany na wspólnym wolumenie GlusterFS.
-- Automatyczny commit o 00:10 do `github.com/rziolo/flask_aplikacje`.
+## 💡 Troubleshooting & Refleksje (Update 2026-04-17)
+### 🌐 Problemy z Cache i Routingiem
+1. **Przeglądarka vs Zmiany w HTML:** Przy modyfikacji szablonów Jinja2, przeglądarki agresywnie cache'ują kod HTML/CSS. Po wdrożeniu zmian zawsze wymuszaj odświeżenie przez **Ctrl + F5**.
+2. **Jawny Routing (Explicit Paths):** W architekturze z Reverse Proxy, funkcja `url_for` może generować błędy przy przechodzeniu między trybami `view` a `edit`. Bezpieczniejszą metodą dla akcji w tabelach okazało się stosowanie bezpośrednich ścieżek URL (np. `/zdrowie/pressure/edit/...`).
+3. **JS jako "Bezpiecznik":** Jeśli logika serwerowa niepoprawnie rozpoznaje tryb strony (np. przez błąd przekierowania proxy), skrypty po stronie klienta (JS) weryfikujące `window.location.pathname` są ostatecznym sposobem na wymuszenie poprawnego UI (np. pokazanie przycisku Zapisz).
 
 ---
-Ostatnia aktualizacja: 2026-04-17 00:10
+Ostatnia aktualizacja: 2026-04-18 00:10

@@ -1,85 +1,79 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-3">
-    <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between">
-            <h4>{% if mode == 'view' %}Podgląd{% elif mode == 'edit' %}Edycja{% else %}Nowy wpis ciśnienia{% endif %}</h4>
-            <a href="{{ url_for('pressure.list_pressure') }}" class="btn btn-outline-secondary btn-sm">← Powrót</a>
-        </div>
-        <div class="card-body">
-            <div class="row bg-light p-3 mb-4 rounded border">
-                <div class="col-md-4">
-                    <strong>Lokalizacja:</strong> <span id="ha_loc">{{ ha_data.locality if mode == 'create' else row.miasto }}</span>
-                </div>
-                <div class="col-md-6 text-end text-muted">
-                    Pogoda: <span id="ha_weather">{{ ha_data.pressure }} hPa, {{ ha_data.temp }} ℃, {{ ha_data.humidity }} %</span>
-                </div>
-                {% if mode == 'create' %}
-                <div class="col-md-2 text-center">
-                    <button type="button" class="btn btn-sm btn-dark" onclick="importHA()"><i class="fas fa-arrow-down"></i> Wprowadź</button>
-                </div>
-                {% endif %}
-            </div>
+<style>
+    .form-control-custom { background-color: #ffe6e6; }
+    .has-value { background-color: #e6ffec !important; }
+</style>
 
-            <form method="POST">
+<div class="container mt-3">
+    <form method="POST">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 id="pageTitle">{% if mode == 'edit' %}Edycja{% elif mode == 'view' %}Podgląd{% else %}Nowy wpis{% endif %}</h4>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('pressure.list_pressure') }}" class="btn btn-outline-secondary">← Powrót</a>
+                    <button type="submit" id="mainSaveBtn" class="btn btn-primary {% if mode == 'view' %}d-none{% endif %}">Zapisz</button>
+                </div>
+            </div>
+            <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Data i godzina</label>
-                        <input type="datetime-local" name="Date" class="form-control" value="{{ row.Date.strftime('%Y-%m-%dT%H:%M') if row else now }}" required {{ 'readonly' if mode == 'view' }}>
+                        <label>Data</label>
+                        <input type="datetime-local" name="Date" class="form-control form-control-custom" value="{{ row.Date.strftime('%Y-%m-%dT%H:%M') if row else now }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Miasto</label>
-                        <input type="text" name="miasto" id="f_miasto" class="form-control" value="{{ row.miasto if row else ha_data.locality }}" {{ 'readonly' if mode == 'view' }}>
+                        <label>Skurczowe</label>
+                        <input type="number" name="P_skurczowe" class="form-control form-control-custom fw-bold" value="{{ row.P_skurczowe if row }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Ciśnienie ATM (hPa)</label>
-                        <input type="number" name="atmosf" id="f_atmosf" class="form-control" value="{{ row['atmosf.'] if row else ha_data.pressure }}" {{ 'readonly' if mode == 'view' }}>
+                        <label>Rozkurczowe</label>
+                        <input type="number" name="P_rozkurczowe" class="form-control form-control-custom fw-bold" value="{{ row.P_rozkurczowe if row }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Skurczowe (mmHg)</label>
-                        <input type="number" name="P_skurczowe" class="form-control fw-bold" value="{{ row.P_skurczowe if row }}" required {{ 'readonly' if mode == 'view' }}>
+                        <label>Miasto</label>
+                        <input type="text" name="miasto" class="form-control form-control-custom" value="{{ row.miasto if row else ha_data.locality }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Rozkurczowe (mmHg)</label>
-                        <input type="number" name="P_rozkurczowe" class="form-control fw-bold" value="{{ row.P_rozkurczowe if row }}" required {{ 'readonly' if mode == 'view' }}>
+                        <label>Puls</label>
+                        <input type="number" name="Puls" class="form-control form-control-custom" value="{{ row.Puls if row }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Puls (bpm)</label>
-                        <input type="number" name="Puls" class="form-control fw-bold" value="{{ row.Puls if row }}" {{ 'readonly' if mode == 'view' }}>
+                        <label>Waga (kg)</label>
+                        <input type="text" name="waga" class="form-control form-control-custom" value="{{ row.waga if row }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Waga (kg)</label>
-                        <input type="text" name="waga" class="form-control" value="{{ row.waga if row }}" {{ 'readonly' if mode == 'view' }}>
+                        <label>Temperatura (°C)</label>
+                        <input type="number" name="temperatura" class="form-control form-control-custom" value="{{ row.temperatura if row else ha_data.temp }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Temperatura (°C)</label>
-                        <input type="number" name="temperatura" id="f_temp" class="form-control" value="{{ row.temperatura if row else ha_data.temp }}" {{ 'readonly' if mode == 'view' }}>
+                        <label>Ciśnienie ATM</label>
+                        <input type="number" name="atmosf" class="form-control form-control-custom" value="{{ row['atmosf.'] if row else ha_data.pressure }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Wilgotność (%)</label>
-                        <input type="number" name="wilgotnosc" id="f_wilg" class="form-control" value="{{ row.wilgotnosc if row else ha_data.humidity }}" {{ 'readonly' if mode == 'view' }}>
+                        <label>Wilgotność (%)</label>
+                        <input type="number" name="wilgotnosc" class="form-control form-control-custom" value="{{ row.wilgotnosc if row else ha_data.humidity }}" {{ 'readonly' if mode == 'view' }}>
                     </div>
-                    <div class="col-md-12">
-                        <label class="form-label">Uwagi</label>
-                        <textarea name="uwagi" class="form-control" rows="3" {{ 'readonly' if mode == 'view' }}>{{ row.uwagi if row }}</textarea>
+                    <div class="col-12">
+                        <label>Uwagi</label>
+                        <textarea name="uwagi" class="form-control form-control-custom" {{ 'readonly' if mode == 'view' }}>{{ row.uwagi if row }}</textarea>
                     </div>
                 </div>
-                {% if mode != 'view' %}
-                <div class="mt-4 text-end">
-                    <button type="submit" class="btn btn-primary btn-lg px-5">Zapisz</button>
-                </div>
-                {% endif %}
-            </form>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 
 <script>
-function importHA() {
-    document.getElementById('f_miasto').value = "{{ ha_data.locality }}";
-    document.getElementById('f_atmosf').value = "{{ ha_data.pressure }}";
-    document.getElementById('f_temp').value = "{{ ha_data.temp }}";
-    document.getElementById('f_wilg').value = "{{ ha_data.humidity }}";
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // WYMUSZENIE: Jeśli w URL jest "edit", pokaż przycisk
+    if (window.location.pathname.includes('/edit/')) {
+        document.getElementById('mainSaveBtn').classList.remove('d-none');
+        document.getElementById('pageTitle').innerText = 'Edycja';
+    }
+    document.querySelectorAll('.form-control-custom').forEach(i => {
+        if(i.value) i.classList.add('has-value');
+        i.addEventListener('input', () => i.value ? i.classList.add('has-value') : i.classList.remove('has-value'));
+    });
+});
 </script>
 {% endblock %}
