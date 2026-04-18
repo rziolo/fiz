@@ -4,7 +4,7 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 
 ## 🏗 Architektura Systemu
 - **Adres VIP:** `192.168.1.156` (zarządzany przez Keepalived)
-- **Reverse Proxy:** Apache2 (mod_proxy) z przekierowaniem ścieżek (`/zdrowie` -> `port 5003`)
+- **Reverse Proxy:** Apache2 (mod_proxy)
 - **Storage:** GlusterFS (zsynchronizowany folder `/var/www/html/flask`)
 - **WSGI Server:** Gunicorn zarządzany przez Systemd
 
@@ -12,27 +12,29 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 | Aplikacja | Ścieżka URL | Port Lokalny | Status / Funkcje |
 | :--- | :--- | :--- | :--- |
 | **Aplikacje** | `/aplikacje` | `5000` | HUB - Menu Główne |
-| **Finanse** | `/finanse` | `5001` | Zarządzanie budżetem |
+| **Finanse** | `/finanse` | `5001` | **Aktywna**: Bilans, Samochód, Wykresy |
 | **Inwestycje**| `/inwestycje`| `5002` | Portfel inwestycyjny |
-| **Zdrowie** | `/zdrowie` | `5003` | **Aktywna**: Monitoring ciśnienia + Integracja HA |
+| **Zdrowie** | `/zdrowie` | `5003` | Monitoring ciśnienia + HA |
 
-## 💉 Moduł Zdrowie - Funkcje
-- Rejestracja pomiarów ciśnienia i pulsu.
-- **Automatyczna integracja:** Pobieranie danych pogodowych (temp, ciśnienie, wilgotność) z Home Assistant podczas dodawania pomiaru.
-- Interaktywna historia z okienkami modalnymi dla uwag.
-- System generowania wydruków dla lekarza.
-- **Udogodnienia:** Obsługa wprowadzania wagi z przecinkiem (automatyczna konwersja na kropkę dla DB).
+## 💰 Moduł Finanse - Nowe Funkcje (Update 2026-04-18)
+- **Bilans:** Automatyczne kolorowanie wartości dodatnich (zielony) i ujemnych (czerwony).
+- **Samochód:** - Automatyczne wyliczanie przebiegu miesięcznego na podstawie stanów licznika.
+    - Kalkulacja średniego kosztu za 1 km.
+- **Wykresy (Chart.js):**
+    - 4 interaktywne zakładki: Bilans, Przychody, Wydatki, ROR.
+    - Filtrowanie zakresu czasu: 12, 24, 36 miesięcy oraz widok pełny.
+    - **Visual Cues:** Czerwone rąby na wykresach liniowych sygnalizują "Uwagi" (po kliknięciu otwiera się modal).
+    - **Analityka Pie Chart:** Dynamiczny wykres kołowy średniej z ostatnich 3 miesięcy z etykietami wypchniętymi poza obręb koła dla lepszej czytelności.
 
 ## 🛠 Zarządzanie i Logi
-- **Restart aplikacji:** `sudo systemctl restart flask-zdrowie`
-- **Podgląd błędów:** `sudo journalctl -u flask-zdrowie -f`
-- **Czyszczenie cache Pythona:** `sudo find . -name "*.pyc" -delete && sudo find . -name "__pycache__" -delete`
+- **Restart aplikacji:** `sudo systemctl restart flask-finanse` (lub `flask-zdrowie`)
+- **Podgląd błędów:** `sudo journalctl -u flask-finanse -f`
+- **Aktualizacja bibliotek:** `pip install -r requirements.txt`
 
-## 💡 Troubleshooting & Refleksje (Update 2026-04-17)
-### 🌐 Problemy z Cache i Routingiem
-1. **Przeglądarka vs Zmiany w HTML:** Przy modyfikacji szablonów Jinja2, przeglądarki agresywnie cache'ują kod HTML/CSS. Po wdrożeniu zmian zawsze wymuszaj odświeżenie przez **Ctrl + F5**.
-2. **Jawny Routing (Explicit Paths):** W architekturze z Reverse Proxy, funkcja `url_for` może generować błędy przy przechodzeniu między trybami `view` a `edit`. Bezpieczniejszą metodą dla akcji w tabelach okazało się stosowanie bezpośrednich ścieżek URL (np. `/zdrowie/pressure/edit/...`).
-3. **JS jako "Bezpiecznik":** Jeśli logika serwerowa niepoprawnie rozpoznaje tryb strony (np. przez błąd przekierowania proxy), skrypty po stronie klienta (JS) weryfikujące `window.location.pathname` są ostatecznym sposobem na wymuszenie poprawnego UI (np. pokazanie przycisku Zapisz).
+## 💡 Troubleshooting & Refleksje (Update 2026-04-18)
+1. **Importy Systemowe:** Przy budowie modułów Flask (`Blueprint`), standardowe biblioteki Pythona (np. `os`, `time`) muszą być importowane niezależnie od paczek Flaska, aby uniknąć błędów typu `ImportError`.
+2. **Optymalizacja Wykresów:** Przy dużej ilości małych kategorii na wykresie kołowym, standardowa legenda jest nieczytelna. Zastosowanie wtyczki `datalabels` z parametrami `anchor: end` i `align: end` pozwala na wyprowadzenie etykiet poza koło, co drastycznie poprawia UX.
+3. **Formatowanie Walutowe:** Dla czytelności tabel finansowych (szczególnie w module Samochód i Bilans) kluczowe jest stosowanie spacji jako separatora tysięcy i przecinka dla części dziesiętnych.
 
 ---
-Ostatnia aktualizacja: 2026-04-18 00:10
+Ostatnia aktualizacja: 2026-04-18 16:45

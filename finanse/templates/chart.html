@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-graph-up"></i> Analiza Finansowa</h2>
+    <div class="btn-group shadow-sm">
+        <button class="btn btn-outline-secondary btn-sm" onclick="updateRange(12)">12m</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="updateRange(24)">24m</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="updateRange(36)">36m</button>
+        <button class="btn btn-outline-secondary btn-sm active" onclick="updateRange(0)">Wszystko</button>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" id="chartTabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-bilans">Bilans</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-przychody">Przychody</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-wydatki">Wydatki</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ror">ROR</button></li>
+</ul>
+
+<div class="tab-content card shadow-sm p-3">
+    {% for id in ['bilans', 'przychody', 'wydatki', 'ror'] %}
+    <div class="tab-pane fade {{ 'show active' if id == 'bilans' }}" id="tab-{{ id }}">
+        <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="showPie('{{ id }}')">
+                <i class="bi bi-pie-chart-fill"></i> Średnia 3m
+            </button>
+        </div>
+        <canvas id="chart-{{ id }}" style="max-height: 500px;"></canvas>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="modal fade" id="noteModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header py-2"><h5 class="modal-title">Szczegóły wpisu</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body" id="noteContent"></div>
+</div></div></div>
+
+<div class="modal fade" id="pieModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="pieTitle">Udział procentowy</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body text-center" style="min-height: 600px;">
+        <canvas id="pieChartCanvas"></canvas>
+    </div>
+</div></div></div>
+
+<script>
+Chart.register(ChartDataLabels);
+const rawData = {
+    bilans: {{ bilans|tojson }},
+    przychody: {{ przychody|tojson }},
+    wydatki: {{ wydatki|tojson }},
+    ror: {{ ror|tojson }}
+};
+
+let charts = {};
+const colors = ['#0d6efd', '#198754', '#dc3545', '#ffc107', '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0', '#6610f2', '#d63384'];
+
+function initCharts() {
+    Object.keys(rawData).forEach(key => {
+        const ctx = document.getElementById(`chart-${key}`).getContext('2d');
+        charts[key] = new Chart(ctx, {
+            type: 'line',
+            data: { 
+                labels: rawData[key].map(d => d.data || d.miesiac), 
+                datasets: createDatasets(key, rawData[key]) 
+            },
+            options: {
+                plugins: { 
+                    legend: { position: 'top' },
+                    datalabels: { display: false } 
+                },
+                onClick: (e, el) => {
+                    if (el.length > 0) {
+                        const idx = el[0].index;
+                        const note = rawData[key][idx].uwagi;
+                        if (note) {
+                            document.getElementById('noteContent').innerHTML = `<strong>Data:</strong> ${rawData[key][idx].data || rawData[key][idx].miesiac}<br><hr>${note}`;
+                            new bootstrap.Modal(document.getElementById('noteModal')).show();
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+
+function createDatasets(key, data) {
+    if (data.length === 0) return [];
+    const keys = Object.keys(data[0]).filter(k => k !== 'data' && k !== 'miesiac' && k !== 'uwagi');
+    return keys.map((k, i) => ({
+        label: k.toUpperCase(),
+        data: data.map(d => d[k]),
+        borderColor: colors[i % colors.length],
+        tension: 0.3,
+        pointStyle: data.map(d => d.uwagi ? 'rectRot' : 'circle'),
+        pointRadius: data.map(d => d.uwagi ? 8 : 3),
+        pointBackgroundColor: data.map(d => d.uwagi ? '#ff0000' : colors[i % colors.length])
+    }));
+}
+
+function updateRange(months) {
+    Object.keys(charts).forEach(key => {
+        const fullLabels = rawData[key].map(d => d.data || d.miesiac);
+        const startIdx = months === 0 ? 0 : Math.max(0, fullLabels.length - months);
+        charts[key].data.labels = fullLabels.slice(startIdx);
+        charts[key].data.datasets.forEach((ds, i) => {
+            const dataKeys = Object.keys(rawData[key][0]).filter(k => k!=='data' && k!=='miesiac' && k!=='uwagi');
+            ds.data = rawData[key].slice(startIdx).map(d => d[dataKeys[i]]);
+        });
+        charts[key].update();
+    });
+}
+
+let pieChart = null;
+function showPie(key) {
+    const data = rawData[key].slice(-3);
+    const keys = Object.keys(data[0]).filter(k => k !== 'data' && k !== 'miesiac' && k !== 'uwagi' && k !== 'wynik');
+    const averages = keys.map(k => data.reduce((acc, curr) => acc + parseFloat(curr[k] || 0), 0) / 3);
+    const total = averages.reduce((a, b) => a + b, 0);
+
+    document.getElementById('pieTitle').innerText = `Średnia 3m: ${key.toUpperCase()}`;
+    const ctx = document.getElementById('pieChartCanvas').getContext('2d');
+    
+    if (pieChart) pieChart.destroy();
+    
+    pieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: keys.map(k => k.toUpperCase()),
+            datasets: [{ data: averages, backgroundColor: colors }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: { padding: 80 },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    color: '#333',
+                    font: { weight: 'bold', size: 11 },
+                    anchor: 'end',
+                    align: 'end',
+                    offset: 10,
+                    formatter: (value, ctx) => {
+                        const label = ctx.chart.data.labels[ctx.dataIndex];
+                        const percentage = ((value / total) * 100).toFixed(1) + '%';
+                        return value > (total * 0.01) ? `${label}\n${percentage}` : '';
+                    },
+                    textAlign: 'center'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `Wartość: ${ctx.raw.toLocaleString('pl-PL', {minimumFractionDigits: 2})} zł`
+                    }
+                }
+            }
+        }
+    });
+    new bootstrap.Modal(document.getElementById('pieModal')).show();
+}
+
+window.onload = initCharts;
+</script>
+{% endblock %}

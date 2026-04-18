@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .table thead th { background-color: #212529; color: white; border: none; padding: 12px; }
+    .val-cell { text-align: right; padding: 10px !important; }
+    .stat-green { color: #198754; font-weight: 500; }
+    .table-hover tbody tr:hover { background-color: #f8f9fa; }
+    .display-6 { font-size: 2.5rem; font-weight: 400; letter-spacing: -1px; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-6 text-uppercase">SAMOCHÓD</h1>
+    <div>
+        <a href="/finanse" class="btn btn-outline-secondary me-2">← Powrót</a>
+        <a href="/" class="btn btn-primary"><i class="bi bi-house"></i> Strona główna</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr class="text-center">
+                    <th class="text-start ps-4">Miesiąc</th>
+                    <th class="text-end">Koszt [zł]</th>
+                    <th class="text-end">Stan licznika</th>
+                    <th class="text-end">Poprzedni stan</th>
+                    <th class="text-end">Przebieg [km]</th>
+                    <th class="text-end pe-4">Koszt/km</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr class="text-center">
+                    <td class="text-start ps-4 fw-bold text-muted">{{ r.miesiac }}</td>
+                    <td class="val-cell">{{ format_pl(r.koszt_zl) }}</td>
+                    <td class="val-cell">{{ "{:,}".format(r.stan_licznika).replace(",", " ") }}</td>
+                    <td class="val-cell text-muted">{{ "{:,}".format(r.poprzedni_stan).replace(",", " ") }}</td>
+                    <td class="val-cell fw-bold">{{ "{:,}".format(r.przebieg).replace(",", " ") }}</td>
+                    <td class="val-cell pe-4 stat-green">
+                        {{ "{:,.2f}".format(r.koszt_km).replace(".", ",") }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

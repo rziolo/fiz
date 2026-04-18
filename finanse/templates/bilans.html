@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .val-cell { text-align: right; font-size: 1rem; padding: 10px !important; }
+    .table-hover tbody tr:hover { background-color: #f8f9fa; }
+    /* Poprawione klasy kolorów */
+    .text-success-custom { color: #198754 !important; font-weight: bold; }
+    .text-danger-custom { color: #dc3545 !important; font-weight: bold; }
+    .table thead th { background-color: #212529; color: white; border: none; padding: 12px; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5 fw-bold">BILANS</h1>
+    <div>
+        <a href="/finanse" class="btn btn-outline-secondary me-2">← Powrót</a>
+        <a href="/" class="btn btn-primary"><i class="bi bi-house"></i> Strona główna</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Rok-Miesiąc</th>
+                    <th class="text-end">Przychody</th>
+                    <th class="text-end">Wydatki</th>
+                    <th class="text-end">Bilans miesięczny</th>
+                    <th class="text-end pe-4">ROR i lokaty</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    <td class="ps-4 fw-bold text-muted">{{ r.rok_miesiac }}</td>
+                    <td class="val-cell">{{ format_pl(r.przychody) }}</td>
+                    <td class="val-cell">{{ format_pl(r.wydatki) }}</td>
+                    <td class="val-cell {% if r.bilans > 0 %}text-success-custom{% elif r.bilans < 0 %}text-danger-custom{% endif %}">
+                        {{ format_pl(r.bilans) }}
+                    </td>
+                    <td class="val-cell pe-4 fw-bold" style="color: #444;">
+                        {{ format_pl(r.ror_total) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
