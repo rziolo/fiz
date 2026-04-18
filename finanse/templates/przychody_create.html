@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .card { border-radius: 8px; border: 1px solid #ddd; }
+    .card-header { background-color: white; border-bottom: 1px solid #eee; padding: 15px; }
+    
+    /* Etykiety i liczby do prawej */
+    .form-label-right { font-size: 0.9rem; color: #555; margin-bottom: 4px; display: block; text-align: right; }
+    .text-right { text-align: right; }
+    
+    /* Etykieta uwag do lewej */
+    .form-label-left { font-size: 0.9rem; color: #555; margin-bottom: 4px; display: block; text-align: left; }
+    
+    .form-control { border: 1px solid #d1d1d1; border-radius: 4px; padding: 8px; }
+    
+    /* Kolory tła */
+    .field-empty { background-color: #ffe6e6 !important; }
+    .field-filled { background-color: #e6ffed !important; }
+    
+    /* Naprawa wyrównania daty w niektórych przeglądarkach */
+    input[type="date"] { position: relative; padding-right: 10px; }
+    input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; }
+
+    .btn-save { background-color: #4285f4; color: white; border: none; padding: 6px 20px; border-radius: 4px; }
+    .btn-save:hover { background-color: #357ae8; color: white; }
+    .btn-back { background-color: white; border: 1px solid #ccc; color: #555; padding: 6px 15px; border-radius: 4px; text-decoration: none; }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">{% if mode == 'view' %}Podgląd wpisu{% elif mode == 'edit' %}Edycja wpisu{% else %}Nowy wpis{% endif %}</h4>
+            <div>
+                <a href="{{ url_for('przychody.list_przychody') }}" class="btn-back me-2">← Powrót</a>
+                {% if mode != 'view' %}
+                <button type="submit" form="incomeForm" class="btn-save shadow-sm">Zapisz</button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body bg-light">
+            <form id="incomeForm" method="POST">
+                {% set readonly = 'readonly' if mode == 'view' else '' %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label-right">Data</label>
+                        <input type="date" name="data" class="form-control text-right field-filled" 
+                               value="{{ row.data }}" 
+                               placeholder="RRRR-MM-DD" {{ readonly }} required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-right">ZUS Iwona</label>
+                        <input type="number" step="0.01" name="ZUS_Iwona" class="form-control text-right money-input" 
+                               value="{{ row.ZUS_Iwona if row.ZUS_Iwona is not none else '0.00' }}" {{ readonly }}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-right">ZUS Robert</label>
+                        <input type="number" step="0.01" name="ZUS_Robert" class="form-control text-right money-input" 
+                               value="{{ row.ZUS_Robert if row.ZUS_Robert is not none else '0.00' }}" {{ readonly }}>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label-right">Giełda</label>
+                        <input type="number" step="0.01" name="gielda" class="form-control text-right money-input" 
+                               value="{{ row.gielda if row.gielda is not none else '0.00' }}" {{ readonly }}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-right">Odsetki</label>
+                        <input type="number" step="0.01" name="odsetki" class="form-control text-right money-input" 
+                               value="{{ row.odsetki if row.odsetki is not none else '0.00' }}" {{ readonly }}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-right">Urząd</label>
+                        <input type="number" step="0.01" name="urzad" class="form-control text-right money-input" 
+                               value="{{ row.urzad if row.urzad is not none else '0.00' }}" {{ readonly }}>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label-right">Inne</label>
+                        <input type="number" step="0.01" name="inne" class="form-control text-right money-input" 
+                               value="{{ row.inne if row.inne is not none else '0.00' }}" {{ readonly }}>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-12 text-start">
+                        <label class="form-label-left">Uwagi</label>
+                        <textarea name="uwagi" class="form-control text-start" rows="3" 
+                                  style="background-color: #ffe6e6;" {{ readonly }}>{{ row.uwagi or '' }}</textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateColors() {
+        document.querySelectorAll('.money-input').forEach(input => {
+            const val = parseFloat(input.value);
+            if (val > 0) {
+                input.classList.remove('field-empty');
+                input.classList.add('field-filled');
+            } else {
+                input.classList.remove('field-filled');
+                input.classList.add('field-empty');
+            }
+        });
+    }
+
+    document.querySelectorAll('.money-input').forEach(input => {
+        input.addEventListener('input', updateColors);
+    });
+
+    updateColors();
+</script>
+{% endblock %}

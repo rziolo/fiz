@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .card { border-radius: 8px; border: 1px solid #ddd; }
+    .form-label-right { font-size: 0.85rem; color: #555; margin-bottom: 2px; display: block; text-align: right; }
+    .form-control { border: 1px solid #d1d1d1; border-radius: 4px; padding: 6px; font-size: 0.9rem; }
+    .field-empty { background-color: #ffe6e6 !important; }
+    .field-filled { background-color: #e6ffed !important; }
+    .text-right { text-align: right; }
+    /* Styl dla 5 kolumn w rzędzie */
+    .row-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+</style>
+
+<div class="container-fluid mt-3">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+            <h5 class="mb-0">{% if mode == 'view' %}Podgląd{% elif mode == 'edit' %}Edycja{% else %}Nowy wpis ROR{% endif %}</h5>
+            <div>
+                <a href="{{ url_for('ror.list_ror') }}" class="btn btn-sm btn-outline-secondary me-2">← Powrót</a>
+                {% if mode != 'view' %}
+                <button type="submit" form="rorForm" class="btn btn-sm btn-primary px-4">Zapisz</button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <form id="rorForm" method="POST">
+                {% set readonly = 'readonly' if mode == 'view' else '' %}
+                
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <label class="form-label-right">Data</label>
+                        <input type="date" name="data" class="form-control text-right field-filled" value="{{ row.data }}" {{ readonly }} required>
+                    </div>
+                </div>
+
+                <div class="row-5">
+                    {% for field, label in [('PKO','PKO'), ('mBank','mBank'), ('Millenium','Millenium'), ('obligacje','Obligacje'), ('fundusze','Fundusze')] %}
+                    <div>
+                        <label class="form-label-right">{{ label }}</label>
+                        <input type="number" step="0.01" name="{{ field }}" class="form-control text-right money-input" value="{{ row[field] }}" {{ readonly }}>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="row-5">
+                    {% for field, label in [('lokaty','Lokaty'), ('gotowka','Gotówka'), ('ike_ikze','IKE/IKZE'), ('gielda','Giełda'), ('EURO','EURO')] %}
+                    <div>
+                        <label class="form-label-right">{{ label }}</label>
+                        <input type="number" step="0.01" name="{{ field }}" class="form-control text-right money-input" value="{{ row[field] }}" {{ readonly }}>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="row-5">
+                    <div>
+                        <label class="form-label-right">EURO Kurs</label>
+                        <input type="number" step="0.0001" name="EURO_kurs" class="form-control text-right" value="{{ row.EURO_kurs }}" {{ readonly }}>
+                    </div>
+                    <div>
+                        <label class="form-label-right">USD</label>
+                        <input type="number" step="0.01" name="USD" class="form-control text-right money-input" value="{{ row.USD }}" {{ readonly }}>
+                    </div>
+                    <div>
+                        <label class="form-label-right">USD Kurs</label>
+                        <input type="number" step="0.0001" name="USD_kurs" class="form-control text-right" value="{{ row.USD_kurs }}" {{ readonly }}>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label-left">Uwagi</label>
+                    <textarea name="uwagi" class="form-control" rows="2" style="background-color: #ffe6e6;" {{ readonly }}>{{ row.uwagi or '' }}</textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateColors() {
+        document.querySelectorAll('.money-input').forEach(input => {
+            const val = parseFloat(input.value);
+            input.classList.toggle('field-filled', val > 0);
+            input.classList.toggle('field-empty', isNaN(val) || val <= 0);
+        });
+    }
+    document.querySelectorAll('.money-input').forEach(i => i.addEventListener('input', updateColors));
+    updateColors();
+</script>
+{% endblock %}

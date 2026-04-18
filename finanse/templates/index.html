@@ -1,14 +1,73 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="text-align: center; padding: 20px;">
-    <h2>Panel Finanse</h2>
-    {% if db_ok %}
-        <div style="color: #2ecc71; border: 1px solid #2ecc71; padding: 10px;">● Połączenie OK</div>
-    {% else %}
-        <div style="color: #e74c3c; border: 1px solid #e74c3c; padding: 10px;">
-            ○ BŁĄD: {{ db_msg }}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Moje Finanse</h2>
+            {% if db_ok %}
+                <small class="text-success">● {{ db_msg }}</small>
+            {% else %}
+                <small class="text-danger">○ {{ db_msg }}</small>
+            {% endif %}
         </div>
-    {% endif %}
-    <p><a href="http://192.168.1.156/aplikacje">Powrót</a></p>
+        <a href="/aplikacje" class="btn btn-outline-secondary">Powrót do Menu</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-wallet2 fs-1 text-primary mb-3"></i>
+                    <h4>Przychody</h4>
+                    <a href="/finanse/przychody/" class="btn btn-primary stretched-link">Otwórz</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-bank fs-1 text-info mb-3"></i>
+                    <h4>ROR</h4>
+                    <a href="/finanse/ror/" class="btn btn-info text-white stretched-link">Otwórz</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-cart4 fs-1 text-danger mb-3"></i>
+                    <h4>Wydatki</h4>
+                    <a href="/finanse/wydatki/" class="btn btn-danger stretched-link">Otwórz</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center border-success">
+                <div class="card-body">
+                    <i class="bi bi-cash-stack fs-1 text-success mb-3"></i>
+                    <h4>Bilans</h4>
+                    <a href="/finanse/bilans/" class="btn btn-success stretched-link">Zobacz</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center border-warning">
+                <div class="card-body">
+                    <i class="bi bi-car-front fs-1 text-warning mb-3"></i>
+                    <h4>Samochód</h4>
+                    <a href="/finanse/car/" class="btn btn-warning stretched-link text-white">Raport</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center border-dark">
+                <div class="card-body">
+                    <i class="bi bi-graph-up fs-1 text-dark mb-3"></i>
+                    <h4>Wykresy</h4>
+                    <a href="/finanse/chart/" class="btn btn-dark stretched-link">Analiza</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

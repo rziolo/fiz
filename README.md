@@ -37,4 +37,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 3. **Formatowanie Walutowe:** Dla czytelności tabel finansowych (szczególnie w module Samochód i Bilans) kluczowe jest stosowanie spacji jako separatora tysięcy i przecinka dla części dziesiętnych.
 
 ---
-Ostatnia aktualizacja: 2026-04-18 16:45
+Ostatnia aktualizacja: 2026-04-19 00:10
