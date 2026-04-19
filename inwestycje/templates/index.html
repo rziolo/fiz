@@ -1,16 +1,155 @@
 {% extends "base.html" %}
+{% block title %}Inwestycje - Panel{% endblock %}
+
 {% block content %}
-<div style="text-align: center; padding: 20px;">
-    <h2>Panel Inwestycje</h2>
-    {% if db_ok %}
-        <div style="color: #2ecc71; font-weight: bold; border: 1px solid #2ecc71; padding: 10px; border-radius: 5px; display: inline-block;">
-            ● Połączenie z bazą danych OK
+<style>
+    .card-tile {
+        transition: all 0.2s;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 10px !important;
+        background-color: white;
+    }
+    .card-tile:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        background-color: #fdfdfd;
+    }
+    .icon-sm {
+        font-size: 1.5rem;
+        margin-right: 10px;
+    }
+    .tile-title {
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin: 0;
+        white-space: nowrap;
+    }
+    /* Styl dla 5 kolumn w rzędzie */
+    .col-5-custom {
+        flex: 0 0 auto;
+        width: 20%;
+    }
+    .status-dot { font-size: 0.7rem; vertical-align: middle; }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h4 class="mb-0">Inwestycje 
+                <small class="ms-3 status-dot {% if db_ok %}text-success{% else %}text-danger{% endif %}">
+                    <i class="fas fa-circle"></i> {% if db_ok %}Połączono{% else %}Błąd bazy{% endif %}
+                </small>
+            </h4>
         </div>
-    {% else %}
-        <div style="color: #e74c3c; font-weight: bold; border: 1px solid #e74c3c; padding: 10px; border-radius: 5px; display: inline-block;">
-            ○ BŁĄD: {{ db_msg }}
+        <a href="http://192.168.1.156/aplikacje" class="btn btn-outline-secondary btn-sm">Powrót</a>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <table class="table table-bordered table-sm text-center m-0 bg-white shadow-sm" style="font-size: 0.85rem;">
+                <tr class="table-light">
+                    <td class="fw-bold" width="16%">Status OK</td>
+                    <td width="16%">112</td>
+                    <td width="16%">113</td>
+                    <td width="16%">114</td>
+                    <td width="16%">115</td>
+                    <td width="16%">116</td>
+                </tr>
+            </table>
         </div>
-    {% endif %}
-    <p><a href="http://192.168.1.156/aplikacje">Powrót do menu</a></p>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-5-custom">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-database text-primary icon-sm"></i>
+                    <p class="tile-title">Dane</p>
+                </div>
+                <a href="{{ url_for('dane.index') }}" class="btn btn-primary btn-sm py-0 px-2">Otwórz</a>
+            </div>
+        </div>
+        <div class="col-5-custom">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-calendar-day text-info icon-sm"></i>
+                    <p class="tile-title">Dane dzienne</p>
+                </div>
+                <a href="{{ url_for('dane_dzienne.index') }}" class="btn btn-info btn-sm text-white py-0 px-2">Otwórz</a>
+            </div>
+        </div>
+        <div class="col-5-custom">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-sync-alt text-warning icon-sm"></i>
+                    <p class="tile-title">Obroty</p>
+                </div>
+                <a href="{{ url_for('obroty.index') }}" class="btn btn-warning btn-sm text-white py-0 px-2">Otwórz</a>
+            </div>
+        </div>
+        <div class="col-5-custom">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-laptop-code text-secondary icon-sm"></i>
+                    <p class="tile-title">Platforma</p>
+                </div>
+                <a href="{{ url_for('platforma.index') }}" class="btn btn-secondary btn-sm py-0 px-2">Otwórz</a>
+            </div>
+        </div>
+        <div class="col-5-custom">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-tags text-dark icon-sm"></i>
+                    <p class="tile-title">Ticker</p>
+                </div>
+                <a href="{{ url_for('ticker.index') }}" class="btn btn-dark btn-sm py-0 px-2">Otwórz</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-4">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-chart-line text-success icon-sm"></i>
+                    <p class="tile-title">Wykresy</p>
+                </div>
+                <a href="{{ url_for('chart.index') }}" class="btn btn-success btn-sm py-0 px-2">Analiza</a>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-history text-info icon-sm"></i>
+                    <p class="tile-title">Historia</p>
+                </div>
+                <a href="{{ url_for('historia.index') }}" class="btn btn-info btn-sm text-white py-0 px-2">Pokaż</a>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card card-tile d-flex flex-row align-items-center justify-content-between shadow-sm border-danger">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-hand-holding-usd text-danger icon-sm"></i>
+                    <p class="tile-title text-danger">Sprzedaj</p>
+                </div>
+                <a href="{{ url_for('sprzedaj.index') }}" class="btn btn-danger btn-sm py-0 px-2">Akcja</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-sm table-striped text-center m-0" style="font-size: 0.8rem;">
+                <thead class="table-dark">
+                    <tr><th>411</th><th>412</th><th>413</th><th>414</th><th>415</th><th>416</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>421</td><td>422</td><td>423</td><td>424</td><td>425</td><td>426</td></tr>
+                    <tr><td>431</td><td>432</td><td>433</td><td>434</td><td>435</td><td>436</td></tr>
+                    <tr><td>441</td><td>442</td><td>443</td><td>444</td><td>445</td><td>446</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

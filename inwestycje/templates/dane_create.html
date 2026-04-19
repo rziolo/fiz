@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="col-md-10 mx-auto">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas {% if mode == 'view' %}fa-eye text-primary{% elif mode == 'edit' %}fa-pencil-alt text-warning{% else %}fa-plus-circle text-success{% endif %}"></i> 
+                    {% if mode == 'view' %}Podgląd wpisu{% elif mode == 'edit' %}Edycja wpisu{% else %}Nowy Wpis Giełdowy{% endif %}
+                </h5>
+                <small>Tabela: dane</small>
+            </div>
+            <div class="card-body bg-light">
+                <form action="{% if mode == 'edit' %}{{ url_for('dane.edit', id=row.id_dane) }}{% else %}{{ url_for('dane.create') }}{% endif %}" method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Data</label>
+                            <input type="date" name="data" class="form-control form-control-sm" value="{{ row.data if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Ticker</label>
+                            <input type="text" name="ticker" class="form-control form-control-sm" value="{{ row.ticker if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">ISIN</label>
+                            <input type="text" name="isin" class="form-control form-control-sm" value="{{ row.ISIN if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Waluta</label>
+                            <select name="waluta" class="form-select form-select-sm" {% if mode == 'view' %}disabled{% endif %}>
+                                <option value="PLN" {% if row and row.waluta == 'PLN' %}selected{% endif %}>PLN</option>
+                                <option value="USD" {% if row and row.waluta == 'USD' %}selected{% endif %}>USD</option>
+                                <option value="EUR" {% if row and row.waluta == 'EUR' %}selected{% endif %}>EUR</option>
+                            </select>
+                        </div>
+                        <hr class="my-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Open</label>
+                            <input type="number" step="0.01" name="open" class="form-control form-control-sm" value="{{ row.open if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Max</label>
+                            <input type="number" step="0.01" name="max" class="form-control form-control-sm" value="{{ row.max if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Min</label>
+                            <input type="number" step="0.01" name="min" class="form-control form-control-sm" value="{{ row.min if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Close</label>
+                            <input type="number" step="0.01" name="close" class="form-control form-control-sm" value="{{ row.close if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Wolumen</label>
+                            <input type="number" name="volume" class="form-control form-control-sm" value="{{ row.volume if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Liczba transakcji</label>
+                            <input type="number" name="number_transactions" class="form-control form-control-sm" value="{{ row.number_transactions if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Obrót (Turnover)</label>
+                            <input type="number" step="0.01" name="turnover" class="form-control form-control-sm" value="{{ row.turnover if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('dane.index') }}" class="btn btn-outline-secondary btn-sm px-4">
+                            {% if mode == 'view' %}Powrót{% else %}Anuluj{% endif %}
+                        </a>
+                        {% if mode != 'view' %}
+                        <button type="submit" class="btn btn-success btn-sm px-5">Zapisz zmiany</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

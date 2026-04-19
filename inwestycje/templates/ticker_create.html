@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas {% if mode == 'view' %}fa-eye text-primary{% elif mode == 'edit' %}fa-pencil-alt text-warning{% else %}fa-plus-circle text-success{% endif %}"></i> 
+                    {% if mode == 'view' %}Szczegóły tickera{% elif mode == 'edit' %}Edycja tickera{% else %}Dodaj nowy Ticker{% endif %}
+                </h5>
+            </div>
+            <div class="card-body bg-light">
+                <form action="{% if mode == 'edit' %}{{ url_for('ticker.edit', id=row.id_ticker) }}{% else %}{{ url_for('ticker.create') }}{% endif %}" method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nazwa Ticker (np. PKN)</label>
+                            <input type="text" name="ticker_name" class="form-control" value="{{ row.ticker_name if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Rynek (Market)</label>
+                            <input type="text" name="market" class="form-control" value="{{ row.market if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Rating</label>
+                            <input type="text" name="rating" maxlength="4" class="form-control" placeholder="np. AAA" value="{{ row.rating if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Altman Z-Score</label>
+                            <input type="number" step="0.1" name="altman" class="form-control" value="{{ row.altman if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('ticker.index') }}" class="btn btn-outline-secondary px-4">Powrót</a>
+                        {% if mode != 'view' %}
+                        <button type="submit" class="btn btn-success px-5">Zapisz</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

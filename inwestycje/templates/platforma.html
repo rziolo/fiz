@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4><i class="fas fa-desktop text-primary"></i> Platformy Inwestycyjne</h4>
+        <a href="{{ url_for('platforma.create') }}" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Dodaj platformę</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0 text-nowrap">
+            <table class="table table-sm table-hover mb-0 text-center border" style="font-size: 0.85rem;">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 50px;">Lp.</th>
+                        <th>Nazwa Platformy</th>
+                        <th>Adres URL</th>
+                        <th style="width: 150px;">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in records %}
+                    <tr>
+                        <td class="text-muted">{{ loop.index }}</td>
+                        <td class="fw-bold">{{ row.platforma_name }}</td>
+                        <td class="text-start">
+                            {% if row.url %}
+                            <a href="{{ row.url }}" target="_blank" class="text-decoration-none small">
+                                <i class="fas fa-external-link-alt me-1"></i>{{ row.url }}
+                            </a>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="{{ url_for('platforma.view', id=row.id_platforma) }}" class="btn btn-outline-primary py-0 px-2" title="Podgląd"><i class="far fa-eye"></i></a>
+                                <a href="{{ url_for('platforma.edit', id=row.id_platforma) }}" class="btn btn-outline-secondary py-0 px-2" title="Edytuj"><i class="fas fa-pencil-alt"></i></a>
+                                <form action="{{ url_for('platforma.delete', id=row.id_platforma) }}" method="POST" onsubmit="return confirm('Usunąć platformę {{ row.platforma_name }}?');" style="display:inline;">
+                                    <button type="submit" class="btn btn-outline-danger py-0 px-2" title="Usuń"><i class="far fa-trash-alt"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="py-4 text-muted">Brak zdefiniowanych platform.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

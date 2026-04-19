@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="col-md-10 mx-auto">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas {% if mode == 'view' %}fa-eye text-primary{% elif mode == 'edit' %}fa-pencil-alt text-warning{% else %}fa-plus-circle text-success{% endif %}"></i> 
+                    {% if mode == 'view' %}Podgląd{% elif mode == 'edit' %}Edycja{% else %}Nowy Zakup{% endif %}
+                </h5>
+            </div>
+            <div class="card-body bg-light">
+                <form action="{% if mode == 'edit' %}{{ url_for('obroty.edit', id=row.id_obroty) }}{% else %}{{ url_for('obroty.create') }}{% endif %}" method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Ticker</label>
+                            <select name="ticker_nm" class="form-select form-select-sm" {% if mode == 'view' %}disabled{% endif %} required>
+                                <option value="">Wybierz...</option>
+                                {% for t in tickers %}
+                                <option value="{{ t }}" {% if row and row.ticker_nm == t %}selected{% endif %}>{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Data Zakupu</label>
+                            <input type="date" name="zakup_data" class="form-control form-control-sm" value="{{ row.zakup_data if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Platforma</label>
+                            <select name="platforma" class="form-select form-select-sm" {% if mode == 'view' %}disabled{% endif %} required>
+                                <option value="">Wybierz...</option>
+                                {% for p in platforms %}
+                                <option value="{{ p }}" {% if row and row.platforma == p %}selected{% endif %}>{{ p }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Cena Zakupu</label>
+                            <input type="number" step="0.01" name="zakup_cena" class="form-control form-control-sm" value="{{ row.zakup_cena if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Ilość</label>
+                            <input type="number" name="zakup_ilosc" class="form-control form-control-sm" value="{{ row.zakup_ilosc if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Stop Loss</label>
+                            <input type="number" step="0.01" name="stop_loss" class="form-control form-control-sm" value="{{ row.stop_loss if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label text-primary">Data Sprzedaży</label>
+                            <input type="date" name="sprzedaz_data" class="form-control form-control-sm" value="{{ row.sprzedaz_data if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-primary">Cena Sprzedaży</label>
+                            <input type="number" step="0.01" name="sprzedaz_cena" class="form-control form-control-sm" value="{{ row.sprzedaz_cena if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kurs Bieżący</label>
+                            <input type="number" step="0.01" name="kurs_biezacy" class="form-control form-control-sm" value="{{ row.kurs_biezacy if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Uwagi</label>
+                            <textarea name="uwagi" class="form-control form-control-sm" rows="2" {% if mode == 'view' %}readonly{% endif %}>{{ row.uwagi if row }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('obroty.index') }}" class="btn btn-outline-secondary btn-sm px-4">Powrót</a>
+                        {% if mode != 'view' %}
+                        <button type="submit" class="btn btn-success btn-sm px-5">Zapisz</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

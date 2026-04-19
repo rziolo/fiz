@@ -1,31 +1,47 @@
 from flask import Flask, render_template
-import mysql.connector
 import os
 import sys
 from dotenv import load_dotenv
 
-basedir = os.path.dirname(os.path.abspath(__file__))
+basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder=os.path.join(basedir, 'templates'))
 app.jinja_loader.searchpath.append('/var/www/html/flask/shared/templates')
 
-def check_db():
+@app.template_filter('format_pl')
+def format_pl(value, precision=2):
     try:
-        db = mysql.connector.connect(
-            host=os.getenv('DB_HOST'),
-            user=os.getenv('DB_USER'),
-            password=os.getenv('DB_PASS'),
-            database=os.getenv('DB_NAME'),
-            connect_timeout=3
-        )
-        db.close()
-        return True, "OK"
-    except Exception as e:
-        print(f"!!! DEBUG DB ERROR: {str(e)}", file=sys.stderr, flush=True)
-        return False, str(e)
+        if value is None: return "0,00"
+        return "{:,.{}f}".format(float(value), precision).replace(",", " ").replace(".", ",")
+    except:
+        return value
 
+if basedir not in sys.path:
+    sys.path.append(basedir)
+
+from routes.chart import chart_bp
+from routes.dane import dane_bp
+from routes.dane_dzienne import dane_dzienne_bp
+from routes.historia import historia_bp
+from routes.obroty import obroty_bp
+from routes.platforma import platforma_bp
+from routes.sprzedaj import sprzedaj_bp
+from routes.ticker import ticker_bp
+
+app.register_blueprint(chart_bp, url_prefix='/inwestycje/chart')
+app.register_blueprint(dane_bp, url_prefix='/inwestycje/dane')
+app.register_blueprint(dane_dzienne_bp, url_prefix='/inwestycje/dane_dzienne')
+app.register_blueprint(historia_bp, url_prefix='/inwestycje/historia')
+app.register_blueprint(obroty_bp, url_prefix='/inwestycje/obroty')
+app.register_blueprint(platforma_bp, url_prefix='/inwestycje/platforma')
+app.register_blueprint(sprzedaj_bp, url_prefix='/inwestycje/sprzedaj')
+app.register_blueprint(ticker_bp, url_prefix='/inwestycje/ticker')
+
+@app.route('/inwestycje/')
 @app.route('/')
 def index():
-    db_ok, db_msg = check_db()
-    return render_template('index.html', tytul_aplikacji='Inwestycje', db_ok=db_ok, db_msg=db_msg)
+    return render_template('index.html', tytul_aplikacji='Inwestycje', db_ok=True)
+
+if __name__ == '__main__':
+    app.run(port=5002)

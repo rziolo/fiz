@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas {% if mode == 'view' %}fa-eye text-primary{% elif mode == 'edit' %}fa-pencil-alt text-warning{% else %}fa-plus-circle text-success{% endif %}"></i> 
+                    {% if mode == 'view' %}Szczegóły platformy{% elif mode == 'edit' %}Edycja platformy{% else %}Nowa Platforma{% endif %}
+                </h5>
+            </div>
+            <div class="card-body bg-light">
+                <form action="{% if mode == 'edit' %}{{ url_for('platforma.edit', id=row.id_platforma) }}{% else %}{{ url_for('platforma.create') }}{% endif %}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nazwa Platformy</label>
+                        <input type="text" name="platforma_name" class="form-control" value="{{ row.platforma_name if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Adres URL</label>
+                        <input type="url" name="url" class="form-control" placeholder="https://..." value="{{ row.url if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('platforma.index') }}" class="btn btn-outline-secondary px-4">Powrót</a>
+                        {% if mode != 'view' %}
+                        <button type="submit" class="btn btn-success px-5">Zapisz</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

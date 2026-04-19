@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="col-md-10 mx-auto">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas {% if mode == 'view' %}fa-eye text-primary{% elif mode == 'edit' %}fa-pencil-alt text-warning{% else %}fa-plus-circle text-success{% endif %}"></i> 
+                    {% if mode == 'view' %}Podgląd{% elif mode == 'edit' %}Edycja{% else %}Nowy Wpis Dzienny{% endif %}
+                </h5>
+            </div>
+            <div class="card-body bg-light">
+                <form action="{% if mode == 'edit' %}{{ url_for('dane_dzienne.edit', id=row.id_dane_dzienne) }}{% else %}{{ url_for('dane_dzienne.create') }}{% endif %}" method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Data</label>
+                            <input type="date" name="data" class="form-control form-control-sm" value="{{ row.data if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Wartość</label>
+                            <input type="number" step="0.01" name="wartosc" class="form-control form-control-sm" value="{{ row.wartosc if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Wkład</label>
+                            <input type="number" step="0.01" name="wklad" class="form-control form-control-sm" value="{{ row.wklad if row }}" {% if mode == 'view' %}readonly{% endif %} required>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label">H Ilość</label>
+                            <input type="number" name="h_ilosc" class="form-control form-control-sm" value="{{ row.H_ilosc if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">H Wolumen</label>
+                            <input type="number" name="h_vol" class="form-control form-control-sm" value="{{ row.H_vol if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">L Ilość</label>
+                            <input type="number" name="l_ilosc" class="form-control form-control-sm" value="{{ row.L_ilosc if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">L Wolumen</label>
+                            <input type="number" name="l_vol" class="form-control form-control-sm" value="{{ row.L_vol if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Turnover</label>
+                            <input type="number" name="turnover" class="form-control form-control-sm" value="{{ row.turnover if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">HL</label>
+                            <input type="number" name="hl" class="form-control form-control-sm" value="{{ row.HL if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">NL</label>
+                            <input type="number" name="nl" class="form-control form-control-sm" value="{{ row.NL if row }}" {% if mode == 'view' %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('dane_dzienne.index') }}" class="btn btn-outline-secondary btn-sm px-4">
+                            {% if mode == 'view' %}Powrót{% else %}Anuluj{% endif %}
+                        </a>
+                        {% if mode != 'view' %}
+                        <button type="submit" class="btn btn-success btn-sm px-5">Zapisz</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4><i class="fas fa-sync text-warning"></i> Obroty</h4>
+        <div>
+            {% if is_filtered %}
+                <a href="{{ url_for('obroty.index') }}" class="btn btn-outline-secondary btn-sm me-1">Pokaż Wszystkie</a>
+            {% else %}
+                <a href="{{ url_for('obroty.index', filter='current') }}" class="btn btn-primary btn-sm me-1">Obecne</a>
+            {% endif %}
+            <a href="{{ url_for('obroty.create') }}" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Dodaj zakup</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0 text-nowrap">
+            <table class="table table-sm table-hover mb-0 text-center border" style="font-size: 0.82rem;">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 40px;">Lp.</th>
+                        <th>Ticker <i class="fas fa-sort-alpha-down"></i></th>
+                        <th>Data Zakupu</th><th>Cena Zakupu</th><th>Ilość</th><th>Bieżący</th><th>S-L</th><th>S-Data</th><th>S-Cena</th><th>Uwagi</th><th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in records %}
+                    <tr>
+                        <td class="text-muted small">{{ loop.index }}</td>
+                        <td class="fw-bold">{{ row.ticker_nm }}</td>
+                        <td>{{ row.zakup_data }}</td>
+                        <td>{{ row.zakup_cena | format_pl }}</td>
+                        <td>{{ row.zakup_ilosc }}</td>
+                        <td>{{ row.kurs_biezacy | format_pl if row.kurs_biezacy else '-' }}</td>
+                        <td class="text-danger fw-bold">{{ row.stop_loss | format_pl if row.stop_loss else '-' }}</td>
+                        <td class="text-muted">{{ row.sprzedaz_data if row.sprzedaz_data else '-' }}</td>
+                        <td class="fw-bold">{{ row.sprzedaz_cena | format_pl if row.sprzedaz_cena else '-' }}</td>
+                        <td>
+                            {% if row.uwagi %}
+                            <button type="button" class="btn btn-link p-0 text-warning" data-bs-toggle="modal" data-bs-target="#noteModal{{ row.id_obroty }}">
+                                <i class="fas fa-sticky-note fa-lg"></i>
+                            </button>
+                            <div class="modal fade" id="noteModal{{ row.id_obroty }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content" style="white-space: normal;">
+                                        <div class="modal-header bg-warning text-dark py-2">
+                                            <h6 class="modal-title">Uwagi: {{ row.ticker_nm }}</h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-start">{{ row.uwagi }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="{{ url_for('obroty.view', id=row.id_obroty) }}" class="btn btn-outline-primary py-0 px-2" title="Podgląd"><i class="far fa-eye"></i></a>
+                                <a href="{{ url_for('obroty.edit', id=row.id_obroty) }}" class="btn btn-outline-secondary py-0 px-2" title="Edytuj"><i class="fas fa-pencil-alt"></i></a>
+                                <form action="{{ url_for('obroty.delete', id=row.id_obroty) }}" method="POST" onsubmit="return confirm('Usunąć operację?');" style="display:inline;">
+                                    <button type="submit" class="btn btn-outline-danger py-0 px-2" title="Usuń"><i class="far fa-trash-alt"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="11" class="py-4 text-muted">Brak rekordów do wyświetlenia.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
