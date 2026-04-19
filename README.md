@@ -41,4 +41,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 3. **Spójność UI:** Stosowanie tego samego zestawu ikon (FontAwesome) dla akcji Oko (widok), Ołówek (edycja) i Kosz (usuwanie) sprawia, że system jest intuicyjny.
 
 ---
-Ostatnia aktualizacja: 2026-04-19 10:00
+Ostatnia aktualizacja: 2026-04-20 00:10
