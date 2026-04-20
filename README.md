@@ -13,30 +13,32 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 | :--- | :--- | :--- | :--- |
 | **Aplikacje** | `/aplikacje` | 5000 | HUB - Menu Główne |
 | **Finanse** | `/finanse` | 5001 | **Aktywna**: Bilans, Samochód, Wykresy |
-| **Inwestycje**| `/inwestycje`| 5002 | **Aktywna**: Portfel, Dane Giełdowe, Moduł Sprzedaży |
+| **Inwestycje**| `/inwestycje`| 5002 | **Aktywna**: Portfel, Dane Giełdowe, ETL, Moduł Sprzedaży |
 | **Zdrowie** | `/zdrowie` | 5003 | Monitoring ciśnienia + HA |
 
 ## 📈 Moduł Inwestycje - Nowe Funkcje (Update 2026-04-20)
 - **Panel Zarządzania Importem (Index):**
-    - Dynamiczne monitorowanie dat importu dla GPW, NewConnect oraz rynków zagranicznych.
-    - System powiadomień kolorystycznych: zielony (aktualne), czerwony (wymaga aktualizacji), różowe tło dla statusu "dzienne".
-    - **Podgląd CSV w Modal:** Zintegrowany system odczytu plików `.csv` bezpośrednio w przeglądarce bez opuszczania strony.
+    - Dynamiczne monitorowanie dat importu dla GPW, NC oraz rynków zagranicznych.
+    - **Ręczna Aktualizacja:** Przycisk "AKTUALIZUJ" w GUI wyzwalający skrypt Bash w tle (`subprocess.Popen`).
+    - **Podgląd CSV w Modal:** Zintegrowany system odczytu plików `.csv` bezpośrednio w przeglądarce.
+- **Automatyzacja ETL:**
+    - Skrypty Python do scrapowania danych (Stooq, GPW-NC, Investing).
+    - Skrypt zbiorczy Bash: `/inwestycje/etl/bash/run_import_nc_zagr_stooq.sh`.
+    - Harmonogram Cron: Codziennie o 18:20 w dni robocze.
 - **Analiza Sprzedaży i Stop Loss:**
-    - Dynamiczne wyliczanie sugerowanej ceny sprzedaży na podstawie minimów z 3 ostatnich sesji (bufor 3%).
-    - System alertów dla pozycji z zyskiem > 300 PLN wymagających ustawienia Stop Loss.
-- **Kalkulator Walutowy:**
-    - Integracja z API NBP dla kursów USD i EUR.
-    - Przeliczanie ceny sprzedaży z PLN na walutę oryginalną w oknach modalnych.
+    - Wyliczanie sugerowanej ceny sprzedaży (minima z 3 sesji + bufor 3%).
+    - Alerty dla zysków > 300 PLN wymagających zabezpieczenia.
 
 ## 🛠 Zarządzanie i Logi
-- **Restart aplikacji:** `sudo systemctl restart flask-inwestycje`
-- **Podgląd błędów:** `sudo journalctl -u flask-inwestycje -f`
-- **Diagnostyka Jinja2:** W przypadku błędów `TemplateSyntaxError` sprawdź domknięcia tagów `{% endblock %}`.
+- **Restart aplikacji:** `sudo systemctl restart inwestycje`
+- **Podgląd logów ETL:** `tail -f /var/www/html/flask/inwestycje/etl/python/etl.log`
+- **Diagnostyka systemd:** `sudo journalctl -u inwestycje -f`
+- **Eksport zależności:** `pip freeze | sudo tee /var/www/html/flask/requirements.txt > /dev/null`
 
 ## 💡 Troubleshooting & Refleksje (Update 2026-04-20)
-1. **Routing Statyczny:** Pliki CSV wymagają dedykowanej trasy we Flasku (`send_from_directory`), aby uniknąć błędów 404 w oknach modalnych.
-2. **GlusterFS:** Wszelkie zmiany w `utils.py` lub szablonach są replikowane między rpi-05 a rpi-06 automatycznie.
-3. **UI/UX:** Zastosowanie spójnej kolorystyki (np. `#fce4ec` dla sekcji aktualizacji) poprawia czytelność statusu bazy danych.
+1. **Scrapowanie (Stooq):** Dane pobierane z XML/CDATA wymagają agresywnego czyszczenia znaków `\xa0` i spacji dla poprawnej konwersji `int()`.
+2. **Uprawnienia:** Zapisywanie logów i plików `.csv` przez skrypty odppalane z Crona musi uwzględniać uprawnienia zapisu dla użytkownika `www-data`.
+3. **Izolacja venv:** Zawsze używaj ścieżki bezwzględnej do interpretera: `/var/www/html/flask/venv/bin/python3`.
 
 ---
-Ostatnia aktualizacja: 2026-04-20 15:05
+Ostatnia aktualizacja: 2026-04-20 20:10

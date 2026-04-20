@@ -8,7 +8,7 @@
     .icon-sm { font-size: 1.5rem; margin-right: 10px; }
     .tile-title { font-size: 0.9rem; font-weight: bold; margin: 0; white-space: nowrap; }
     .col-5-custom { flex: 0 0 auto; width: 20%; }
-    
+
     .bg-light-yellow { background-color: #fff9c4 !important; }
     .bg-light-blue { background-color: #e3f2fd !important; }
     .bg-light-green { background-color: #e8f5e9 !important; }
@@ -16,8 +16,9 @@
 
     .text-red { color: #d32f2f !important; font-weight: bold; }
     .text-green { color: #388e3c !important; font-weight: bold; }
-    
+
     .table-link { color: #0d6efd !important; text-decoration: underline !important; cursor: pointer; background: none; border: none; padding: 0; font-size: 0.8rem; }
+    .date-status-link { text-decoration: underline !important; cursor: pointer; background: none; border: none; padding: 0; font-size: 0.85rem; font-weight: bold; }
 </style>
 
 <div class="container-fluid px-4">
@@ -30,69 +31,32 @@
         <div class="col-12">
             <table class="table table-bordered table-sm m-0 bg-white shadow-sm" style="font-size: 0.85rem;">
                 <tr class="table-light align-middle">
-                    <td width="16%" class="text-end px-2">spółek jest</td>
-                    <td width="16%" class="text-start fw-bold px-2">{{ s.ticker_ilosc }}</td>
-                    <td width="16%" class="text-end px-2">Nowe</td>
-                    <td width="16%" class="text-start fw-bold px-2 {{ 'text-green' if s.gpw_nowe == 'brak' else 'text-red' }}">{{ s.gpw_nowe }}</td>
-                    <td width="16%" class="text-center">116</td>
-                    <td width="20%"></td>
+                    <td width="10%" class="text-end px-2">spółek jest</td>
+                    <td width="5%" class="text-start fw-bold px-2">{{ s.ticker_ilosc }}</td>
+                    <td width="10%" class="text-end px-2">Wartość</td>
+                    <td width="12%" class="text-start fw-bold px-2">{{ s.dane_dzienne_wartosc | format_pl }}</td>
+                    <td width="10%" class="text-end px-2">Wkład</td>
+                    <td width="12%" class="text-start fw-bold px-2">{{ s.dane_dzienne_wklad | format_pl }}</td>
+                    <td width="10%" class="text-end px-2">Nowe</td>
+                    <td width="31%" class="text-start fw-bold px-2 {{ 'text-green' if s.gpw_nowe == 'brak' else 'text-red' }}">
+                        {{ s.gpw_nowe }}
+                    </td>
                 </tr>
             </table>
         </div>
     </div>
 
     <div class="row g-2 mb-2">
-        <div class="col-5-custom">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><i class="fas fa-database text-primary icon-sm"></i><p class="tile-title">Dane</p></div>
-                <a href="{{ url_for('dane.index') }}" class="btn btn-primary btn-sm py-0 px-2">Otwórz</a>
-            </div>
-        </div>
-        <div class="col-5-custom">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><i class="fas fa-calendar-day text-info icon-sm"></i><p class="tile-title">Dane dzienne</p></div>
-                <a href="{{ url_for('dane_dzienne.index') }}" class="btn btn-info btn-sm text-white py-0 px-2">Otwórz</a>
-            </div>
-        </div>
-        <div class="col-5-custom">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><i class="fas fa-sync-alt text-warning icon-sm"></i><p class="tile-title">Obroty</p></div>
-                <a href="{{ url_for('obroty.index') }}" class="btn btn-warning btn-sm text-white py-0 px-2">Otwórz</a>
-            </div>
-        </div>
-        <div class="col-5-custom">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><i class="fas fa-laptop-code text-secondary icon-sm"></i><p class="tile-title">Platforma</p></div>
-                <a href="{{ url_for('platforma.index') }}" class="btn btn-secondary btn-sm py-0 px-2">Otwórz</a>
-            </div>
-        </div>
-        <div class="col-5-custom">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><i class="fas fa-tags text-dark icon-sm"></i><p class="tile-title">Ticker</p></div>
-                <a href="{{ url_for('ticker.index') }}" class="btn btn-dark btn-sm py-0 px-2">Otwórz</a>
-            </div>
-        </div>
+        <div class="col-5-custom"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-database text-primary icon-sm"></i><p class="tile-title">Dane</p></div><a href="{{ url_for('dane.index') }}" class="btn btn-primary btn-sm py-0 px-2">Otwórz</a></div></div>
+        <div class="col-5-custom"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-calendar-day text-info icon-sm"></i><p class="tile-title">Dane dzienne</p></div><a href="{{ url_for('dane_dzienne.index') }}" class="btn btn-info btn-sm text-white py-0 px-2">Otwórz</a></div></div>
+        <div class="col-5-custom"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-sync-alt text-warning icon-sm"></i><p class="tile-title">Obroty</p></div><a href="{{ url_for('obroty.index') }}" class="btn btn-warning btn-sm text-white py-0 px-2">Otwórz</a></div></div>
+        <div class="col-5-custom"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-laptop-code text-secondary icon-sm"></i><p class="tile-title">Platforma</p></div><a href="{{ url_for('platforma.index') }}" class="btn btn-secondary btn-sm py-0 px-2">Otwórz</a></div></div>
+        <div class="col-5-custom"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-tags text-dark icon-sm"></i><p class="tile-title">Ticker</p></div><a href="{{ url_for('ticker.index') }}" class="btn btn-dark btn-sm py-0 px-2">Otwórz</a></div></div>
     </div>
-
     <div class="row g-2 mb-3">
-        <div class="col-4">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><i class="fas fa-chart-line text-success icon-sm"></i><p class="tile-title">Wykresy</p></div>
-                <a href="{{ url_for('chart.index') }}" class="btn btn-success btn-sm py-0 px-2">Analiza</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><i class="fas fa-history text-info icon-sm"></i><p class="tile-title">Historia</p></div>
-                <a href="{{ url_for('historia.index') }}" class="btn btn-info btn-sm text-white py-0 px-2">Pokaż</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card card-tile d-flex flex-row align-items-center justify-content-between border-danger">
-                <div class="d-flex align-items-center"><i class="fas fa-hand-holding-usd text-danger icon-sm"></i><p class="tile-title text-danger">Sprzedaj</p></div>
-                <a href="{{ url_for('sprzedaj.index') }}" class="btn btn-danger btn-sm py-0 px-2">Akcja</a>
-            </div>
-        </div>
+        <div class="col-4"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-chart-line text-success icon-sm"></i><p class="tile-title">Wykresy</p></div><a href="{{ url_for('chart.index') }}" class="btn btn-success btn-sm py-0 px-2">Analiza</a></div></div>
+        <div class="col-4"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-history text-info icon-sm"></i><p class="tile-title">Historia</p></div><a href="{{ url_for('historia.index') }}" class="btn btn-info btn-sm text-white py-0 px-2">Pokaż</a></div></div>
+        <div class="col-4"><div class="card card-tile d-flex flex-row align-items-center justify-content-between border-danger"><div class="d-flex align-items-center"><i class="fas fa-hand-holding-usd text-danger icon-sm"></i><p class="tile-title text-danger">Sprzedaj</p></div><a href="{{ url_for('sprzedaj.index') }}" class="btn btn-danger btn-sm py-0 px-2">Akcja</a></div></div>
     </div>
 
     <div class="card shadow-sm">
@@ -110,10 +74,22 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="bg-light-yellow {{ 'text-green' if s.data_import_gpw_nc == s.today else 'text-red' }}">{{ s.data_import_gpw_nc }}</td>
-                        <td class="bg-light-yellow {{ 'text-green' if s.data_import_zagr == s.today else 'text-red' }}">{{ s.data_import_zagr }}</td>
-                        <td class="bg-light-yellow {{ 'text-green' if s.data_import_stooq == s.today else 'text-red' }}">{{ s.data_import_stooq }}</td>
-                        <td class="bg-light-blue {{ 'text-green' if s.data_import_gpw == s.today else 'text-red' }}">{{ s.data_import_gpw }}</td>
+                        <td class="bg-light-yellow">
+                            <button class="date-status-link {{ 'text-green' if s.data_import_gpw_nc == s.today else 'text-red' }}"
+                                    onclick="openCsvModal('import_gpw_nc.csv')">{{ s.data_import_gpw_nc }}</button>
+                        </td>
+                        <td class="bg-light-yellow">
+                            <button class="date-status-link {{ 'text-green' if s.data_import_zagr == s.today else 'text-red' }}"
+                                    onclick="openCsvModal('import_zagr.csv')">{{ s.data_import_zagr }}</button>
+                        </td>
+                        <td class="bg-light-yellow">
+                            <button class="date-status-link {{ 'text-green' if s.data_import_stooq == s.today else 'text-red' }}"
+                                    onclick="openCsvModal('import_stooq.csv')">{{ s.data_import_stooq }}</button>
+                        </td>
+                        <td class="bg-light-blue">
+                            <button class="date-status-link {{ 'text-green' if s.data_import_gpw == s.today else 'text-red' }}"
+                                    onclick="openCsvModal('import_gpw.csv')">{{ s.data_import_gpw }}</button>
+                        </td>
                         <td class="bg-light-blue {{ 'text-green' if s.gpw_archiwum_ok else 'text-red' }}">{% if s.gpw_archiwum_ok %}OK{% else %}BŁĄD{% endif %}</td>
                         <td class="bg-light-green">426update</td>
                     </tr>
@@ -126,10 +102,14 @@
                         <td class="bg-white fw-bold">436load</td>
                     </tr>
                     <tr>
-                        <td class="bg-light-yellow"><button class="table-link" onclick="openCsvModal('import_gpw_nc.csv')">Podgląd</button></td>
-                        <td class="bg-light-yellow"><button class="table-link" onclick="openCsvModal('import_zagr.csv')">Podgląd</button></td>
-                        <td class="bg-light-yellow"><button class="table-link" onclick="openCsvModal('import_stooq.csv')">Podgląd</button></td>
-                        <td class="bg-light-blue"><button class="table-link" onclick="openCsvModal('import_gpw.csv')">Podgląd</button></td>
+                        <td class="bg-white">414</td>
+                        <td class="bg-light-yellow">
+                            <button onclick="runEtlImport()" class="btn btn-sm w-100 py-0 fw-bold" style="background-color: #ffeb3b; font-size: 0.75rem; border: 1px solid #fbc02d;">
+                                AKTUALIZUJ
+                            </button>
+                        </td>
+                        <td class="bg-white">434</td>
+                        <td class="bg-white">444</td>
                         <td class="bg-light-pink {{ 'text-green' if s.data_dane_dzienne == s.today else 'text-red' }}">dzienne {{ s.data_dane_dzienne }}</td>
                         <td class="bg-light-pink">446update</td>
                     </tr>
@@ -157,28 +137,39 @@
 function openCsvModal(filename) {
     document.getElementById('csvTitle').innerText = 'Podgląd pliku: ' + filename;
     document.getElementById('csvContent').innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
-    
     fetch('/inwestycje/get_csv/' + filename)
-        .then(response => {
-            if (!response.ok) throw new Error('Plik nie odnaleziony');
-            return response.text();
-        })
+        .then(response => { if (!response.ok) throw new Error('Plik nie odnaleziony'); return response.text(); })
         .then(data => {
             const rows = data.split('\n');
             let table = '<table class="table table-sm table-striped border">';
-            rows.forEach(row => {
-                if(row.trim() !== "") {
-                    table += '<tr><td>' + row.split(',').join('</td><td>') + '</td></tr>';
-                }
-            });
+            rows.forEach(row => { if(row.trim() !== "") table += '<tr><td>' + row.split(',').join('</td><td>') + '</td></tr>'; });
             table += '</table>';
             document.getElementById('csvContent').innerHTML = table;
         })
-        .catch(err => {
-            document.getElementById('csvContent').innerHTML = '<div class="alert alert-danger">Błąd: ' + err.message + '</div>';
-        });
-
+        .catch(err => { document.getElementById('csvContent').innerHTML = '<div class="alert alert-danger">Błąd: ' + err.message + '</div>'; });
     new bootstrap.Modal(document.getElementById('csvModal')).show();
+}
+
+function runEtlImport() {
+    if (!confirm('Czy uruchomić import danych (NC, Zagr, Stooq)? Potrwa to ok. 2 minuty.')) return;
+    
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = 'CZEKAJ...';
+
+    fetch('/inwestycje/run_etl_import')
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            btn.innerText = originalText;
+            btn.disabled = false;
+        })
+        .catch(err => {
+            alert('Błąd uruchamiania: ' + err);
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
 }
 </script>
 {% endblock %}

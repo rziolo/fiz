@@ -1,6 +1,7 @@
-from flask import Flask, render_template, send_from_directory, abort
+from flask import Flask, render_template, send_from_directory, abort, jsonify
 import os
 import sys
+import subprocess
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -22,13 +23,22 @@ def format_pl(value, precision=2):
     except:
         return value
 
-# Trasa do serwowania plików CSV do podglądu w modalach
 @app.route('/inwestycje/get_csv/<filename>')
 def get_csv(filename):
     csv_dir = "/var/www/html/flask/inwestycje/etl/csv/"
     if not os.path.exists(os.path.join(csv_dir, filename)):
         abort(404)
     return send_from_directory(csv_dir, filename)
+
+@app.route('/inwestycje/run_etl_import')
+def run_etl_import():
+    script_path = "/var/www/html/flask/inwestycje/etl/bash/run_import_nc_zagr_stooq.sh"
+    try:
+        # Popen nie blokuje wątku Flaska (ważne przy sleep 60 w bashu)
+        subprocess.Popen(["/bin/bash", script_path])
+        return jsonify({"status": "success", "message": "Import uruchomiony w tle (ok. 2 min)."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # Blueprints
 from routes.chart import chart_bp
