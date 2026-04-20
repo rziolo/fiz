@@ -8,15 +8,12 @@
     .icon-sm { font-size: 1.5rem; margin-right: 10px; }
     .tile-title { font-size: 0.9rem; font-weight: bold; margin: 0; white-space: nowrap; }
     .col-5-custom { flex: 0 0 auto; width: 20%; }
-
     .bg-light-yellow { background-color: #fff9c4 !important; }
     .bg-light-blue { background-color: #e3f2fd !important; }
     .bg-light-green { background-color: #e8f5e9 !important; }
     .bg-light-pink { background-color: #fce4ec !important; }
-
     .text-red { color: #d32f2f !important; font-weight: bold; }
     .text-green { color: #388e3c !important; font-weight: bold; }
-
     .table-link { color: #0d6efd !important; text-decoration: underline !important; cursor: pointer; background: none; border: none; padding: 0; font-size: 0.8rem; }
     .date-status-link { text-decoration: underline !important; cursor: pointer; background: none; border: none; padding: 0; font-size: 0.85rem; font-weight: bold; }
 </style>
@@ -53,6 +50,7 @@
         <div class="col-5-custom"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-laptop-code text-secondary icon-sm"></i><p class="tile-title">Platforma</p></div><a href="{{ url_for('platforma.index') }}" class="btn btn-secondary btn-sm py-0 px-2">Otwórz</a></div></div>
         <div class="col-5-custom"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-tags text-dark icon-sm"></i><p class="tile-title">Ticker</p></div><a href="{{ url_for('ticker.index') }}" class="btn btn-dark btn-sm py-0 px-2">Otwórz</a></div></div>
     </div>
+
     <div class="row g-2 mb-3">
         <div class="col-4"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-chart-line text-success icon-sm"></i><p class="tile-title">Wykresy</p></div><a href="{{ url_for('chart.index') }}" class="btn btn-success btn-sm py-0 px-2">Analiza</a></div></div>
         <div class="col-4"><div class="card card-tile d-flex flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="fas fa-history text-info icon-sm"></i><p class="tile-title">Historia</p></div><a href="{{ url_for('historia.index') }}" class="btn btn-info btn-sm text-white py-0 px-2">Pokaż</a></div></div>
@@ -75,16 +73,16 @@
                 <tbody>
                     <tr>
                         <td class="bg-light-yellow">
-                            <button class="date-status-link {{ 'text-green' if s.data_import_gpw_nc == s.today else 'text-red' }}"
-                                    onclick="openCsvModal('import_gpw_nc.csv')">{{ s.data_import_gpw_nc }}</button>
+                            <button class="date-status-link {{ 'text-green' if s.csv_nc_data == s.today else 'text-red' }}"
+                                    onclick="openCsvModal('import_gpw_nc.csv')">{{ s.csv_nc_data }}</button>
                         </td>
                         <td class="bg-light-yellow">
-                            <button class="date-status-link {{ 'text-green' if s.data_import_zagr == s.today else 'text-red' }}"
-                                    onclick="openCsvModal('import_zagr.csv')">{{ s.data_import_zagr }}</button>
+                            <button class="date-status-link {{ 'text-green' if s.csv_zagr_data == s.today else 'text-red' }}"
+                                    onclick="openCsvModal('import_zagr.csv')">{{ s.csv_zagr_data }}</button>
                         </td>
                         <td class="bg-light-yellow">
-                            <button class="date-status-link {{ 'text-green' if s.data_import_stooq == s.today else 'text-red' }}"
-                                    onclick="openCsvModal('import_stooq.csv')">{{ s.data_import_stooq }}</button>
+                            <button class="date-status-link {{ 'text-green' if s.csv_stat_data == s.today else 'text-red' }}"
+                                    onclick="openCsvModal('import_stooq.csv')">{{ s.csv_stat_data }}</button>
                         </td>
                         <td class="bg-light-blue">
                             <button class="date-status-link {{ 'text-green' if s.data_import_gpw == s.today else 'text-red' }}"
@@ -96,7 +94,7 @@
                     <tr>
                         <td class="bg-light-yellow"><a href="https://newconnect.pl/notowania" target="_blank" class="table-link">notowania GPW-NC</a></td>
                         <td class="bg-light-yellow"><a href="https://www.investing.com/portfolio/" target="_blank" class="table-link">notowania zagraniczne</a></td>
-                        <td class="bg-light-yellow"><a href="https://stooq.pl/t/s/?m=plws" target="_blank" class="table-link">Statystyki</a></td>
+                        <td class="bg-light-yellow"><a href="https://stooq.pl/t/s/?m=plws" target="_blank" class="table-link">T: {{ s.csv_stat_turnover }}</a></td>
                         <td class="bg-light-blue"><a href="https://www.gpw.pl/archiwum-notowan" target="_blank" class="table-link">notowania GPW</a></td>
                         <td class="bg-light-blue">435update</td>
                         <td class="bg-white fw-bold">436load</td>
@@ -104,7 +102,7 @@
                     <tr>
                         <td class="bg-white">414</td>
                         <td class="bg-light-yellow">
-                            <button onclick="runEtlImport()" class="btn btn-sm w-100 py-0 fw-bold" style="background-color: #ffeb3b; font-size: 0.75rem; border: 1px solid #fbc02d;">
+                            <button id="btn-aktualizuj" onclick="runEtlImport()" class="btn btn-sm w-100 py-0 fw-bold" style="background-color: #ffeb3b; font-size: 0.75rem; border: 1px solid #fbc02d;">
                                 AKTUALIZUJ
                             </button>
                         </td>
@@ -151,24 +149,19 @@ function openCsvModal(filename) {
 }
 
 function runEtlImport() {
-    if (!confirm('Czy uruchomić import danych (NC, Zagr, Stooq)? Potrwa to ok. 2 minuty.')) return;
-    
-    const btn = event.target;
-    const originalText = btn.innerText;
+    if (!confirm('Uruchomić import? Strona odświeży się za ok. 40 sek.')) return;
+    const btn = document.getElementById('btn-aktualizuj');
     btn.disabled = true;
-    btn.innerText = 'CZEKAJ...';
-
+    btn.innerText = 'TRWA IMPORT...';
     fetch('/inwestycje/run_etl_import')
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
-            btn.innerText = originalText;
-            btn.disabled = false;
+            setTimeout(() => { location.reload(); }, 40000);
         })
         .catch(err => {
-            alert('Błąd uruchamiania: ' + err);
-            btn.innerText = originalText;
+            alert('Błąd: ' + err);
             btn.disabled = false;
+            btn.innerText = 'AKTUALIZUJ';
         });
 }
 </script>

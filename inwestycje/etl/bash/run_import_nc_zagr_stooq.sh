@@ -12,12 +12,12 @@ echo "========================================" >> $LOG_FILE
 # 1. GPW NewConnect
 echo "[$(date '+%H:%M:%S')] Start: import_gpw_nc.py" >> $LOG_FILE
 $PYTHON_BIN $PY_SCRIPTS_DIR/import_gpw_nc.py >> $LOG_FILE 2>&1
-sleep 60
+sleep 10
 
 # 2. Statystyki Stooq
 echo "[$(date '+%H:%M:%S')] Start: import_stooq.py" >> $LOG_FILE
 $PYTHON_BIN $PY_SCRIPTS_DIR/import_stooq.py >> $LOG_FILE 2>&1
-sleep 60
+sleep 10
 
 # 3. Notowania Zagraniczne
 echo "[$(date '+%H:%M:%S')] Start: import_zagr.py" >> $LOG_FILE

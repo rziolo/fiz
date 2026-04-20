@@ -18,27 +18,24 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 
 ## 📈 Moduł Inwestycje - Nowe Funkcje (Update 2026-04-20)
 - **Panel Zarządzania Importem (Index):**
-    - Dynamiczne monitorowanie dat importu dla GPW, NC oraz rynków zagranicznych.
-    - **Ręczna Aktualizacja:** Przycisk "AKTUALIZUJ" w GUI wyzwalający skrypt Bash w tle (`subprocess.Popen`).
-    - **Podgląd CSV w Modal:** Zintegrowany system odczytu plików `.csv` bezpośrednio w przeglądarce.
+    - Dynamiczne monitorowanie dat z plików CSV (GPW, NC, Zagraniczne, Stooq).
+    - Bezpośredni odczyt parametrów rynkowych: Turnover (T), Wolumeny i ilości zleceń (H/L).
+    - **Ręczna Aktualizacja:** Przycisk "AKTUALIZUJ" (zoptymalizowany `sleep 10` między skryptami, czas operacji ~40s).
 - **Automatyzacja ETL:**
     - Skrypty Python do scrapowania danych (Stooq, GPW-NC, Investing).
     - Skrypt zbiorczy Bash: `/inwestycje/etl/bash/run_import_nc_zagr_stooq.sh`.
     - Harmonogram Cron: Codziennie o 18:20 w dni robocze.
-- **Analiza Sprzedaży i Stop Loss:**
-    - Wyliczanie sugerowanej ceny sprzedaży (minima z 3 sesji + bufor 3%).
-    - Alerty dla zysków > 300 PLN wymagających zabezpieczenia.
 
 ## 🛠 Zarządzanie i Logi
-- **Restart aplikacji:** `sudo systemctl restart inwestycje`
+- **Restart aplikacji:** `sudo systemctl restart flask-inwestycje`
+- **Status usługi:** `sudo systemctl status flask-inwestycje`
 - **Podgląd logów ETL:** `tail -f /var/www/html/flask/inwestycje/etl/python/etl.log`
-- **Diagnostyka systemd:** `sudo journalctl -u inwestycje -f`
-- **Eksport zależności:** `pip freeze | sudo tee /var/www/html/flask/requirements.txt > /dev/null`
+- **Eksport zależności:** `./venv/bin/pip freeze | sudo tee /var/www/html/flask/requirements.txt > /dev/null`
 
 ## 💡 Troubleshooting & Refleksje (Update 2026-04-20)
-1. **Scrapowanie (Stooq):** Dane pobierane z XML/CDATA wymagają agresywnego czyszczenia znaków `\xa0` i spacji dla poprawnej konwersji `int()`.
-2. **Uprawnienia:** Zapisywanie logów i plików `.csv` przez skrypty odppalane z Crona musi uwzględniać uprawnienia zapisu dla użytkownika `www-data`.
-3. **Izolacja venv:** Zawsze używaj ścieżki bezwzględnej do interpretera: `/var/www/html/flask/venv/bin/python3`.
+1. **Scrapowanie (Stooq):** Dane pobierane z XML/CDATA wymagają agresywnego czyszczenia znaków `\xa0` dla poprawnej konwersji.
+2. **Synchronizacja plików:** Dzięki GlusterFS zmiany w `/var/www/html/flask` są replikowane między rpi-05 i rpi-06.
+3. **Logika Panelu:** Funkcja `get_stats()` w `utils.py` priorytetyzuje odczyt dat bezpośrednio z nagłówków CSV dla zachowania spójności z GUI.
 
 ---
-Ostatnia aktualizacja: 2026-04-20 20:10
+Ostatnia aktualizacja: 2026-04-20 21:50
