@@ -1,11 +1,102 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-5 text-center">
-<div class="card shadow p-5">
-<h1>Moduł HISTORIA</h1>
-<p class="lead">Strona w budowie...</p>
-<hr>
-<a href="{{ url_for('index') }}" class="btn btn-primary">Powrót</a>
-</div>
+<div class="container-fluid mt-3">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <ul class="nav nav-tabs card-header-tabs" id="historyTab" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-rm">Rok Miesiąc</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-r">Rok</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-hi">Historia Inwestycji</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-orm">Obroty Rok Miesiąc</button></li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="tab-rm">
+                    <table class="table table-sm table-hover border small">
+                        <thead class="table-light text-end">
+                            <tr>
+                                <th class="text-start">Rok miesiąc</th><th>Wkład</th><th>Wartość</th><th>Bilans ogólny</th><th>Średni wkład</th><th>Zysk operacyjny</th><th>Zysk %</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-end">
+                            {% for r in rok_miesiac %}
+                            {% set bilans = (r.wartosc or 0) - (r.wklad or 0) %}
+                            {% set zysk_op = r.zysk_op or 0 %}
+                            {% set zysk_p = (zysk_op / r.sredni_wklad * 100) if r.sredni_wklad else 0 %}
+                            <tr>
+                                <td class="text-start">{{ r.rok_miesiac }}</td>
+                                <td>{{ r.wklad | format_pl }}</td>
+                                <td>{{ r.wartosc | format_pl }}</td>
+                                <td class="fw-bold {{ 'text-success' if bilans >=0 else 'text-danger' }}">{{ bilans | format_pl }}</td>
+                                <td>{{ r.sredni_wklad | format_pl }}</td>
+                                <td class="fw-bold {{ 'text-success' if zysk_op >=0 else 'text-danger' }}">{{ zysk_op | format_pl }}</td>
+                                <td class="fw-bold {{ 'text-success' if zysk_p >=0 else 'text-danger' }}">{{ "%.2f"|format(zysk_p) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="tab-r">
+                    <table class="table table-sm table-hover border small w-50 mx-auto">
+                        <thead class="table-light text-end">
+                            <tr><th class="text-start">Rok</th><th>Wkład</th><th>Wartość</th><th>Bilans</th></tr>
+                        </thead>
+                        <tbody class="text-end">
+                            {% for r in rok_stats %}
+                            {% set bilans = (r.wartosc or 0) - (r.wklad or 0) %}
+                            <tr>
+                                <td class="text-start fw-bold">{{ r.rok }}</td>
+                                <td>{{ r.wklad | format_pl }}</td>
+                                <td>{{ r.wartosc | format_pl }}</td>
+                                <td class="fw-bold {{ 'text-success' if bilans >= 0 else 'text-danger' }}">{{ bilans | format_pl }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="tab-hi">
+                    <table class="table table-sm table-hover border small">
+                        <thead class="table-light">
+                            <tr><th>Ticker</th><th>Zakup data</th><th class="text-end">Zakup cena</th><th class="text-end">Zakup ilość</th><th>Sprzedaż data</th><th class="text-end">Sprzedaż cena</th><th>Platforma</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for r in historia_inw %}
+                            <tr>
+                                <td>{{ r.ticker_nm }}</td>
+                                <td>{{ r.zakup_data }}</td>
+                                <td class="text-end">{{ r.zakup_cena | format_pl }}</td>
+                                <td class="text-end">{{ r.zakup_ilosc }}</td>
+                                <td>{{ r.sprzedaz_data if r.sprzedaz_data else '' }}</td>
+                                <td class="text-end">{{ r.sprzedaz_cena | format_pl if r.sprzedaz_cena else '' }}</td>
+                                <td>{{ r.platforma_nm }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="tab-orm">
+                    <table class="table table-sm table-hover border small">
+                        <thead class="table-light text-end">
+                            <tr><th class="text-start">Rok-Miesiąc</th><th>Zakup zł</th><th>Zakup ilość</th><th>Sprzedaż zł</th><th>Sprzedaż ilość</th><th>Dywidenda zł</th><th>Dywidenda ilość</th></tr>
+                        </thead>
+                        <tbody class="text-end">
+                            {% for r in obroty_rm %}
+                            <tr>
+                                <td class="text-start fw-bold">{{ r.rm }}</td>
+                                <td>{{ r.zakup_zl | format_pl }}</td><td>{{ r.zakup_ilosc }}</td>
+                                <td>{{ r.sprzedaz_zl | format_pl }}</td><td>{{ r.sprzedaz_ilosc }}</td>
+                                <td>{{ r.dywidenda_zl | format_pl }}</td><td>{{ r.dywidenda_ilosc }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

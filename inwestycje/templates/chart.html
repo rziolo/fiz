@@ -1,11 +1,156 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-5 text-center">
-<div class="card shadow p-5">
-<h1>Moduł CHART</h1>
-<p class="lead">Strona w budowie...</p>
-<hr>
-<a href="{{ url_for('index') }}" class="btn btn-primary">Powrót</a>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4><i class="fas fa-chart-line text-primary"></i> Analiza Inwestycyjna</h4>
+        
+        <div class="d-flex align-items-center gap-3">
+            {% if selected_ticker %}
+            <h5 class="mb-0">Wynik: <span class="{% if total_result >= 0 %}text-success{% else %}text-danger{% endif %}">{{ total_result | format_pl }}</span></h5>
+            {% endif %}
+            
+            <div class="btn-group btn-group-sm">
+                {% for m in [('12', '12m'), ('24', '24m'), ('36', '36m'), ('all', 'Wszystko')] %}
+                <a href="{{ url_for('chart.index', months=m[0], ticker=selected_ticker) }}" 
+                   class="btn {% if current_months == m[0] %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+                   {{ m[1] }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white p-0">
+            <ul class="nav nav-tabs card-header-tabs m-0" id="investTab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link border-0 px-4 {% if not selected_ticker %}active fw-bold text-primary{% endif %}" data-bs-toggle="tab" data-bs-target="#bilans-tab">Bilans</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link border-0 px-4 {% if selected_ticker %}active fw-bold text-primary{% endif %}" data-bs-toggle="tab" data-bs-target="#spolka-tab">Bilans Spółki</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <div class="tab-pane fade {% if not selected_ticker %}show active{% endif %}" id="bilans-tab">
+                    <div style="height: 500px;">
+                        <canvas id="chartBilans"></canvas>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade {% if selected_ticker %}show active{% endif %}" id="spolka-tab">
+                    <form method="GET" action="{{ url_for('chart.index') }}" class="row g-2 mb-3 align-items-end">
+                        <input type="hidden" name="months" value="{{ current_months }}">
+                        <div class="col-auto">
+                            <select name="ticker" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="">-- wybierz spółkę --</option>
+                                {% for t in tickers %}
+                                <option value="{{ t }}" {% if selected_ticker == t %}selected{% endif %}>{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+
+                    {% if selected_ticker %}
+                    <h5 class="text-center mb-3">Bilans dla spółki {{ selected_ticker }}</h5>
+                    <div style="height: 400px;" class="mb-4 border">
+                        <canvas id="chartSpolka"></canvas>
+                    </div>
+                    <table class="table table-sm table-hover border small">
+                        <thead class="table-light">
+                            <tr class="text-center">
+                                <th>Spółka</th><th>Data</th><th>Kupno/Sprzedaż</th><th class="text-end px-4">Wartość</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in ticker_data %}
+                            <tr class="text-center">
+                                <td>{{ row.ticker_nm }}</td>
+                                <td>{{ row.data }}</td>
+                                <td class="{% if row.typ == 'kupno' %}text-danger{% else %}text-success{% endif %}">{{ row.typ }}</td>
+                                <td class="text-end px-4">{{ row.wartosc | format_pl }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <p>Wybierz spółkę z listy powyżej.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-</div>
+
+<script>
+const formatPL = (val) => new Intl.NumberFormat('pl-PL', { minimumFractionDigits: 2 }).format(val);
+
+// Wykres Bilans Ogólny
+const ctxB = document.getElementById('chartBilans');
+if(ctxB) {
+    new Chart(ctxB.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: {{ labels_all | safe }},
+            datasets: [
+                { label: 'Wartość', data: {{ vals_wartosc | safe }}, borderColor: '#0d6efd', backgroundColor: '#0d6efd', tension: 0.2, pointRadius: 2 },
+                { label: 'Wkład', data: {{ vals_wklad | safe }}, borderColor: '#dc3545', backgroundColor: '#dc3545', tension: 0.2, pointRadius: 2 },
+                { label: 'Zysk', data: {{ vals_zysk | safe }}, borderColor: '#198754', backgroundColor: '#198754', tension: 0.2, pointRadius: 2 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + formatPL(ctx.raw) } } },
+            scales: { 
+                y: { ticks: { callback: (val) => formatPL(val) } }
+            }
+        }
+    });
+}
+
+// Wykres Spółki
+{% if selected_ticker %}
+const ctxS = document.getElementById('chartSpolka');
+if(ctxS) {
+    // Dane w ticker_data są DESC (do tabeli), na wykres potrzebujemy chronologicznie
+    const rawData = [
+        {% for r in ticker_data | reverse %}
+        { x: '{{ r.data }}', y: {{ r.wartosc }}, typ: '{{ r.typ }}' },
+        {% endfor %}
+    ];
+
+    new Chart(ctxS.getContext('2d'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Cena {{ selected_ticker }}',
+                data: rawData,
+                pointBackgroundColor: rawData.map(d => d.typ === 'kupno' ? '#dc3545' : '#198754'),
+                pointRadius: 6,
+                showLine: false
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { 
+                x: { type: 'category' },
+                y: { ticks: { callback: (val) => formatPL(val) } }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ctx.raw.typ + ': ' + formatPL(ctx.raw.y) + ' (' + ctx.raw.x + ')'
+                    }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+</script>
 {% endblock %}

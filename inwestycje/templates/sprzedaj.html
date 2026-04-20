@@ -1,11 +1,89 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-5 text-center">
-<div class="card shadow p-5">
-<h1>Moduł SPRZEDAJ</h1>
-<p class="lead">Strona w budowie...</p>
-<hr>
-<a href="{{ url_for('index') }}" class="btn btn-primary">Powrót</a>
+<div class="container-fluid mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Otwarte pozycje – sprzedaż</h4>
+        <div class="p-2 border rounded bg-light small fw-bold">
+            <span class="me-3">Kurs EUR: <span class="text-primary">{{ rates.get('EUR', '0.0000') }}</span></span>
+            <span>Kurs USD: <span class="text-primary">{{ rates.get('USD', '0.0000') }}</span></span>
+        </div>
+    </div>
+
+    <table class="table table-sm table-hover border small align-middle">
+        <thead class="table-light text-center">
+            <tr>
+                <th class="text-start">Spółka</th><th>Rynek</th><th>Zakup Cena</th><th>Zysk</th><th>Ilość</th>
+                <th>close_1</th><th>Kurs bieżący</th><th>Stop Loss</th><th>Waluta</th>
+                <th>min {{ data[0].data_m2 if data else '' }}</th>
+                <th>min {{ data[0].data_m1 if data else '' }}</th>
+                <th>min {{ data[0].data_max if data else '' }}</th>
+                <th>min_3d</th><th>Sprzedaj</th><th>Podnieś</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in data %}
+            <tr class="text-center">
+                <td class="text-start fw-bold">{{ r.ticker_nm }}</td>
+                <td>{{ r.rynek }}</td>
+                <td>{{ r.zakup_cena | format_pl }}</td>
+                <td class="fw-bold {{ 'text-success' if r.zysk > 0 else 'text-danger' }}">{{ r.zysk | format_pl }}</td>
+                <td>{{ r.ilosc }}</td>
+                <td>{{ r.close_1 | format_pl if r.close_1 else '' }}</td>
+                <td class="fw-bold">{{ r.kurs_biezacy | format_pl }}</td>
+                
+                <td style="{% if r.zysk > 300 and (not r.stop_loss or r.stop_loss == 0) %}background-color: #f8d7da;{% endif %}">
+                    <form action="{{ url_for('sprzedaj.update_sl') }}" method="POST" class="d-flex gap-1 justify-content-center">
+                        <input type="hidden" name="id_obroty" value="{{ r.id_obroty }}">
+                        <input type="number" step="0.01" name="stop_loss" value="{{ r.stop_loss or 0 }}" class="form-control form-control-sm text-center" style="width: 75px;">
+                        <button type="submit" class="btn btn-sm btn-link p-0 text-secondary"><i class="fas fa-save"></i></button>
+                    </form>
+                </td>
+
+                <td style="{% if r.waluta != 'PLN' %}background-color: #fff3cd;{% endif %}" class="fw-bold">{{ r.waluta }}</td>
+                
+                <td>{{ r.min_m2 | format_pl if r.min_m2 else '' }}</td>
+                <td>{{ r.min_m1 | format_pl if r.min_m1 else '' }}</td>
+                <td>{{ r.min_m0 | format_pl if r.min_m0 else '' }}</td>
+                <td>{{ r.min_3d_val | format_pl if r.min_3d_val > 0 else '' }}</td>
+                
+                <td class="fw-bold">
+                    {{ r.sugestia_sprzedaz | format_pl if r.sugestia_sprzedaz else '' }}
+                    {% if r.sugestia_sprzedaz and r.waluta != 'PLN' %}
+                    <button class="btn btn-sm btn-link p-0 ms-1" 
+                            onclick="showCurrencyModal('{{ r.ticker_nm }}', {{ r.sugestia_sprzedaz }}, {{ r.kurs_waluty_nbp }}, '{{ r.waluta }}')">
+                        <i class="fas fa-calculator text-info"></i>
+                    </button>
+                    {% endif %}
+                </td>
+                
+                <td class="fw-bold text-danger">{{ r.podnies_txt }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+
+<div class="modal fade" id="currencyModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white py-2">
+        <h5 class="modal-title" id="modalTicker">Wystaw Sprzedaj</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center fs-4">
+        <div id="modalContent"></div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+function showCurrencyModal(ticker, plnValue, exchangeRate, currency) {
+    const converted = (plnValue / exchangeRate).toFixed(2);
+    document.getElementById('modalTicker').innerText = 'Wystaw Sprzedaj: ' + ticker;
+    // ZMIANA: Etykieta Kurs -> Sprzedaj
+    document.getElementById('modalContent').innerHTML = `Sprzedaj: <strong>${converted}</strong> ${currency}`;
+    new bootstrap.Modal(document.getElementById('currencyModal')).show();
+}
+</script>
 {% endblock %}
