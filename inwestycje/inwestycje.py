@@ -1,10 +1,15 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory, abort
 import os
 import sys
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
+
+if basedir not in sys.path:
+    sys.path.append(basedir)
+
+from utils import get_stats
 
 app = Flask(__name__, template_folder=os.path.join(basedir, 'templates'))
 app.jinja_loader.searchpath.append('/var/www/html/flask/shared/templates')
@@ -17,9 +22,15 @@ def format_pl(value, precision=2):
     except:
         return value
 
-if basedir not in sys.path:
-    sys.path.append(basedir)
+# Trasa do serwowania plików CSV do podglądu w modalach
+@app.route('/inwestycje/get_csv/<filename>')
+def get_csv(filename):
+    csv_dir = "/var/www/html/flask/inwestycje/etl/csv/"
+    if not os.path.exists(os.path.join(csv_dir, filename)):
+        abort(404)
+    return send_from_directory(csv_dir, filename)
 
+# Blueprints
 from routes.chart import chart_bp
 from routes.dane import dane_bp
 from routes.dane_dzienne import dane_dzienne_bp
@@ -41,7 +52,8 @@ app.register_blueprint(ticker_bp, url_prefix='/inwestycje/ticker')
 @app.route('/inwestycje/')
 @app.route('/')
 def index():
-    return render_template('index.html', tytul_aplikacji='Inwestycje', db_ok=True)
+    stats_data = get_stats()
+    return render_template('index.html', tytul_aplikacji='Inwestycje', db_ok=True, s=stats_data)
 
 if __name__ == '__main__':
     app.run(port=5002)
