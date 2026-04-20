@@ -38,4 +38,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 3. **Logika Panelu:** Funkcja `get_stats()` w `utils.py` priorytetyzuje odczyt dat bezpośrednio z nagłówków CSV dla zachowania spójności z GUI.
 
 ---
-Ostatnia aktualizacja: 2026-04-20 21:50
+Ostatnia aktualizacja: 2026-04-21 00:10
