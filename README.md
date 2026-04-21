@@ -41,4 +41,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 4. **Zarządzanie Storage:** Mechanizm `ls -t | tail -n +6 | xargs rm` w skryptach bash zapobiega zapychaniu GlusterFS przez tymczasowe pliki Excel.
 
 ---
-Ostatnia aktualizacja: 2026-04-21 19:15
+Ostatnia aktualizacja: 2026-04-22 00:10
