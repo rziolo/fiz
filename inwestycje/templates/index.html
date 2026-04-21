@@ -66,7 +66,11 @@
                         <th class="bg-light-yellow" width="16.6%">Zagraniczne</th>
                         <th class="bg-light-yellow" width="16.6%">Statystyki</th>
                         <th class="bg-light-blue" width="16.6%">GPW</th>
-                        <th class="bg-light-blue" width="16.6%">415check</th>
+                        <th class="bg-light-blue" width="16.6%">
+                            <button onclick="runGpwCheck()" class="btn btn-link btn-sm p-0 fw-bold text-dark text-decoration-none" title="Sprawdź archiwum teraz">
+                                Sprawdź dzisiejsze <i class="fas fa-sync-alt fa-xs" id="icon-gpw-check"></i>
+                            </button>
+                        </th>
                         <th class="bg-light-green {{ 'text-green' if s.data_dane == s.today else 'text-red' }}">w bazie {{ s.data_dane }}</th>
                     </tr>
                 </thead>
@@ -88,13 +92,13 @@
                             <button class="date-status-link {{ 'text-green' if s.data_import_gpw == s.today else 'text-red' }}"
                                     onclick="openCsvModal('import_gpw.csv')">{{ s.data_import_gpw }}</button>
                         </td>
-                        <td class="bg-light-blue {{ 'text-green' if s.gpw_archiwum_ok else 'text-red' }}">{% if s.gpw_archiwum_ok %}OK{% else %}BŁĄD{% endif %}</td>
+                        <td class="bg-light-blue {{ 'text-green' if s.gpw_archiwum_ok else 'text-red' }}">{{ s.gpw_archiwum_status }}</td>
                         <td class="bg-light-green">426update</td>
                     </tr>
                     <tr>
                         <td class="bg-light-yellow"><a href="https://newconnect.pl/notowania" target="_blank" class="table-link">notowania GPW-NC</a></td>
                         <td class="bg-light-yellow"><a href="https://www.investing.com/portfolio/" target="_blank" class="table-link">notowania zagraniczne</a></td>
-                        <td class="bg-light-yellow"><a href="https://stooq.pl/t/s/?m=plws" target="_blank" class="table-link">T: {{ s.csv_stat_turnover }}</a></td>
+                        <td class="bg-light-yellow"><a href="https://stooq.pl/t/s/?m=plws" target="_blank" class="table-link">statystyki</a></td>
                         <td class="bg-light-blue"><a href="https://www.gpw.pl/archiwum-notowan" target="_blank" class="table-link">notowania GPW</a></td>
                         <td class="bg-light-blue">435update</td>
                         <td class="bg-white fw-bold">436load</td>
@@ -162,6 +166,21 @@ function runEtlImport() {
             alert('Błąd: ' + err);
             btn.disabled = false;
             btn.innerText = 'AKTUALIZUJ';
+        });
+}
+
+function runGpwCheck() {
+    const icon = document.getElementById('icon-gpw-check');
+    if(icon) icon.classList.add('fa-spin');
+    
+    fetch('/inwestycje/run_gpw_check')
+        .then(response => response.json())
+        .then(data => {
+            location.reload();
+        })
+        .catch(err => {
+            alert('Błąd: ' + err);
+            if(icon) icon.classList.remove('fa-spin');
         });
 }
 </script>

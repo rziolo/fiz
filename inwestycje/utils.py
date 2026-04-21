@@ -26,8 +26,8 @@ def read_csv_row(filepath, row_idx):
 
 def get_stats():
     stats = {}
-    
-    # --- Dane z Bazy SQL (zostawiamy to co było potrzebne) ---
+
+    # --- Dane z Bazy SQL ---
     try:
         db = get_db_connection()
         cursor = db.cursor(dictionary=True)
@@ -63,18 +63,18 @@ def get_stats():
     row_gpw = read_csv_row(path + 'import_gpw.csv', 1)
     stats['data_import_gpw'] = row_gpw[0] if row_gpw else "Brak"
 
-    # NC (pierwszy wiersz, pierwsza komórka)
+    # NC
     row_nc = read_csv_row(path + 'import_gpw_nc.csv', 0)
     stats['data_import_gpw_nc'] = row_nc[0] if row_nc else "Brak"
     stats['csv_nc_data'] = stats['data_import_gpw_nc']
 
-    # ZAGR (pierwszy wiersz, pierwsza komórka)
+    # ZAGR
     row_zagr = read_csv_row(path + 'import_zagr.csv', 0)
     stats['data_import_zagr'] = row_zagr[0] if row_zagr else "Brak"
     stats['csv_zagr_data'] = stats['data_import_zagr']
 
-    # STOOQ (Statystyki)
-    row_stooq = read_csv_row(path + 'import_stooq.csv', 1) # wiersz 1 bo wiersz 0 to nagłówki
+    # STOOQ
+    row_stooq = read_csv_row(path + 'import_stooq.csv', 1)
     if row_stooq:
         stats['data_import_stooq'] = row_stooq[0]
         stats['csv_stat_data'] = row_stooq[0]
@@ -94,7 +94,16 @@ def get_stats():
     except:
         stats['gpw_nowe'] = 'brak'
 
-    stats['gpw_archiwum_ok'] = os.path.exists(path + 'gpw_archiwum.csv')
+    # Nowa logika sprawdzania zawartości pliku gpw_archiwum.csv
+    try:
+        with open(path + 'gpw_archiwum.csv', 'r') as f:
+            content = f.read().strip().lower()
+            stats['gpw_archiwum_status'] = "OK" if content == "ok" else "BRAK"
+            stats['gpw_archiwum_ok'] = (content == "ok")
+    except:
+        stats['gpw_archiwum_status'] = "BRAK"
+        stats['gpw_archiwum_ok'] = False
+
     stats['today'] = datetime.now().strftime('%Y-%m-%d')
 
     return stats

@@ -34,9 +34,19 @@ def get_csv(filename):
 def run_etl_import():
     script_path = "/var/www/html/flask/inwestycje/etl/bash/run_import_nc_zagr_stooq.sh"
     try:
-        # Popen nie blokuje wątku Flaska (ważne przy sleep 60 w bashu)
+        # Popen nie blokuje wątku Flaska
         subprocess.Popen(["/bin/bash", script_path])
-        return jsonify({"status": "success", "message": "Import uruchomiony w tle (ok. 2 min)."})
+        return jsonify({"status": "success", "message": "Import uruchomiony w tle."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/inwestycje/run_gpw_check')
+def run_gpw_check():
+    script_path = "/var/www/html/flask/inwestycje/etl/bash/run_gpw_archiwum.sh"
+    try:
+        # run() czeka na zakończenie skryptu (szybka operacja)
+        subprocess.run(["/bin/bash", script_path], check=True)
+        return jsonify({"status": "ok", "message": "Sprawdzono archiwum."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

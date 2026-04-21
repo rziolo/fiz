@@ -16,13 +16,13 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 | **Inwestycje**| `/inwestycje`| 5002 | **Aktywna**: Portfel, Dane Giełdowe, ETL, Moduł Sprzedaży |
 | **Zdrowie** | `/zdrowie` | 5003 | Monitoring ciśnienia + HA |
 
-## 📈 Moduł Inwestycje - Nowe Funkcje (Update 2026-04-20)
+## 📈 Moduł Inwestycje - Nowe Funkcje (Update 2026-04-21)
 - **Panel Zarządzania Importem (Index):**
     - Dynamiczne monitorowanie dat z plików CSV (GPW, NC, Zagraniczne, Stooq).
-    - Bezpośredni odczyt parametrów rynkowych: Turnover (T), Wolumeny i ilości zleceń (H/L).
+    - **Weryfikacja Archiwum GPW:** Dedykowany przycisk "Sprawdź dzisiejsze" (endpoint `/run_gpw_check`) weryfikujący dostępność plików `.prn` na serwerach GPW przed uruchomieniem pełnego importu.
     - **Ręczna Aktualizacja:** Przycisk "AKTUALIZUJ" (zoptymalizowany `sleep 10` między skryptami, czas operacji ~40s).
 - **Automatyzacja ETL:**
-    - Skrypty Python do scrapowania danych (Stooq, GPW-NC, Investing).
+    - Skrypty Python do scrapowania danych (Stooq, GPW-NC, Investing) z emulacją nagłówków przeglądarki (Session/User-Agent).
     - Skrypt zbiorczy Bash: `/inwestycje/etl/bash/run_import_nc_zagr_stooq.sh`.
     - Harmonogram Cron: Codziennie o 18:20 w dni robocze.
 
@@ -32,10 +32,10 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 - **Podgląd logów ETL:** `tail -f /var/www/html/flask/inwestycje/etl/python/etl.log`
 - **Eksport zależności:** `./venv/bin/pip freeze | sudo tee /var/www/html/flask/requirements.txt > /dev/null`
 
-## 💡 Troubleshooting & Refleksje (Update 2026-04-20)
-1. **Scrapowanie (Stooq):** Dane pobierane z XML/CDATA wymagają agresywnego czyszczenia znaków `\xa0` dla poprawnej konwersji.
+## 💡 Troubleshooting & Refleksje (Update 2026-04-21)
+1. **Scrapowanie (Stooq/GPW):** Zastosowano `requests.Session()` oraz rozbudowane nagłówki (Referer, Accept), aby uniknąć błędów `Connection reset by peer`.
 2. **Synchronizacja plików:** Dzięki GlusterFS zmiany w `/var/www/html/flask` są replikowane między rpi-05 i rpi-06.
-3. **Logika Panelu:** Funkcja `get_stats()` w `utils.py` priorytetyzuje odczyt dat bezpośrednio z nagłówków CSV dla zachowania spójności z GUI.
+3. **Logika Panelu:** Funkcja `get_stats()` w `utils.py` weryfikuje zawartość tekstową plików statusowych (np. `gpw_archiwum.csv`), co pozwala na dynamiczne kolorowanie statusów (OK/BRAK) w GUI.
 
 ---
-Ostatnia aktualizacja: 2026-04-21 00:10
+Ostatnia aktualizacja: 2026-04-21 10:15
