@@ -11,7 +11,8 @@ BASH_PATH = os.path.join(BASE_PATH, "etl/bash/")
 SCRIPTS = {
     'etl_import': os.path.join(BASH_PATH, "run_import_nc_zagr_stooq.sh"),
     'etl_load': os.path.join(BASH_PATH, "run_laduj.sh"),
-    'gpw_check': os.path.join(BASH_PATH, "run_gpw_archiwum.sh")
+    'gpw_check': os.path.join(BASH_PATH, "run_gpw_archiwum.sh"),
+    'etl_gpw': os.path.join(BASH_PATH, "run_import_gpw.sh")
 }
 
 def get_db_connection():

@@ -37,6 +37,15 @@ def run_etl_import():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/inwestycje/run_etl_gpw')
+def run_etl_gpw():
+    try:
+        # Używamy run zamiast Popen, aby poczekać na zakończenie przed przeładowaniem strony
+        subprocess.run(["/bin/bash", SCRIPTS['etl_gpw']], check=True)
+        return jsonify({"status": "success", "message": "Import GPW zakończony."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/inwestycje/run_etl_load')
 def run_etl_load():
     try:

@@ -93,7 +93,9 @@
                                     onclick="openCsvModal('import_gpw.csv')">{{ s.data_import_gpw }}</button>
                         </td>
                         <td class="bg-light-blue {{ 'text-green' if s.gpw_archiwum_ok else 'text-red' }}">{{ s.gpw_archiwum_status }}</td>
-                        <td class="bg-light-green">426update</td>
+                        <td class="bg-light-green">
+                            <button onclick="runGpwImport()" class="btn btn-success btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">AKTUALIZUJ</button>
+                        </td>
                     </tr>
                     <tr>
                         <td class="bg-light-yellow"><a href="https://newconnect.pl/notowania" target="_blank" class="table-link">notowania GPW-NC</a></td>
@@ -155,8 +157,13 @@ function openCsvModal(filename) {
 }
 
 function runEtlImport() {
-    if (!confirm('Uruchomić import?')) return;
+    if (!confirm('Uruchomić import NC/Zagr/Stooq?')) return;
     fetch('/inwestycje/run_etl_import').then(() => location.reload());
+}
+
+function runGpwImport() {
+    if (!confirm('Uruchomić import GPW z Archiwum?')) return;
+    fetch('/inwestycje/run_etl_gpw').then(() => location.reload());
 }
 
 function runGpwCheck() {
