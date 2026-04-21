@@ -113,7 +113,7 @@
                         <td class="bg-white">434</td>
                         <td class="bg-white">444</td>
                         <td class="bg-light-pink {{ 'text-green' if s.data_dane_dzienne == s.today else 'text-red' }}">dzienne {{ s.data_dane_dzienne }}</td>
-                        <td class="bg-light-pink">446update</td>
+                        <td class="bg-light-pink"><a href="{{ url_for('dane_dzienne.create') }}" class="btn btn-warning btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem; border: 1px solid #fbc02d;">AKTUALIZUJ</a></td>
                     </tr>
                 </tbody>
             </table>

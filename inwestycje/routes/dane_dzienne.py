@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 import os
 import mysql.connector
+from utils import get_stats
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 dane_dzienne_bp = Blueprint('dane_dzienne', __name__, template_folder=template_dir)
@@ -26,15 +27,18 @@ def create():
         d = request.form
         db = get_db_connection()
         cursor = db.cursor()
-        sql = """INSERT INTO dane_dzienne (data, wartosc, wklad, H_ilosc, H_vol, L_ilosc, L_vol, turnover, HL, NL) 
+        sql = """INSERT INTO dane_dzienne (data, wartosc, wklad, H_ilosc, H_vol, L_ilosc, L_vol, turnover, HL, NL)
                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        cursor.execute(sql, (d.get('data'), d.get('wartosc'), d.get('wklad'), d.get('h_ilosc'), 
-                           d.get('h_vol'), d.get('l_ilosc'), d.get('l_vol'), d.get('turnover'), 
+        cursor.execute(sql, (d.get('data'), d.get('wartosc'), d.get('wklad'), d.get('h_ilosc'),
+                           d.get('h_vol'), d.get('l_ilosc'), d.get('l_vol'), d.get('turnover'),
                            d.get('hl'), d.get('nl')))
         db.commit()
         db.close()
         return redirect(url_for('dane_dzienne.index'))
-    return render_template('dane_dzienne_create.html', mode='create', row=None)
+    
+    # Pobranie statystyk do automatycznego wypełnienia formularza
+    stats_data = get_stats()
+    return render_template('dane_dzienne_create.html', mode='create', row=None, s=stats_data)
 
 @dane_dzienne_bp.route('/view/<int:id>')
 def view(id):
@@ -51,10 +55,10 @@ def edit(id):
     cursor = db.cursor(dictionary=True)
     if request.method == 'POST':
         d = request.form
-        sql = """UPDATE dane_dzienne SET data=%s, wartosc=%s, wklad=%s, H_ilosc=%s, H_vol=%s, 
+        sql = """UPDATE dane_dzienne SET data=%s, wartosc=%s, wklad=%s, H_ilosc=%s, H_vol=%s,
                  L_ilosc=%s, L_vol=%s, turnover=%s, HL=%s, NL=%s WHERE id_dane_dzienne=%s"""
-        cursor.execute(sql, (d.get('data'), d.get('wartosc'), d.get('wklad'), d.get('h_ilosc'), 
-                           d.get('h_vol'), d.get('l_ilosc'), d.get('l_vol'), d.get('turnover'), 
+        cursor.execute(sql, (d.get('data'), d.get('wartosc'), d.get('wklad'), d.get('h_ilosc'),
+                           d.get('h_vol'), d.get('l_ilosc'), d.get('l_vol'), d.get('turnover'),
                            d.get('hl'), d.get('nl'), id))
         db.commit()
         db.close()
