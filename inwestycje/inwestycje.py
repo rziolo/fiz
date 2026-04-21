@@ -10,7 +10,6 @@ load_dotenv(os.path.join(basedir, '.env'))
 if basedir not in sys.path:
     sys.path.append(basedir)
 
-# Importowanie logiki i ścieżek z utils
 from utils import get_stats, CSV_PATH, SCRIPTS
 
 app = Flask(__name__, template_folder=os.path.join(basedir, 'templates'))
@@ -26,7 +25,6 @@ def format_pl(value, precision=2):
 
 @app.route('/inwestycje/get_csv/<filename>')
 def get_csv(filename):
-    # Użycie ścieżki zaimportowanej z utils.py
     if not os.path.exists(os.path.join(CSV_PATH, filename)):
         abort(404)
     return send_from_directory(CSV_PATH, filename)
@@ -34,18 +32,24 @@ def get_csv(filename):
 @app.route('/inwestycje/run_etl_import')
 def run_etl_import():
     try:
-        # Popen nie blokuje wątku Flaska
         subprocess.Popen(["/bin/bash", SCRIPTS['etl_import']])
-        return jsonify({"status": "success", "message": "Import uruchomiony w tle."})
+        return jsonify({"status": "success", "message": "Import uruchomiony."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/inwestycje/run_etl_load')
+def run_etl_load():
+    try:
+        subprocess.Popen(["/bin/bash", SCRIPTS['etl_load']])
+        return jsonify({"status": "success", "message": "Ładowanie uruchomione."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/inwestycje/run_gpw_check')
 def run_gpw_check():
     try:
-        # run() czeka na zakończenie skryptu
         subprocess.run(["/bin/bash", SCRIPTS['gpw_check']], check=True)
-        return jsonify({"status": "ok", "message": "Sprawdzono archiwum."})
+        return jsonify({"status": "ok", "message": "Sprawdzono."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

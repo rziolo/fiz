@@ -19,28 +19,24 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 ## 📈 Moduł Inwestycje - Nowe Funkcje (Update 2026-04-21)
 - **Panel Zarządzania Importem (Index):**
     - Dynamiczne monitorowanie dat z plików CSV (GPW, NC, Zagraniczne, Stooq).
-    - **Weryfikacja Archiwum GPW:** Dedykowany przycisk "Sprawdź dzisiejsze" (endpoint `/run_gpw_check`) weryfikujący dostępność plików `.prn` na serwerach GPW.
-    - **Ręczna Aktualizacja:** Zoptymalizowany proces importu z wizualizacją postępu (czas operacji ~40s).
-- **Automatyzacja Danych Dziennych:**
-    - Nowy moduł zapisu statystyk sesji (Wartość portfela, Wkład, H/L, Turnover, HL/NL).
-    - Skrypt `/inwestycje/etl/bash/run_dane_dzienne.sh` automatycznie utrwalający stan sesji w bazie SQL.
-    - Dynamiczne formularze (tryby: `view`, `edit`, `create`) z automatycznym podpowiadaniem danych z plików ETL.
-- **Automatyzacja ETL:**
-    - Skrypty Python do scrapowania danych (Stooq, GPW-NC, Investing) z emulacją nagłówków przeglądarki.
-    - Skrypt zbiorczy Bash: `/inwestycje/etl/bash/run_import_nc_zagr_stooq.sh`.
-    - Harmonogram Cron: Codziennie o 18:20 w dni robocze.
+    - **Weryfikacja Archiwum GPW:** Dedykowany przycisk "Sprawdź dzisiejsze" (endpoint `/run_gpw_check`) weryfikujący dostępność plików `.prn`.
+- **Automatyzacja ETL i Load:**
+    - **Skrypt run_laduj.sh:** Inteligentna synchronizacja. Porównuje daty CSV vs SQL; blokuje import, jeśli dane są już w bazie.
+    - **Scraping:** Skrypty Python (Stooq, GPW-NC, Investing) z emulacją nagłówków.
+    - **Statystyki sesji:** Nowy moduł zapisu (Wartość, Wkład, H/L) z walidacją w `utils.py`.
+- **Interfejs:**
+    - Modale z podglądem treści plików CSV bezpośrednio z tabeli głównej.
 
 ## 🛠 Zarządzanie i Logi
 - **Restart aplikacji:** `sudo systemctl restart flask-inwestycje`
-- **Status usługi:** `sudo systemctl status flask-inwestycje`
 - **Podgląd logów ETL:** `tail -f /var/www/html/flask/inwestycje/etl/python/etl.log`
-- **Zapis statystyk dnia:** `/var/www/html/flask/inwestycje/etl/bash/run_dane_dzienne.sh`
+- **Ręczny Load (z kontrolą):** `/var/www/html/flask/inwestycje/etl/bash/run_laduj.sh`
 
 ## 💡 Troubleshooting & Refleksje (Update 2026-04-21)
-1. **Scrapowanie (Stooq/GPW):** Zastosowano `requests.Session()` oraz rozbudowane nagłówki, aby uniknąć błędów `Connection reset by peer`.
-2. **Łączność SQL w Bash:** W przypadku błędów `TLS/SSL error` lub `SSL is required` w skryptach Bash, należy stosować flagę `--skip-ssl` przy wywołaniu klienta `mysql`.
-3. **Synchronizacja plików:** Dzięki GlusterFS zmiany w `/var/www/html/flask` są replikowane między rpi-05 i rpi-06.
-4. **Logika Panelu:** Funkcja `get_stats()` w `utils.py` weryfikuje zawartość plików statusowych, co pozwala na dynamiczne kolorowanie statusów (OK/BRAK) w GUI.
+1. **Scrapowanie:** Użycie `requests.Session()` eliminuje błędy `Connection reset`.
+2. **Środowisko skryptów:** Skrypty Bash muszą eksportować zmienne z `.env` i używać `/venv/bin/python3`, aby uniknąć `Access denied` przy połączeniach SQL.
+3. **Logika Wyceny:** SQL z `GROUP BY ticker + MAX(data)` zapewnia poprawną wartość portfela przy asynchronicznych datach notowań.
+4. **Synchronizacja:** Zmiany w `/var/www/html/flask` są automatycznie replikowane przez GlusterFS na oba węzły klastra.
 
 ---
-Ostatnia aktualizacja: 2026-04-21 14:15
+Ostatnia aktualizacja: 2026-04-21 16:30

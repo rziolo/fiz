@@ -67,7 +67,7 @@
                         <th class="bg-light-yellow" width="16.6%">Statystyki</th>
                         <th class="bg-light-blue" width="16.6%">GPW</th>
                         <th class="bg-light-blue" width="16.6%">
-                            <button onclick="runGpwCheck()" class="btn btn-link btn-sm p-0 fw-bold text-dark text-decoration-none" title="Sprawdź archiwum teraz">
+                            <button onclick="runGpwCheck()" class="btn btn-link btn-sm p-0 fw-bold text-dark text-decoration-none">
                                 Sprawdź dzisiejsze <i class="fas fa-sync-alt fa-xs" id="icon-gpw-check"></i>
                             </button>
                         </th>
@@ -113,7 +113,9 @@
                         <td class="bg-white">434</td>
                         <td class="bg-white">444</td>
                         <td class="bg-light-pink {{ 'text-green' if s.data_dane_dzienne == s.today else 'text-red' }}">dzienne {{ s.data_dane_dzienne }}</td>
-                        <td class="bg-light-pink"><a href="{{ url_for('dane_dzienne.create') }}" class="btn btn-warning btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem; border: 1px solid #fbc02d;">AKTUALIZUJ</a></td>
+                        <td class="bg-light-pink">
+                            <a href="{{ url_for('dane_dzienne.create') }}" class="btn btn-warning btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem; border: 1px solid #fbc02d;">AKTUALIZUJ</a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -140,7 +142,7 @@ function openCsvModal(filename) {
     document.getElementById('csvTitle').innerText = 'Podgląd pliku: ' + filename;
     document.getElementById('csvContent').innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
     fetch('/inwestycje/get_csv/' + filename)
-        .then(response => { if (!response.ok) throw new Error('Plik nie odnaleziony'); return response.text(); })
+        .then(response => response.text())
         .then(data => {
             const rows = data.split('\n');
             let table = '<table class="table table-sm table-striped border">';
@@ -148,40 +150,19 @@ function openCsvModal(filename) {
             table += '</table>';
             document.getElementById('csvContent').innerHTML = table;
         })
-        .catch(err => { document.getElementById('csvContent').innerHTML = '<div class="alert alert-danger">Błąd: ' + err.message + '</div>'; });
+        .catch(err => { document.getElementById('csvContent').innerHTML = 'Błąd: ' + err; });
     new bootstrap.Modal(document.getElementById('csvModal')).show();
 }
 
 function runEtlImport() {
-    if (!confirm('Uruchomić import? Strona odświeży się za ok. 40 sek.')) return;
-    const btn = document.getElementById('btn-aktualizuj');
-    btn.disabled = true;
-    btn.innerText = 'TRWA IMPORT...';
-    fetch('/inwestycje/run_etl_import')
-        .then(response => response.json())
-        .then(data => {
-            setTimeout(() => { location.reload(); }, 40000);
-        })
-        .catch(err => {
-            alert('Błąd: ' + err);
-            btn.disabled = false;
-            btn.innerText = 'AKTUALIZUJ';
-        });
+    if (!confirm('Uruchomić import?')) return;
+    fetch('/inwestycje/run_etl_import').then(() => location.reload());
 }
 
 function runGpwCheck() {
     const icon = document.getElementById('icon-gpw-check');
     if(icon) icon.classList.add('fa-spin');
-    
-    fetch('/inwestycje/run_gpw_check')
-        .then(response => response.json())
-        .then(data => {
-            location.reload();
-        })
-        .catch(err => {
-            alert('Błąd: ' + err);
-            if(icon) icon.classList.remove('fa-spin');
-        });
+    fetch('/inwestycje/run_gpw_check').then(() => location.reload());
 }
 </script>
 {% endblock %}
