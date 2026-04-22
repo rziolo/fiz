@@ -14,65 +14,65 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Data</label>
-                            <input type="date" name="data" 
-                                   class="form-control form-control-sm {% if mode == 'create' %}{% if s.data_dane_dzienne != s.today %}text-danger fw-bold{% else %}text-success fw-bold{% endif %}{% endif %}" 
-                                   value="{% if mode == 'create' %}{{ s.data_dane_dzienne }}{% else %}{{ row.data if row }}{% endif %}" 
+                            <input type="date" name="data"
+                                   class="form-control form-control-sm {% if mode == 'create' %}{% if s.csv_stat_data != s.today %}text-danger fw-bold{% else %}text-success fw-bold{% endif %}{% endif %}"
+                                   value="{% if mode == 'create' %}{{ s.csv_stat_data }}{% else %}{{ row.data if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %} required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Wartość</label>
-                            <input type="number" step="0.01" name="wartosc" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.dane_dzienne_wartosc }}{% else %}{{ row.wartosc if row }}{% endif %}" 
+                            <input type="number" step="0.001" name="wartosc" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.dane_dzienne_wartosc }}{% else %}{{ row.wartosc if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %} required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Wkład</label>
-                            <input type="number" step="0.01" name="wklad" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.dane_dzienne_wklad }}{% else %}{{ row.wklad if row }}{% endif %}" 
+                            <input type="number" step="0.01" name="wklad" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.dane_dzienne_wklad }}{% else %}{{ row.wklad if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %} required>
                         </div>
 
                         <div class="col-md-3">
                             <label class="form-label">H Ilość</label>
-                            <input type="number" name="h_ilosc" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.csv_stat_h_ilosc }}{% else %}{{ row.H_ilosc if row }}{% endif %}" 
+                            <input type="number" name="h_ilosc" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.csv_stat_h_ilosc }}{% else %}{{ row.H_ilosc if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %}>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">H Wolumen</label>
-                            <input type="number" name="h_vol" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.csv_stat_h_vol }}{% else %}{{ row.H_vol if row }}{% endif %}" 
+                            <input type="number" name="h_vol" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.csv_stat_h_vol }}{% else %}{{ row.H_vol if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %}>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">L Ilość</label>
-                            <input type="number" name="l_ilosc" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.csv_stat_l_ilosc }}{% else %}{{ row.L_ilosc if row }}{% endif %}" 
+                            <input type="number" name="l_ilosc" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.csv_stat_l_ilosc }}{% else %}{{ row.L_ilosc if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %}>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">L Wolumen</label>
-                            <input type="number" name="l_vol" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.csv_stat_l_vol }}{% else %}{{ row.L_vol if row }}{% endif %}" 
+                            <input type="number" name="l_vol" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.csv_stat_l_vol }}{% else %}{{ row.L_vol if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %}>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Turnover</label>
-                            <input type="number" step="0.01" name="turnover" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.csv_stat_turnover }}{% else %}{{ row.turnover if row }}{% endif %}" 
+                            <input type="number" step="0.01" name="turnover" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.csv_stat_turnover }}{% else %}{{ row.turnover if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %}>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">HL</label>
-                            <input type="number" name="hl" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.hl }}{% else %}{{ row.HL if row }}{% endif %}" 
+                            <input type="number" name="hl" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.hl }}{% else %}{{ row.HL if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %}>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">NL</label>
-                            <input type="number" name="nl" class="form-control form-control-sm" 
-                                   value="{% if mode == 'create' %}{{ s.nl }}{% else %}{{ row.NL if row }}{% endif %}" 
+                            <input type="number" name="nl" class="form-control form-control-sm"
+                                   value="{% if mode == 'create' %}{{ s.nl }}{% else %}{{ row.NL if row }}{% endif %}"
                                    {% if mode == 'view' %}readonly{% endif %}>
                         </div>
                     </div>

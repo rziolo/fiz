@@ -43,22 +43,21 @@ def get_stats():
         db = get_db_connection()
         cursor = db.cursor(dictionary=True)
 
-        # 1. Ostatnia data sesji ogólnie w bazie
+        # 1. Ostatnia data sesji w bazie
         cursor.execute("SELECT MAX(data) as d FROM dane")
-        res_date = cursor.fetchone()
-        stats['data_dane'] = str(res_date['d']) if res_date['d'] else "Brak"
+        last_date = cursor.fetchone()['d']
+        stats['data_dane'] = str(last_date) if last_date else "Brak"
 
         # 2. Ilość spółek (aktywne)
         cursor.execute("SELECT COUNT(DISTINCT ticker_nm) as c FROM obroty WHERE sprzedaz_data IS NULL")
         stats['ticker_ilosc'] = cursor.fetchone()['c']
 
-        # 3. WARTOŚĆ - Poprawione zapytanie (bierze najnowszą dostępną cenę dla każdego tickera)
+        # 3. WARTOŚĆ (Aktualna wycena portfela)
         query_wartosc = """
             SELECT SUM(latest_prices.close * o.zakup_ilosc) as wycena
             FROM obroty o
             JOIN (
-                SELECT ticker, close 
-                FROM dane 
+                SELECT ticker, close FROM dane
                 WHERE (ticker, data) IN (SELECT ticker, MAX(data) FROM dane GROUP BY ticker)
             ) as latest_prices ON o.ticker_nm = latest_prices.ticker
             WHERE o.sprzedaz_data IS NULL
@@ -66,59 +65,73 @@ def get_stats():
         cursor.execute(query_wartosc)
         stats['dane_dzienne_wartosc'] = cursor.fetchone()['wycena'] or 0
 
-        # 4. WKŁAD (Twoja sprawdzona logika)
+        # 4. WKŁAD
         cursor.execute("SELECT SUM(COALESCE(sprzedaz_cena, 0) - zakup_cena) as wklad FROM obroty")
         stats['dane_dzienne_wklad'] = cursor.fetchone()['wklad'] or 0
 
-        # 5. Data ostatniego wpisu w dane_dzienne
+        # 5. Ostatnia data w dane_dzienne
         cursor.execute("SELECT MAX(data) as d FROM dane_dzienne")
-        stats['data_dane_dzienne'] = str(cursor.fetchone()['d'] or "")
+        res_dd = cursor.fetchone()
+        stats['data_dane_dzienne'] = str(res_dd['d']) if res_dd['d'] else "Brak"
+
+        # 6. Wyliczanie HL i NL (250 sesji wstecz)
+        cursor.execute("SELECT DISTINCT data FROM dane ORDER BY data DESC LIMIT 1 OFFSET 250")
+        offset_row = cursor.fetchone()
+
+        if offset_row and last_date:
+            past_date = offset_row['data']
+            query_hlnl = """
+                SELECT
+                    SUM(CASE WHEN d_now.close > d_past.close THEN 1 ELSE 0 END) as hl,
+                    SUM(CASE WHEN d_now.close < d_past.close THEN 1 ELSE 0 END) as nl
+                FROM (SELECT ticker, close FROM dane WHERE data = %s) d_now
+                JOIN (SELECT ticker, close FROM dane WHERE data = %s) d_past
+                  ON d_now.ticker = d_past.ticker
+            """
+            cursor.execute(query_hlnl, (last_date, past_date))
+            res_hlnl = cursor.fetchone()
+            stats['hl'] = res_hlnl['hl'] or 0
+            stats['nl'] = res_hlnl['nl'] or 0
+        else:
+            stats['hl'], stats['nl'] = 0, 0
 
         db.close()
     except Exception as e:
         print(f"Błąd bazy danych: {e}")
-        stats.update({'data_dane': 'Błąd', 'dane_dzienne_wartosc': 0, 'dane_dzienne_wklad': 0})
+        stats.update({'hl': 0, 'nl': 0, 'data_dane_dzienne': 'Błąd'})
 
-    # --- Odczyt Dat z Plików CSV dla drugiego wiersza ---
-    # GPW
+    # --- Dane z plików CSV ---
+    row_stooq = read_csv_row(os.path.join(CSV_PATH, 'import_stooq.csv'), 1)
+    def get_val(row, idx, default=0):
+        return row[idx] if row and len(row) > idx else default
+
+    if row_stooq:
+        stats['csv_stat_data'] = get_val(row_stooq, 0, "Brak")
+        stats['csv_stat_h_ilosc'] = get_val(row_stooq, 1, 0)
+        stats['csv_stat_h_vol'] = get_val(row_stooq, 2, 0)
+        stats['csv_stat_l_ilosc'] = get_val(row_stooq, 3, 0)
+        stats['csv_stat_l_vol'] = get_val(row_stooq, 4, 0)
+        stats['csv_stat_turnover'] = get_val(row_stooq, 5, 0)
+
+    # Dane pomocnicze dla widoku
     row_gpw = read_csv_row(os.path.join(CSV_PATH, 'import_gpw.csv'), 1)
     stats['data_import_gpw'] = row_gpw[0] if row_gpw else "Brak"
-
-    # NC
     row_nc = read_csv_row(os.path.join(CSV_PATH, 'import_gpw_nc.csv'), 0)
     stats['csv_nc_data'] = row_nc[0] if row_nc else "Brak"
-
-    # ZAGR
     row_zagr = read_csv_row(os.path.join(CSV_PATH, 'import_zagr.csv'), 0)
     stats['csv_zagr_data'] = row_zagr[0] if row_zagr else "Brak"
 
-    # STATYSTYKI
-    row_stooq = read_csv_row(os.path.join(CSV_PATH, 'import_stooq.csv'), 1)
-    if row_stooq:
-        stats['csv_stat_data'] = row_stooq[0]
-    else:
-        stats['csv_stat_data'] = "Brak"
-
-    # Nowe spółki
+    # Nowe spółki i archiwum
     try:
         with open(os.path.join(CSV_PATH, 'gpw_nowe.csv'), 'r') as f:
             stats['gpw_nowe'] = f.read().strip() or 'brak'
-    except:
-        stats['gpw_nowe'] = 'brak'
-
-    # Archiwum Status
-    try:
         path_arch = os.path.join(CSV_PATH, 'gpw_archiwum.csv')
         if os.path.exists(path_arch):
             with open(path_arch, 'r') as f:
                 content = f.read().strip().lower()
                 stats['gpw_archiwum_status'] = "OK" if content == "ok" else "BRAK"
                 stats['gpw_archiwum_ok'] = (content == "ok")
-        else:
-            stats['gpw_archiwum_status'] = "BRAK"
-            stats['gpw_archiwum_ok'] = False
     except:
-        stats['gpw_archiwum_status'] = "BŁĄD"
-        stats['gpw_archiwum_ok'] = False
+        stats['gpw_nowe'] = 'brak'
 
     return stats

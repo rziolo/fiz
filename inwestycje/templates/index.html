@@ -103,7 +103,9 @@
                         <td class="bg-light-yellow"><a href="https://stooq.pl/t/s/?m=plws" target="_blank" class="table-link">statystyki</a></td>
                         <td class="bg-light-blue"><a href="https://www.gpw.pl/archiwum-notowan" target="_blank" class="table-link">notowania GPW</a></td>
                         <td class="bg-light-blue">435update</td>
-                        <td class="bg-white fw-bold">436load</td>
+                        <td class="bg-white">
+                            <button onclick="runLoadDane()" class="btn btn-outline-dark btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">LOAD</button>
+                        </td>
                     </tr>
                     <tr>
                         <td class="bg-white">414</td>
@@ -170,6 +172,11 @@ function runGpwCheck() {
     const icon = document.getElementById('icon-gpw-check');
     if(icon) icon.classList.add('fa-spin');
     fetch('/inwestycje/run_gpw_check').then(() => location.reload());
+}
+
+function runLoadDane() {
+    if (!confirm('Rozpocząć ładowanie danych do bazy?')) return;
+    fetch('/inwestycje/run_etl_load').then(() => location.reload());
 }
 </script>
 {% endblock %}
