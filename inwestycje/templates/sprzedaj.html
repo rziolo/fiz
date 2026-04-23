@@ -29,8 +29,16 @@
                 <td class="fw-bold {{ 'text-success' if r.zysk > 0 else 'text-danger' }}">{{ r.zysk | format_pl }}</td>
                 <td>{{ r.ilosc }}</td>
                 <td>{{ r.close_1 | format_pl if r.close_1 else '' }}</td>
-                <td class="fw-bold">{{ r.kurs_biezacy | format_pl }}</td>
                 
+                {# Logika kolorowania Kursu bieżącego względem close_1 #}
+                <td class="fw-bold" style="{% if r.close_1 %}
+                        {% if r.kurs_biezacy > r.close_1 %}color: #198754;
+                        {% elif r.kurs_biezacy < r.close_1 %}color: #dc3545;
+                        {% else %}color: #4a4a4a;{% endif %}
+                    {% endif %}">
+                    {{ r.kurs_biezacy | format_pl }}
+                </td>
+
                 <td style="{% if r.zysk > 300 and (not r.stop_loss or r.stop_loss == 0) %}background-color: #f8d7da;{% endif %}">
                     <form action="{{ url_for('sprzedaj.update_sl') }}" method="POST" class="d-flex gap-1 justify-content-center">
                         <input type="hidden" name="id_obroty" value="{{ r.id_obroty }}">
@@ -40,22 +48,22 @@
                 </td>
 
                 <td style="{% if r.waluta != 'PLN' %}background-color: #fff3cd;{% endif %}" class="fw-bold">{{ r.waluta }}</td>
-                
+
                 <td>{{ r.min_m2 | format_pl if r.min_m2 else '' }}</td>
                 <td>{{ r.min_m1 | format_pl if r.min_m1 else '' }}</td>
                 <td>{{ r.min_m0 | format_pl if r.min_m0 else '' }}</td>
                 <td>{{ r.min_3d_val | format_pl if r.min_3d_val > 0 else '' }}</td>
-                
+
                 <td class="fw-bold">
                     {{ r.sugestia_sprzedaz | format_pl if r.sugestia_sprzedaz else '' }}
                     {% if r.sugestia_sprzedaz and r.waluta != 'PLN' %}
-                    <button class="btn btn-sm btn-link p-0 ms-1" 
+                    <button class="btn btn-sm btn-link p-0 ms-1"
                             onclick="showCurrencyModal('{{ r.ticker_nm }}', {{ r.sugestia_sprzedaz }}, {{ r.kurs_waluty_nbp }}, '{{ r.waluta }}')">
                         <i class="fas fa-calculator text-info"></i>
                     </button>
                     {% endif %}
                 </td>
-                
+
                 <td class="fw-bold text-danger">{{ r.podnies_txt }}</td>
             </tr>
             {% endfor %}
@@ -81,7 +89,6 @@
 function showCurrencyModal(ticker, plnValue, exchangeRate, currency) {
     const converted = (plnValue / exchangeRate).toFixed(2);
     document.getElementById('modalTicker').innerText = 'Wystaw Sprzedaj: ' + ticker;
-    // ZMIANA: Etykieta Kurs -> Sprzedaj
     document.getElementById('modalContent').innerHTML = `Sprzedaj: <strong>${converted}</strong> ${currency}`;
     new bootstrap.Modal(document.getElementById('currencyModal')).show();
 }
