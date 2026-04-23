@@ -42,4 +42,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 4. **Zarządzanie Storage:** Automatyczna rotacja plików tymczasowych Excel (utrzymywanie 5 ostatnich wersji).
 
 ---
-Ostatnia aktualizacja: 2026-04-23 13:00
+Ostatnia aktualizacja: 2026-04-24 00:10
