@@ -2,7 +2,7 @@
 
 # Ścieżki
 APP_DIR="/var/www/html/flask/inwestycje"
-PYTHON_BIN="$APP_DIR/venv/bin/python3"
+PYTHON_BIN="/var/www/html/flask/venv/bin/python3"
 EXCEL_DIR="$APP_DIR/etl/excel"
 
 echo "--- Start Import GPW ($(date)) ---"

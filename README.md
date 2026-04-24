@@ -4,42 +4,37 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 
 ## 🏗 Architektura Systemu
 - **Adres VIP:** `192.168.1.156` (zarządzany przez Keepalived)
-- **Reverse Proxy:** Apache2 (mod_proxy)
-- **Storage:** GlusterFS (zsynchronizowany folder `/var/www/html/flask`)
+- **Reverse Proxy:** Apache2 (mod_proxy) z Load Balancingiem
+- **Storage:** GlusterFS (zsynchronizowany wolumen `/var/www/html/flask`)
+- **Baza Danych:** MariaDB Galera Cluster (Multi-Master)
+  - **Zmigrowano:** Baza `finanse` (2026-04-24)
+  - **W planie:** Baza `inwestycje` (obecnie jeszcze na rz-rpi-02)
 - **WSGI Server:** Gunicorn zarządzany przez Systemd
 
 ## 🚀 Wykaz Aplikacji i Portów
-| Aplikacja | Ścieżka URL | Port Lokalny | Status / Funkcje |
+| Aplikacja | Ścieżka URL | Port Lokalny | Status / Baza Danych |
 | :--- | :--- | :--- | :--- |
 | **Aplikacje** | `/aplikacje` | 5000 | HUB - Menu Główne |
-| **Finanse** | `/finanse` | 5001 | **Aktywna**: Bilans, Samochód, Wykresy |
-| **Inwestycje**| `/inwestycje`| 5002 | **Aktywna**: Portfel, Dane Giełdowe, ETL, Moduł Sprzedaży |
-| **Zdrowie** | `/zdrowie` | 5003 | Monitoring ciśnienia + HA |
+| **Finanse** | `/finanse` | 5001 | **AKTYWNA** (Baza: Local Galera) |
+| **Inwestycje**| `/inwestycje`| 5002 | **W TRAKCIE** (Baza: rz-rpi-02) |
+| **Zdrowie** | `/zdrowie` | 5003 | **AKTYWNA** (Baza: SQLite/HA) |
 
-## 📈 Moduł Inwestycje - Nowe Funkcje (Update 2026-04-23)
-- **Panel Zarządzania Importem (Index):**
-    - Dynamiczne monitorowanie dat z plików CSV (GPW, NC, Zagraniczne, Stooq).
-    - **Weryfikacja Archiwum GPW:** Dedykowany przycisk "Sprawdź dzisiejsze" (endpoint `/run_gpw_check`).
-    - **Ręczny Import:** Przycisk **AKTUALIZUJ** wyzwalający natychmiastowe pobranie i przetworzenie danych GPW.
-- **Automatyzacja Raportowania (Raporty CSV):**
-    - **Raport Statystyka:** Automatyczne generowanie `raport_statystyka.csv` (Wycena, Wkład, HL/NL, Turnover).
-    - **Raport Akcje (Logika A/B):** Inteligentny system sugestii sprzedaży i podnoszenia Stop Loss.
-- **Harmonogram Koniec Dnia (`koniec_dnia.sh`):**
-    - W pełni zautomatyzowana pętla ETL (19:20 - 23:30) z inteligentnym oczekiwaniem na publikację danych (interwał 10 min).
-- **Interfejs & UX:**
-    - **Wizualizacja Dynamiki:** Kolorowanie "Kursu bieżącego" względem ceny zamknięcia z dnia poprzedniego (`close_1`): Zielony (wzrost), Czerwony (spadek), Szary (bez zmian).
-    - **Kalkulator Walut:** Modale z przeliczeniem kursów NBP w widoku sprzedaży dla pozycji zagranicznych.
+## 📈 Moduł Inwestycje - Nowe Funkcje
+- **Panel Zarządzania Importem:** Dynamiczne monitorowanie dat z plików CSV (GPW, NC, Stooq).
+- **Automatyzacja ETL:** Skrypty Bash i Python zintegrowane z harmonogramem Cron.
+- **Weryfikacja Archiwum:** Przycisk "Sprawdź dzisiejsze" (endpoint `/run_gpw_check`).
+- **Wizualizacja:** Dynamiczne kolorowanie kursów względem zamknięcia z dnia poprzedniego.
 
-## 🛠 Zarządzanie i Logi
-- **Restart aplikacji:** `sudo systemctl restart flask-inwestycje`
-- **Podgląd logów ETL:** `tail -f /var/www/html/flask/inwestycje/etl/python/etl.log`
-- **Proces Koniec Dnia:** `/var/www/html/flask/inwestycje/etl/bash/koniec_dnia.sh`
+## ⚙️ Operacje Migracyjne (2026-04-24)
+1. **Migracja Finanse:** Baza `finanse` została przeniesiona z `rz-rpi-02` do klastra MariaDB Galera.
+2. **Konfiguracja .env:** Zmieniono `DB_HOST=localhost` w module Finanse, co umożliwia pełną redundancję.
+3. **Weryfikacja ETL:** Skrypty w `/etl/python/` zostały zweryfikowane pod kątem współpracy z `venv` i nową bazą.
 
-## 💡 Troubleshooting & Refleksje (Update 2026-04-23)
-1. **Zmienne Środowiskowe:** Skrypty Bash Crona wymagają `load_dotenv` do poprawnej autoryzacji z MariaDB.
-2. **Synchronizacja Klastra:** Po edycji plików `.html` w GlusterFS konieczny jest restart Gunicorna na obu węzłach, aby przeładować szablony z pamięci RAM.
-3. **Logika Wyceny:** SQL z `MAX(data)` zapewnia poprawność portfela przy asynchronicznych sesjach giełdowych.
-4. **Zarządzanie Storage:** Automatyczna rotacja plików tymczasowych Excel (utrzymywanie 5 ostatnich wersji).
+## 🛠 Zarządzanie i Diagnostyka
+- **Status usług:** `sudo systemctl status "flask-*"`
+- **Restart wszystkich:** `sudo systemctl restart flask-finanse flask-inwestycje flask-aplikacje`
+- **Logi systemowe:** `sudo journalctl -u flask-finanse -f`
+- **Logi ETL:** `tail -f /var/www/html/flask/inwestycje/etl/python/etl.log`
 
 ---
-Ostatnia aktualizacja: 2026-04-24 00:10
+*Ostatnia aktualizacja: 2026-04-25 00:10
