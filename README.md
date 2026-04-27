@@ -37,4 +37,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 - **Logi ETL:** `tail -f /var/www/html/flask/inwestycje/etl/python/etl.log`
 
 ---
-*Ostatnia aktualizacja: 2026-04-27 00:10
+*Ostatnia aktualizacja: 2026-04-28 00:10
