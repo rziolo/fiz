@@ -40,29 +40,12 @@ def run_etl_import():
 @app.route('/inwestycje/run_etl_gpw')
 def run_etl_gpw():
     try:
-        # Używamy run zamiast Popen, aby poczekać na zakończenie przed przeładowaniem strony
         subprocess.run(["/bin/bash", SCRIPTS['etl_gpw']], check=True)
         return jsonify({"status": "success", "message": "Import GPW zakończony."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/inwestycje/run_etl_load')
-def run_etl_load():
-    try:
-        subprocess.Popen(["/bin/bash", SCRIPTS['etl_load']])
-        return jsonify({"status": "success", "message": "Ładowanie uruchomione."})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/inwestycje/run_gpw_check')
-def run_gpw_check():
-    try:
-        subprocess.run(["/bin/bash", SCRIPTS['gpw_check']], check=True)
-        return jsonify({"status": "ok", "message": "Sprawdzono."})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-# Blueprints
+# Blueprints - Przywrócono prefiksy /inwestycje dla pełnej zgodności z Apache
 from routes.chart import chart_bp
 from routes.dane import dane_bp
 from routes.dane_dzienne import dane_dzienne_bp
@@ -88,4 +71,4 @@ def index():
     return render_template('index.html', tytul_aplikacji='Inwestycje', db_ok=True, s=stats_data)
 
 if __name__ == '__main__':
-    app.run(port=5002)
+    app.run(host='0.0.0.0', port=5002)

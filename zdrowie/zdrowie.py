@@ -27,6 +27,7 @@ def check_db():
     except Exception as e:
         return False, str(e)
 
+@app.route('/zdrowie/')
 @app.route('/zdrowie')
 def index():
     db_ok, db_msg = check_db()
