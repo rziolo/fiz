@@ -26,4 +26,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 - **Logi Apache:** `tail -f /var/log/apache2/access.log`
 
 ---
-*Ostatnia aktualizacja: 2026-04-29 00:10
+*Ostatnia aktualizacja: 2026-04-30 00:10
