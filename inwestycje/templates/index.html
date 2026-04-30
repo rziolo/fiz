@@ -67,11 +67,11 @@
                         <th class="bg-light-yellow" width="16.6%">Statystyki</th>
                         <th class="bg-light-blue" width="16.6%">GPW</th>
                         <th class="bg-light-blue" width="16.6%">
-                            <button onclick="runGpwCheck()" class="btn btn-link btn-sm p-0 fw-bold text-dark text-decoration-none">
-                                Sprawdź dzisiejsze <i class="fas fa-sync-alt fa-xs" id="icon-gpw-check"></i>
+                            <button onclick="runGpwCheck()" class="btn btn-outline-dark btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">
+                                SPRAWDŹ DZISIEJSZE <i class="fas fa-sync-alt fa-xs" id="icon-gpw-check"></i>
                             </button>
                         </th>
-                        <th class="bg-light-green {{ 'text-green' if s.data_dane == s.today else 'text-red' }}">w bazie {{ s.data_dane }}</th>
+                        <th class="bg-light-blue {{ 'text-green' if s.data_dane == s.today else 'text-red' }}">w bazie {{ s.data_dane }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -93,8 +93,8 @@
                                     onclick="openCsvModal('import_gpw.csv')">{{ s.data_import_gpw }}</button>
                         </td>
                         <td class="bg-light-blue {{ 'text-green' if s.gpw_archiwum_ok else 'text-red' }}">{{ s.gpw_archiwum_status }}</td>
-                        <td class="bg-light-green">
-                            <button onclick="runGpwImport()" class="btn btn-success btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">AKTUALIZUJ</button>
+                        <td class="bg-light-blue">
+                            <button onclick="runGpwImport()" class="btn btn-primary btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">IMPORTUJ DANE</button>
                         </td>
                     </tr>
                     <tr>
@@ -102,8 +102,8 @@
                         <td class="bg-light-yellow"><a href="https://www.investing.com/portfolio/" target="_blank" class="table-link">notowania zagraniczne</a></td>
                         <td class="bg-light-yellow"><a href="https://stooq.pl/t/s/?m=plws" target="_blank" class="table-link">statystyki</a></td>
                         <td class="bg-light-blue"><a href="https://www.gpw.pl/archiwum-notowan" target="_blank" class="table-link">notowania GPW</a></td>
-                        <td class="bg-light-blue">
-                            <button onclick="runGpwImport()" class="btn btn-outline-primary btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">IMPORT</button>
+                        <td class="bg-white fw-bold">
+                            453
                         </td>
                         <td class="bg-white">
                             <button onclick="runLoadDane()" class="btn btn-outline-dark btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">LOAD</button>

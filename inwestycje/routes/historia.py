@@ -16,24 +16,24 @@ def index():
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    # 1. ROK MIESIĄC
+    # 1. ROK MIESIĄC - dodano ABS() dla kolumn wkładu
     cursor.execute("""
-        SELECT 
+        SELECT
             rm_label as rok_miesiac,
-            (SELECT wklad FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y-%m') = rm_label ORDER BY d2.data DESC LIMIT 1) as wklad,
+            (SELECT ABS(wklad) FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y-%m') = rm_label ORDER BY d2.data DESC LIMIT 1) as wklad,
             (SELECT wartosc FROM dane_dzienne d3 WHERE DATE_FORMAT(d3.data, '%Y-%m') = rm_label ORDER BY d3.data DESC LIMIT 1) as wartosc,
-            (SELECT AVG(wklad) FROM dane_dzienne d4 WHERE DATE_FORMAT(d4.data, '%Y-%m') = rm_label) as sredni_wklad,
+            (SELECT ABS(AVG(wklad)) FROM dane_dzienne d4 WHERE DATE_FORMAT(d4.data, '%Y-%m') = rm_label) as sredni_wklad,
             (SELECT SUM(sprzedaz_cena - zakup_cena) FROM obroty o WHERE DATE_FORMAT(o.sprzedaz_data, '%Y-%m') = rm_label AND ticker_nm != 'dywidenda') as zysk_op
         FROM (SELECT DISTINCT DATE_FORMAT(data, '%Y-%m') as rm_label FROM dane_dzienne) as periods
         ORDER BY rok_miesiac DESC
     """)
     rok_miesiac = cursor.fetchall()
 
-    # 2. ROK
+    # 2. ROK - dodano ABS() dla kolumny wkładu
     cursor.execute("""
-        SELECT 
+        SELECT
             rok_label as rok,
-            (SELECT wklad FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y') = rok_label ORDER BY d2.data DESC LIMIT 1) as wklad,
+            (SELECT ABS(wklad) FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y') = rok_label ORDER BY d2.data DESC LIMIT 1) as wklad,
             (SELECT wartosc FROM dane_dzienne d3 WHERE DATE_FORMAT(d3.data, '%Y') = rok_label ORDER BY d3.data DESC LIMIT 1) as wartosc
         FROM (SELECT DISTINCT DATE_FORMAT(data, '%Y') as rok_label FROM dane_dzienne) as years
         ORDER BY rok DESC
@@ -46,14 +46,14 @@ def index():
 
     # 4. OBROTY ROK MIESIĄC
     cursor.execute("""
-        SELECT 
+        SELECT
             rm,
             SUM(zakup_zl) as zakup_zl, SUM(zakup_il) as zakup_ilosc,
-            SUM(sprz_zl) as sprzedaz_zl, SUM(sprz_il) as sprzedaz_ilosc,
-            SUM(dyw_zl) as dywidenda_zl, SUM(dyw_il) as dywidenda_ilosc
+            SUM(sprz_zl) as sprzedaz_zl, SUM(sprzedaz_ilosc) as sprzedaz_ilosc,
+            SUM(dyw_zl) as dywidenda_zl, SUM(dywidenda_ilosc) as dywidenda_ilosc
         FROM (
-            SELECT DATE_FORMAT(zakup_data, '%Y-%m') as rm, zakup_cena as zakup_zl, 
-                   CASE WHEN sprzedaz_data IS NULL THEN 1 ELSE 0 END as zakup_il, 0 as sprz_zl, 0 as sprz_il, 0 as dyw_zl, 0 as dyw_il
+            SELECT DATE_FORMAT(zakup_data, '%Y-%m') as rm, zakup_cena as zakup_zl,
+                   CASE WHEN sprzedaz_data IS NULL THEN 1 ELSE 0 END as zakup_il, 0 as sprz_zl, 0 as sprzedaz_ilosc, 0 as dyw_zl, 0 as dywidenda_ilosc
             FROM obroty WHERE ticker_nm != 'dywidenda'
             UNION ALL
             SELECT DATE_FORMAT(sprzedaz_data, '%Y-%m') as rm, 0, 0, sprzedaz_cena, 1, 0, 0
@@ -67,5 +67,5 @@ def index():
     obroty_rm = cursor.fetchall()
 
     db.close()
-    return render_template('historia.html', rok_miesiac=rok_miesiac, rok_stats=rok_stats, 
+    return render_template('historia.html', rok_miesiac=rok_miesiac, rok_stats=rok_stats,
                            historia_inw=historia_inw, obroty_rm=obroty_rm)

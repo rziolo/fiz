@@ -1,12 +1,12 @@
-data_dane:2026-04-29
-data_dane_dzienne:2026-04-29
-ticker_ilosc:58
-dane_dzienne_wartosc:103 313,18 PLN
-dane_dzienne_wklad:47 525,80 PLN
-HL:190
-NL:192
-h_ilosc:162
-h_vol:23232976
-l_ilosc:164
-l_vol:32104290
-turnover:2862837
+data_dane:2026-04-30
+data_dane_dzienne:2026-04-30
+ticker_ilosc:59
+dane_dzienne_wartosc:105 070,19 PLN
+dane_dzienne_wklad:49 522,30 PLN
+HL:186
+NL:195
+h_ilosc:150
+h_vol:17020668
+l_ilosc:172
+l_vol:29656538
+turnover:3018317
