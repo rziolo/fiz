@@ -33,4 +33,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 - **Test JSON HA:** `python3 /var/www/html/flask/finanse/etl/python/get_finanse_json.py`
 
 ---
-*Ostatnia aktualizacja: 2026-05-04 00:10
+*Ostatnia aktualizacja: 2026-05-05 00:10
