@@ -44,6 +44,7 @@ def main():
         {"ticker": "IUSQ.DE", "name": "IUSQ", "full_name": "IUSQ", "is_ticker": "IUSQ", "currency": "EUR", "rate": eur_rate},
         {"ticker": "FER.MC", "name": "Ferrovial", "full_name": "FERROVIAL", "is_ticker": "FER", "currency": "EUR", "rate": eur_rate},
         {"ticker": "PPC.AT", "name": "Public Power", "full_name": "PUBLIC POWER CORP", "is_ticker": "DEH", "currency": "EUR", "rate": eur_rate},
+        {"ticker": "PRY.MI", "name": "Prysmian", "full_name": "PRYSMIAN", "is_ticker": "PRY", "currency": "EUR", "rate": eur_rate},
         {"ticker": "ABBV", "name": "AbbVie", "full_name": "ABBVIE", "is_ticker": "ABBV", "currency": "USD", "rate": usd_rate},
         {"ticker": "NVDA", "name": "NVIDIA", "full_name": "NVIDIA", "is_ticker": "NVDA", "currency": "USD", "rate": usd_rate},
         {"ticker": "REXR", "name": "Rexford", "full_name": "REXFORD", "is_ticker": "REXR", "currency": "USD", "rate": usd_rate},
