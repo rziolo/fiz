@@ -1,33 +1,25 @@
 {% extends "base.html" %}
+{% set tytul_aplikacji = "Zdrowie" %}
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex align-items-center mb-4">
-                <h2 class="me-3">Panel Zdrowie</h2>
-                {% if db_ok %}
-                    <span class="badge bg-success">● Połączenie z bazą danych OK</span>
-                {% else %}
-                    <span class="badge bg-danger">○ BŁĄD: {{ db_msg }}</span>
-                {% endif %}
+<div class="d-flex align-items-center mb-5">
+    <h1 class="h2 mb-0 me-3">Panel Zdrowie</h1>
+    {% if db_ok %}
+        <span class="db-status db-ok"><i class="fas fa-check-circle me-1"></i> Połączono</span>
+    {% else %}
+        <span class="db-status db-err"><i class="fas fa-exclamation-triangle me-1"></i> Błąd: {{ db_msg }}</span>
+    {% endif %}
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card text-center shadow-sm p-4">
+            <div class="card-body">
+                <i class="fas fa-heartbeat fa-5x text-danger mb-4"></i>
+                <h2 class="mb-3">Ciśnienie</h2>
+                <p class="text-muted mb-4">Rejestracja pomiarów i historia</p>
+                <a href="{{ url_for('pressure.list_pressure') }}" class="btn btn-outline-danger btn-lg w-100">Otwórz panel</a>
             </div>
         </div>
-    </div>
-
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-4">
-            <a href="{{ url_for('pressure.list_pressure') }}" class="card text-decoration-none shadow-sm hover-shadow" style="transition: 0.3s;">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-heartbeat fa-4x text-danger mb-3"></i>
-                    <h3 class="text-dark">Ciśnienie</h3>
-                    <p class="text-muted">Rejestracja pomiarów i historia</p>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <div class="text-center mt-5">
-        <a href="http://192.168.1.156/aplikacje" class="btn btn-outline-secondary">← Powrót do menu</a>
     </div>
 </div>
 {% endblock %}

@@ -3,30 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Moja Aplikacja{% endblock %}</title>
+    <title>{% block title %}System Domowy{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        html, body { height: 100%; margin: 0; }
+        body { background-color: #f8f9fa; display: flex; flex-direction: column; }
+        .content-wrapper { flex: 1 0 auto; }
+        .navbar { background-color: #000 !important; padding: 0.5rem 1rem; }
+        .footer { flex-shrink: 0; background: white; border-top: 1px solid #dee2e6; padding: 15px 0; width: 100%; }
+        .db-status { font-size: 0.75rem; padding: 2px 12px; border-radius: 15px; display: inline-flex; align-items: center; font-weight: 500; }
+        .db-ok { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/aplikacje">
-                <i class="fas fa-home"></i> {{ tytul_aplikacji if tytul_aplikacji else 'System Domowy' }}
-            </a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="/finanse">Finanse</a>
-                <a class="nav-link" href="/inwestycje">Inwestycje</a>
-                <a class="nav-link" href="/zdrowie">Zdrowie</a>
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand navbar-dark mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand d-flex align-items-center" href="/aplikacje">
+                    <i class="fas fa-home me-2"></i> {{ tytul_aplikacji if tytul_aplikacji else 'System' }}
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link px-2 text-white" href="/finanse">Finanse</a>
+                    <a class="nav-link px-2 text-white" href="/inwestycje">Inwestycje</a>
+                    <a class="nav-link px-2 text-white" href="/zdrowie">Zdrowie</a>
+                    <a class="nav-link px-2 text-secondary" href="/aplikacje">Menu</a>
+                </div>
             </div>
-        </div>
-    </nav>
-    <div class="container-fluid">
-        {% block content %}{% endblock %}
+        </nav>
+        <div class="container">{% block content %}{% endblock %}</div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="footer text-center">
+        <div class="container">
+            <span class="text-muted">Projekt i wykonanie Robert Zioło + <span style="color: #4285f4; font-weight: bold;"><i class="fas fa-microchip"></i> Gemini AI</span></span>
+        </div>
+    </footer>
 </body>
 </html>
