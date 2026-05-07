@@ -10,10 +10,13 @@ load_dotenv(os.path.join(basedir, '.env'))
 if basedir not in sys.path:
     sys.path.append(basedir)
 
-from utils import get_stats, CSV_PATH, SCRIPTS
+from utils import get_stats
 
 app = Flask(__name__, template_folder=os.path.join(basedir, 'templates'))
 app.jinja_loader.searchpath.append('/var/www/html/flask/shared/templates')
+
+# Ścieżka do Twoich plików CSV
+CSV_DIRECTORY = "/var/www/html/flask/inwestycje/etl/csv"
 
 @app.template_filter('format_pl')
 def format_pl(value, precision=2):
@@ -25,27 +28,44 @@ def format_pl(value, precision=2):
 
 @app.route('/inwestycje/get_csv/<filename>')
 def get_csv(filename):
-    if not os.path.exists(os.path.join(CSV_PATH, filename)):
+    # Bezpieczne serwowanie plików z podfolderu etl/csv
+    if not os.path.exists(os.path.join(CSV_DIRECTORY, filename)):
         abort(404)
-    return send_from_directory(CSV_PATH, filename)
+    return send_from_directory(CSV_DIRECTORY, filename)
+
+@app.route('/inwestycje/run_gpw_check')
+def run_gpw_check():
+    try:
+        subprocess.run(["/bin/bash", "/var/www/html/flask/inwestycje/etl/bash/run_gpw_archiwum.sh"], check=True)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/inwestycje/run_etl_import')
 def run_etl_import():
     try:
-        subprocess.Popen(["/bin/bash", SCRIPTS['etl_import']])
-        return jsonify({"status": "success", "message": "Import uruchomiony."})
+        subprocess.Popen(["/bin/bash", "/var/www/html/flask/inwestycje/etl/bash/run_import_nc_zagr_stooq.sh"])
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/inwestycje/run_etl_gpw')
 def run_etl_gpw():
     try:
-        subprocess.run(["/bin/bash", SCRIPTS['etl_gpw']], check=True)
-        return jsonify({"status": "success", "message": "Import GPW zakończony."})
+        subprocess.run(["/bin/bash", "/var/www/html/flask/inwestycje/etl/bash/run_import_gpw.sh"], check=True)
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Blueprints - Przywrócono prefiksy /inwestycje dla pełnej zgodności z Apache
+@app.route('/inwestycje/run_etl_load')
+def run_etl_load():
+    try:
+        subprocess.run(["/bin/bash", "/var/www/html/flask/inwestycje/etl/bash/run_laduj.sh"], check=True)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# Blueprints
 from routes.chart import chart_bp
 from routes.dane import dane_bp
 from routes.dane_dzienne import dane_dzienne_bp
