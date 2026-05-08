@@ -1,62 +1,76 @@
+#!/usr/bin/env python3
+# Plik: /var/www/html/flask/inwestycje/etl/python/gpw_archiwum.py (lub dowolna lokalizacja na nowym serwerze)
+
 import requests
 from bs4 import BeautifulSoup
 from datetime import date
+import subprocess
+import sys
 import os
-import time
 
-# Konfiguracja
+# --- KONFIGURACJA DLA NOWEGO SERWERA ---
+# URL może wskazywać na inne archiwum (np. inna giełda, inna domena)
 GPW_URL = "https://www.gpw.pl/archiwum-notowan-full?type=10&date={}&fetch=1"
+# Ścieżka docelowa CSV – zgodna z podaną w zadaniu
 CSV_PATH = "/var/www/html/flask/inwestycje/etl/csv/gpw_archiwum.csv"
+# Opcjonalny plik debug HTML (można zmienić lub usunąć)
+DEBUG_HTML = "/tmp/gpw_debug_new.html"
 
-def check_gpw_autonomously():
+def write_with_sudo_tee(content: str, file_path: str) -> bool:
+    """
+    Zapisuje treść do pliku przy użyciu 'sudo tee'.
+    Zwraca True jeśli sukces, False w przypadku błędu.
+    """
+    try:
+        # Uruchomienie: echo "content" | sudo tee file_path
+        proc = subprocess.Popen(
+            ['sudo', 'tee', file_path],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        _, stderr = proc.communicate(input=content)
+        if proc.returncode != 0:
+            print(f"Błąd sudo tee: {stderr.strip()}", file=sys.stderr)
+            return False
+        return True
+    except Exception as e:
+        print(f"Wyjątek podczas zapisu przez sudo tee: {e}", file=sys.stderr)
+        return False
+
+def check_gpw_data_for_today():
     today_str = date.today().strftime("%Y-%m-%d")
     url = GPW_URL.format(today_str)
-    
-    # Rozbudowane nagłówki, aby rpi-06 wyglądał inaczej niż wcześniej
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1'
-    }
-
-    result = "brak"
-    session = requests.Session()
 
     try:
-        # KROK 1: Najpierw wchodzimy na stronę główną, by pobrać ciasteczka sesyjne
-        # To często "oszukuje" systemy anty-botowe
-        session.get("https://www.gpw.pl/", headers=headers, timeout=10)
-        time.sleep(1) # Chwila oddechu
-
-        # KROK 2: Właściwe zapytanie o dane
-        response = session.get(url, headers=headers, timeout=15)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
-        
-        soup = BeautifulSoup(response.text, "html.parser")
-        page_text = soup.get_text()
+    except requests.RequestException as e:
+        print(f"Błąd pobierania strony GPW: {e}")
+        return
 
-        if "Brak danych dla wybranych kryteriów." in page_text:
-            result = "brak"
-        elif "Kurs" in page_text or "Ticker" in page_text:
-            result = "OK"
-        else:
-            result = "brak"
+    soup = BeautifulSoup(response.text, "html.parser")
 
-    except Exception as e:
-        print(f"Autonomiczna próba nieudana: {e}")
-        result = "brak"
-
-    # Zapis wyniku
+    # Zapis HTML do debugu (opcjonalnie)
     try:
-        os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
-        with open(CSV_PATH, "w", encoding="utf-8") as f:
-            f.write(result + "\n")
-        print(f"Zapisano wynik na rz-rpi-06: {result}")
-    except IOError as e:
-        print(f"Błąd zapisu: {e}")
+        with open(DEBUG_HTML, "w", encoding="utf-8") as f:
+            f.write(response.text)
+    except IOError:
+        pass  # ignorujemy błędy zapisu debugowego
+
+    # Detekcja braku danych
+    page_text = soup.get_text()
+    if "Brak danych dla wybranych kryteriów." in page_text:
+        result = "brak"
+    else:
+        result = "OK"
+
+    # Zapis wyniku do CSV przez sudo tee
+    if write_with_sudo_tee(result + "\n", CSV_PATH):
+        print(f"Zapisano wynik '{result}' do {CSV_PATH} (przez sudo tee)")
+    else:
+        print(f"Nie udało się zapisać wyniku do {CSV_PATH}")
 
 if __name__ == "__main__":
-    check_gpw_autonomously()
+    check_gpw_data_for_today()
