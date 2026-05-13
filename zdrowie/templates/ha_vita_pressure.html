@@ -22,6 +22,7 @@
                     <th>Ciśn.</th>
                     <th>Temp.</th>
                     <th>Wilgot.</th>
+                    <th class="text-center">Uwagi</th>
                     <th>Akcje</th>
                 </tr>
             </thead>
@@ -37,6 +38,17 @@
                     <td>{{ row['atmosf.'] }}</td>
                     <td>{{ row.temperatura }}</td>
                     <td>{{ row.wilgotnosc }}</td>
+                    <td class="text-center">
+                        {% if row.uwagi and row.uwagi|trim != "" %}
+                            <button type="button" class="btn btn-sm btn-link text-warning p-0" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#noteModal" 
+                                    data-note="{{ row.uwagi }}"
+                                    title="Pokaż uwagi">
+                                <i class="fas fa-sticky-note fa-lg"></i>
+                            </button>
+                        {% endif %}
+                    </td>
                     <td class="text-center">
                         <div class="btn-group btn-group-sm">
                             <a href="/zdrowie/pressure/view/{{ row.id_ha_fit }}" class="btn btn-outline-info">
@@ -56,4 +68,39 @@
         </table>
     </div>
 </div>
+
+<!-- Modal dla Uwag -->
+<div class="modal fade" id="noteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark py-2">
+                <h6 class="modal-title fw-bold"><i class="fas fa-comment-alt"></i> Uwagi do pomiaru</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="noteModalContent" style="white-space: pre-wrap; font-size: 0.95rem;">
+                <!-- Treść wstawiana przez JS -->
+            </div>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var noteModal = document.getElementById('noteModal');
+    if (noteModal) {
+        noteModal.addEventListener('show.bs.modal', function (event) {
+            // Przycisk, który wywołał modal
+            var button = event.relatedTarget;
+            // Pobranie treści z atrybutu data-note
+            var note = button.getAttribute('data-note');
+            // Wstawienie treści do body modala
+            var modalBody = noteModal.querySelector('#noteModalContent');
+            modalBody.textContent = note;
+        });
+    }
+});
+</script>
 {% endblock %}
