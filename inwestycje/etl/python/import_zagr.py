@@ -45,12 +45,14 @@ def main():
         {"ticker": "FER.MC", "name": "Ferrovial", "full_name": "FERROVIAL", "is_ticker": "FER", "currency": "EUR", "rate": eur_rate},
         {"ticker": "PPC.AT", "name": "Public Power", "full_name": "PUBLIC POWER CORP", "is_ticker": "DEH", "currency": "EUR", "rate": eur_rate},
         {"ticker": "PRY.MI", "name": "Prysmian", "full_name": "PRYSMIAN", "is_ticker": "PRY", "currency": "EUR", "rate": eur_rate},
+        {"ticker": "U3O8.DE", "name": "VanEck Uranium", "full_name": "VANECK URANIUM", "is_ticker": "U3O8", "currency": "EUR", "rate": eur_rate},
         {"ticker": "ABBV", "name": "AbbVie", "full_name": "ABBVIE", "is_ticker": "ABBV", "currency": "USD", "rate": usd_rate},
         {"ticker": "NVDA", "name": "NVIDIA", "full_name": "NVIDIA", "is_ticker": "NVDA", "currency": "USD", "rate": usd_rate},
         {"ticker": "REXR", "name": "Rexford", "full_name": "REXFORD", "is_ticker": "REXR", "currency": "USD", "rate": usd_rate},
         {"ticker": "TKC", "name": "Turkcell", "full_name": "TURKCELL", "is_ticker": "TKC", "currency": "USD", "rate": usd_rate},
         {"ticker": "BCC", "name": "Boise Cascade", "full_name": "BOISE CASCADE", "is_ticker": "BCC", "currency": "USD", "rate": usd_rate},
-        {"ticker": "DHT", "name": "DHT Holdings", "full_name": "DHT HOLDINGS INC", "is_ticker": "DHT", "currency": "USD", "rate": usd_rate}
+        {"ticker": "DHT", "name": "DHT Holdings", "full_name": "DHT HOLDINGS INC", "is_ticker": "DHT", "currency": "USD", "rate": usd_rate},
+        {"ticker": "MP", "name": "MP Materials", "full_name": "MP MATERIALS CORP", "is_ticker": "MP", "currency": "USD", "rate": usd_rate}
     ]
 
     csv_rows = []
