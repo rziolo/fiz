@@ -36,4 +36,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 - **Ręczna synchronizacja szablonu:** `/bin/bash /var/www/html/flask/shared/bash/update_base.sh`
 
 ---
-*Ostatnia aktualizacja: 2026-05-25 00:10
+*Ostatnia aktualizacja: 2026-05-26 00:10
