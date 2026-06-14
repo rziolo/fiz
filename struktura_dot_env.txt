@@ -1,0 +1,6 @@
+Przykład 
+/var/www/html/flask/finanse $ cat .env
+DB_HOST=localhost // lub 192.168.x.xxx
+DB_USER=user
+DB_PASS=password
+DB_NAME=database

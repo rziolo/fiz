@@ -10,6 +10,7 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
     - **Stripping:** `/aplikacje` (HUB - przekierowanie na korzeń `/` aplikacji).
 - **Storage:** GlusterFS (zsynchronizowany wolumen `/var/www/html/html` podpięty pod `/var/www/html`).
 - **Integracje:** Eksport danych finansowych do Home Assistant via JSON/SSH.
+- **.env** patrz plik struktura_dot_env.txt
 
 ## 🚀 Wykaz Aplikacji i Portów (Pełne HA / Integracje)
 | Aplikacja | Ścieżka URL | Port Lokalny | Status / Baza Danych |
@@ -18,8 +19,8 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 | **Finanse** | `/finanse` | 5001 | **HA** (Local Galera) |
 | **Inwestycje**| `/inwestycje`| 5002 | **HA** (Local Galera) |
 | **Zdrowie** | `/zdrowie` | 5003 | **HA** (SQLite/GlusterFS) |
-| **n8n** | `http://192.168.1.130:5678/` | 5678 | **External** (rz-rpi-02) |
-| **Sprzęt (Centrum Mon.)** | `http://192.168.1.131/mon/` | 80 (Apache) | **External** (rz-rpi-02) |
+| **n8n** | `http://192.168.1.130:5678/` | 5678 | **External** (rz-rpi-07) |
+| **Sprzęt (Centrum Mon.)** | `http://192.168.1.131/mon/` | 80 (Apache) | **External** (rz-rpi-07) |
 
 ## 📈 Kluczowe zmiany i poprawki (Knowledge Base - App)
 - **Korekta mnożników walutowych ETL (28.05.2026):** Naprawiono problem błędnych wartości cenowych w module Inwestycji. Ponieważ biblioteka `yfinance` dla wybranych instrumentów europejskich (np. `U3O8.DE` - VanEck Uranium na Xetra) domyślnie zwraca wartości w centach zamiast w EUR, zmodyfikowano `import_zagr.py`. Wdrożono precyzyjne pobieranie pól przez słownik `.to_dict()` oraz wprowadzono parametr `"mult"` (mnożnik jednostkowy), zapewniając prawidłowe przeliczenia na PLN.
@@ -43,4 +44,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 * **Konfiguracja sprzętowa i sieciowa klastra HA:** Dokumentacja konfiguracji GlusterFS, Galera, Keepalived oraz skryptów monitorujących zdrowie dysków znajduje się pod ścieżką: `/home/rz-rpi-06/klaster-rpi0506/README.md`
 
 ---
-*Ostatnia aktualizacja: 2026-06-14 00:10
+*Ostatnia aktualizacja: 2026-06-15 00:10
