@@ -1,12 +1,12 @@
-data_dane:
-data_dane_dzienne:Błąd
-ticker_ilosc:0
-dane_dzienne_wartosc:0,00 PLN
-dane_dzienne_wklad:0,00 PLN
-HL:0
-NL:0
-h_ilosc:185
-h_vol:80065341
-l_ilosc:139
-l_vol:13572019
-turnover:4786262
+data_dane:2026-06-17
+data_dane_dzienne:2026-06-17
+ticker_ilosc:63
+dane_dzienne_wartosc:111 393,71 PLN
+dane_dzienne_wklad:51 333,70 PLN
+HL:192
+NL:185
+h_ilosc:166
+h_vol:42508805
+l_ilosc:155
+l_vol:15946499
+turnover:3088187
