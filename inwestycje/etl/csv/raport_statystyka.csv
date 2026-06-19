@@ -1,12 +1,12 @@
 data_dane:2026-06-18
-data_dane_dzienne:2026-06-18
+data_dane_dzienne:2026-06-19
 ticker_ilosc:63
 dane_dzienne_wartosc:110 982,24 PLN
 dane_dzienne_wklad:51 333,70 PLN
 HL:185
 NL:194
-h_ilosc:132
-h_vol:29699882
-l_ilosc:194
-l_vol:28254520
-turnover:3222320
+h_ilosc:175
+h_vol:84411781
+l_ilosc:141
+l_vol:19398342
+turnover:5657742
