@@ -44,4 +44,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 * **Konfiguracja sprzętowa i sieciowa klastra HA:** Dokumentacja konfiguracji GlusterFS, Galera, Keepalived oraz skryptów monitorujących zdrowie dysków znajduje się pod ścieżką: `/home/rz-rpi-06/klaster-rpi0506/README.md`
 
 ---
-*Ostatnia aktualizacja: 2026-06-21 00:10
+*Ostatnia aktualizacja: 2026-06-22 00:10
