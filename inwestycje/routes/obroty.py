@@ -23,19 +23,20 @@ def get_form_data():
 
 @obroty_bp.route('/')
 def index():
-    show_current = request.args.get('filter') == 'current'
+    # Domyślnie pokazujemy obecne, chyba że jawnie zażądamy wszystkich przez filter=all
+    show_all = request.args.get('filter') == 'all'
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
     
-    if show_current:
-        query = "SELECT * FROM obroty WHERE sprzedaz_data IS NULL ORDER BY ticker_nm ASC"
-    else:
+    if show_all:
         query = "SELECT * FROM obroty ORDER BY ticker_nm ASC"
+    else:
+        query = "SELECT * FROM obroty WHERE sprzedaz_data IS NULL ORDER BY ticker_nm ASC"
         
     cursor.execute(query)
     records = cursor.fetchall()
     db.close()
-    return render_template('obroty.html', records=records, is_filtered=show_current)
+    return render_template('obroty.html', records=records, is_filtered=not show_all)
 
 @obroty_bp.route('/create', methods=['GET', 'POST'])
 def create():

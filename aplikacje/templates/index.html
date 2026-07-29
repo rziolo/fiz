@@ -2,6 +2,7 @@
 {% set tytul_aplikacji = "HUB Aplikacji" %}
 {% block content %}
 <div class="row row-cols-1 row-cols-md-3 row-cols-xl-6 g-4 text-center mt-4">
+
     <div class="col">
         <div class="card h-100 p-3 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between">
@@ -9,7 +10,10 @@
                     <i class="fas fa-brain fa-4x mb-4" style="color: #6f42c1;"></i>
                     <h2 class="h3 mb-4">AI Proxy</h2>
                 </div>
-                <a href="http://192.168.1.170:3001/" target="_blank" class="btn btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">FreeLLM</a>
+                <div class="d-flex flex-column gap-2">
+                    <a href="http://192.168.1.130:20128/home" target="_blank" class="btn btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">OmniRoute</a>
+                    <a href="http://192.168.1.130:3001/" target="_blank" class="btn btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">Open WebUI</a>
+                </div>
             </div>
         </div>
     </div>
@@ -22,18 +26,6 @@
                     <h2 class="h3 mb-4">Automatyzacja</h2>
                 </div>
                 <a href="http://192.168.1.170:5678/" target="_blank" class="btn btn-outline-warning w-100" style="border-color: #ff6d5a; color: #ff6d5a;">n8n</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <i class="fas fa-pen-nib fa-4x mb-4" style="color: #007aa6;"></i>
-                    <h2 class="h3 mb-4">Baza wiedzy</h2>
-                </div>
-                <a href="http://192.168.1.170:3010/" target="_blank" class="btn btn-outline-info w-100" style="border-color: #007aa6; color: #007aa6;">AFFiNE</a>
             </div>
         </div>
     </div>
@@ -78,10 +70,29 @@
         <div class="card h-100 p-3 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between">
                 <div>
+                    <i class="fas fa-anchor fa-4x mb-4 text-secondary"></i>
+                    <h2 class="h3 mb-4">Oprogramowanie</h2>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <a href="http://192.168.1.170:3000" target="_blank" class="btn btn-outline-secondary w-100">ConvertX</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col">
+        <div class="card h-100 p-3 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
                     <i class="fas fa-server fa-4x mb-4 text-secondary"></i>
                     <h2 class="h3 mb-4">Sprzęt</h2>
                 </div>
-                <a href="http://192.168.1.170/mon/" target="_blank" class="btn btn-outline-secondary w-100">Glances</a>
+                <div class="d-flex flex-column gap-2">
+                    <a href="http://192.168.1.170:8090" target="_blank" class="btn btn-outline-indigo w-100" style="border-color: #4f46e5; color: #4f46e5;">Beszel</a>
+                    <a href="http://192.168.1.170/mon/" target="_blank" class="btn btn-outline-secondary w-100">Glances</a>
+                    <a href="http://192.168.1.170:291" target="_blank" class="btn btn-outline-secondary w-100">Orangutan</a>
+                </div>
             </div>
         </div>
     </div>

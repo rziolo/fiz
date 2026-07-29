@@ -4,7 +4,7 @@
 export $(grep -v '^#' /var/www/html/flask/inwestycje/.env | xargs)
 
 # Pobranie danych z utils.py
-DATA_VALUES=$(python3 - <<'END_PY'
+DATA_VALUES=$(/var/www/html/flask/venv/bin/python3 - <<'END_PY'
 import sys
 import os
 sys.path.append('/var/www/html/flask/inwestycje')

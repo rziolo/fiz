@@ -16,7 +16,7 @@ def index():
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    # 1. ROK MIESIĄC - dodano ABS() dla kolumn wkładu
+    # 1. ROK MIESIĄC
     cursor.execute("""
         SELECT
             rm_label as rok_miesiac,
@@ -29,7 +29,7 @@ def index():
     """)
     rok_miesiac = cursor.fetchall()
 
-    # 2. ROK - dodano ABS() dla kolumny wkładu
+    # 2. ROK
     cursor.execute("""
         SELECT
             rok_label as rok,
@@ -66,6 +66,28 @@ def index():
     """)
     obroty_rm = cursor.fetchall()
 
+    # 5. OBROTY ROK
+    cursor.execute("""
+        SELECT
+            r,
+            SUM(zakup_zl) as zakup_zl, SUM(zakup_il) as zakup_ilosc,
+            SUM(sprz_zl) as sprzedaz_zl, SUM(sprzedaz_ilosc) as sprzedaz_ilosc,
+            SUM(dyw_zl) as dywidenda_zl, SUM(dywidenda_ilosc) as dywidenda_ilosc
+        FROM (
+            SELECT DATE_FORMAT(zakup_data, '%Y') as r, zakup_cena as zakup_zl,
+                   CASE WHEN sprzedaz_data IS NULL THEN 1 ELSE 0 END as zakup_il, 0 as sprz_zl, 0 as sprzedaz_ilosc, 0 as dyw_zl, 0 as dywidenda_ilosc
+            FROM obroty WHERE ticker_nm != 'dywidenda'
+            UNION ALL
+            SELECT DATE_FORMAT(sprzedaz_data, '%Y') as r, 0, 0, sprzedaz_cena, 1, 0, 0
+            FROM obroty WHERE ticker_nm != 'dywidenda' AND sprzedaz_data IS NOT NULL
+            UNION ALL
+            SELECT DATE_FORMAT(sprzedaz_data, '%Y') as r, 0, 0, 0, 0, sprzedaz_cena, 1
+            FROM obroty WHERE ticker_nm = 'dywidenda'
+        ) as combined
+        GROUP BY r ORDER BY r DESC
+    """)
+    obroty_r = cursor.fetchall()
+
     db.close()
     return render_template('historia.html', rok_miesiac=rok_miesiac, rok_stats=rok_stats,
-                           historia_inw=historia_inw, obroty_rm=obroty_rm)
+                           historia_inw=historia_inw, obroty_rm=obroty_rm, obroty_r=obroty_r)

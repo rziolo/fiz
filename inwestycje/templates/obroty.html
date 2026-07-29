@@ -1,13 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
+<style>
+    .sortable-header {
+        cursor: pointer;
+        user-select: none;
+    }
+    .sortable-header:hover {
+        background-color: #2c3034 !important;
+    }
+</style>
+
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4><i class="fas fa-sync text-warning"></i> Obroty</h4>
-        <div>
+        <div class="d-flex align-items-center gap-2">
+            <select id="tickerFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterObrotyTable()">
+                <option value="">-- Filtruj Ticker --</option>
+                {% set unique_tickers = [] %}
+                {% for row in records %}
+                    {% if row.ticker_nm and row.ticker_nm not in unique_tickers %}
+                        {% set _ = unique_tickers.append(row.ticker_nm) %}
+                    {% endif %}
+                {% endfor %}
+                {% for ticker in unique_tickers|sort %}
+                    <option value="{{ ticker }}">{{ ticker }}</option>
+                {% endfor %}
+            </select>
+
             {% if is_filtered %}
-                <a href="{{ url_for('obroty.index') }}" class="btn btn-outline-secondary btn-sm me-1">Pokaż Wszystkie</a>
+                <a href="{{ url_for('obroty.index', filter='all') }}" class="btn btn-outline-secondary btn-sm">Pokaż Wszystkie</a>
             {% else %}
-                <a href="{{ url_for('obroty.index', filter='current') }}" class="btn btn-primary btn-sm me-1">Obecne</a>
+                <a href="{{ url_for('obroty.index') }}" class="btn btn-primary btn-sm">Obecne</a>
             {% endif %}
             <a href="{{ url_for('obroty.create') }}" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Dodaj zakup</a>
         </div>
@@ -15,23 +38,29 @@
 
     <div class="card shadow-sm">
         <div class="card-body p-0 text-nowrap">
-            <table class="table table-sm table-hover mb-0 text-center border" style="font-size: 0.82rem;">
+            <table class="table table-sm table-hover mb-0 text-center border" id="obrotyTable" style="font-size: 0.82rem;">
                 <thead class="table-dark">
                     <tr>
                         <th style="width: 40px;">Lp.</th>
-                        <th>Ticker <i class="fas fa-sort-alpha-down"></i></th>
-                        <th>Data Zakupu</th><th>Cena Zakupu</th><th>Ilość</th><th>Bieżący</th><th>S-L</th><th>S-Data</th><th>S-Cena</th><th>Uwagi</th><th>Akcje</th>
+                        <th class="sortable-header" onclick="sortObrotyTable(1)">Ticker <i class="fas fa-sort ms-1"></i></th>
+                        <th class="sortable-header" onclick="sortObrotyTable(2)">Zakup Data <i class="fas fa-sort ms-1"></i></th>
+                        <th>Zakup Cena</th>
+                        <th>Ilość</th>
+                        <th>StopLoss</th>
+                        <th class="sortable-header" onclick="sortObrotyTable(6)">Sprzedaż Data <i class="fas fa-sort ms-1"></i></th>
+                        <th>Sprzedaż Cena</th>
+                        <th>Uwagi</th>
+                        <th>Akcje</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in records %}
                     <tr>
-                        <td class="text-muted small">{{ loop.index }}</td>
-                        <td class="fw-bold">{{ row.ticker_nm }}</td>
+                        <td class="text-muted small col-lp">{{ loop.index }}</td>
+                        <td class="fw-bold col-ticker">{{ row.ticker_nm }}</td>
                         <td>{{ row.zakup_data }}</td>
                         <td>{{ row.zakup_cena | format_pl }}</td>
                         <td>{{ row.zakup_ilosc }}</td>
-                        <td>{{ row.kurs_biezacy | format_pl if row.kurs_biezacy else '-' }}</td>
                         <td class="text-danger fw-bold">{{ row.stop_loss | format_pl if row.stop_loss else '-' }}</td>
                         <td class="text-muted">{{ row.sprzedaz_data if row.sprzedaz_data else '-' }}</td>
                         <td class="fw-bold">{{ row.sprzedaz_cena | format_pl if row.sprzedaz_cena else '-' }}</td>
@@ -64,11 +93,66 @@
                         </td>
                     </tr>
                     {% else %}
-                    <tr><td colspan="11" class="py-4 text-muted">Brak rekordów do wyświetlenia.</td></tr>
+                    <tr><td colspan="10" class="py-4 text-muted">Brak rekordów do wyświetlenia.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+function filterObrotyTable() {
+    var filterValue = document.getElementById('tickerFilter').value.toUpperCase();
+    var table = document.getElementById('obrotyTable');
+    var tr = table.querySelectorAll('tbody tr');
+    var visibleIndex = 1;
+
+    tr.forEach(function(row) {
+        var td = row.querySelector('.col-ticker');
+        if (td) {
+            var txtValue = td.textContent || td.innerText;
+            if (filterValue === "" || txtValue.toUpperCase() === filterValue) {
+                row.style.display = "";
+                var lpTd = row.querySelector('.col-lp');
+                if (lpTd) lpTd.innerText = visibleIndex++;
+            } else {
+                row.style.display = "none";
+            }
+        }
+    });
+}
+
+var sortDirections = {};
+function sortObrotyTable(colIndex) {
+    var table = document.getElementById('obrotyTable');
+    var tbody = table.querySelector('tbody');
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    // Pomiń sortowanie, gdy brak danych
+    if (rows.length === 1 && rows[0].cells.length === 1) return;
+
+    var dir = sortDirections[colIndex] === 'asc' ? 'desc' : 'asc';
+    sortDirections[colIndex] = dir;
+
+    rows.sort(function(a, b) {
+        var cellA = a.children[colIndex].innerText.trim();
+        var cellB = b.children[colIndex].innerText.trim();
+        
+        if (cellA === '-' || cellA === '') cellA = dir === 'asc' ? 'ZZZZZZ' : '';
+        if (cellB === '-' || cellB === '') cellB = dir === 'asc' ? 'ZZZZZZ' : '';
+
+        if (cellA === cellB) return 0;
+        return dir === 'asc' 
+            ? cellA.localeCompare(cellB, 'pl', { numeric: true })
+            : cellB.localeCompare(cellA, 'pl', { numeric: true });
+    });
+
+    rows.forEach(function(row) {
+        tbody.appendChild(row);
+    });
+
+    filterObrotyTable();
+}
+</script>
 {% endblock %}

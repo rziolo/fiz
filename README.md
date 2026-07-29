@@ -19,11 +19,15 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 | **Finanse** | `/finanse` | 5001 | **HA** (Local Galera) |
 | **Inwestycje**| `/inwestycje`| 5002 | **HA** (Local Galera) |
 | **Zdrowie** | `/zdrowie` | 5003 | **HA** (SQLite/GlusterFS) |
-| **n8n** | `http://192.168.1.130:5678/` | 5678 | **External** (rz-rpi-07) |
-| **Sprzęt (Centrum Mon.)** | `http://192.168.1.131/mon/` | 80 (Apache) | **External** (rz-rpi-07) |
+| **Open WebUI** | `http://192.168.1.130:3000` | 3000 | **External** (rz-rpi-02 / Docker) |
+| **n8n** | `http://192.168.1.170:5678/` | 5678 | **External** (rz-rpi-07) |
+| **Beszel Hub (Mon.)** | `http://192.168.1.170:8090` | 8090 | **External** (rz-rpi-07) |
+| **Sprzęt (Glances)** | `http://192.168.1.170/mon/` | 80 (Apache) | **External** (rz-rpi-07) |
 
 ## 📈 Kluczowe zmiany i poprawki (Knowledge Base - App)
-- **Korekta mnożników walutowych ETL (28.05.2026):** Naprawiono problem błędnych wartości cenowych w module Inwestycji. Ponieważ biblioteka `yfinance` dla wybranych instrumentów europejskich (np. `U3O8.DE` - VanEck Uranium na Xetra) domyślnie zwraca wartości w centach zamiast w EUR, zmodyfikowano `import_zagr.py`. Wdrożono precyzyjne pobieranie pól przez słownik `.to_dict()` oraz wprowadzono parametr `"mult"` (mnożnik jednostkowy), zapewniając prawidłowe przeliczenia na PLN.
+- **Wdrożenie lokalnego LLM i Open WebUI (09.07.2026):** Zainstalowano stos Docker (Ollama + Open WebUI) na węźle `rz-rpi-02` (RPi 4 8GB). Skonfigurowano lekki model językowy `llama3.2:1b` dedykowany dla CPU ARM64. Dodano bezpośrednie przekierowanie w kaflu "AI Proxy" w głównym HUB-ie aplikacji.
+- **Rozszerzenie monitoringu infrastruktury o Beszel (06.07.2026):** Zainstalowano Beszel Hub w Dockerze na `rz-rpi-07`. Skonfigurowano i spięto agentów monitorujących dla całego środowiska sieciowego: malin klastra (`rz-rpi-02` do `rz-rpi-06`), stacji roboczej Windows (Laptop HP via Windows Task Scheduler) oraz centrali Home Assistant (`192.168.1.129` via natywny Docker). Dodano dedykowany przycisk przekierowania w kaflu "Sprzęt" na HUB-ie.
+- **Korekta mnożników walutowych ETL (28.05.2026):** Naprawiono problem błędnych wartości cenowych w module Inwestycji. Ponieważ biblioteka `yfinance` dla wybranych instrumentów europejskich (np. `U3O8.DE` - VanEck Uranium na Xetra) domyślnie zwraca wartości w centach zami centach zamiast w EUR, zmodyfikowano `import_zagr.py`. Wdrożono precyzyjne pobieranie pól przez słownik `.to_dict()` oraz wprowadzono parametr `"mult"` (mnożnik jednostkowy), zapewniając prawidłowe przeliczenia na PLN.
 - **Obsługa awarii sprzętowej dysku i I/O (26.05.2026):** Usunięto krytyczny błąd blokady operacji wejścia/wyjścia na węźle `rz-rpi-06` spowodowany degradacją kabla USB/SATA. Wymieniono okablowanie, stabilizując zasilanie dysku SSD.
 - **Naprawa systemu plików i logicznego storage (26.05.2026):** Przeprowadzono naprawę uszkodzonych i-węzłów za pomocą `fsck`, odtworzono brakujący punkt montowania `/var/www/html` dla GlusterFS oraz przywrócono poprawną lokalizację partycji `/dev/sda1` w `/mnt/ssd` na potrzeby skryptu zdrowia klastra.
 - **Centrum Monitoringu w HUB-ie (24.05.2026):** Do panelu głównego `/aplikacje` dodano piąty kafelek "Sprzęt" linkujący do zewnętrznego systemu `lan_glances` na `rz-rpi-02` (`/mon/`), agregującego teledane z klastra, urządzeń mobilnych i Home Assistant.
@@ -44,4 +48,4 @@ System mikroserwisów oparty na Flasku, działający w architekturze wysokiej do
 * **Konfiguracja sprzętowa i sieciowa klastra HA:** Dokumentacja konfiguracji GlusterFS, Galera, Keepalived oraz skryptów monitorujących zdrowie dysków znajduje się pod ścieżką: `/home/rz-rpi-06/klaster-rpi0506/README.md`
 
 ---
-*Ostatnia aktualizacja: 2026-07-03 00:10
+*Ostatnia aktualizacja: 2026-07-09 13:55

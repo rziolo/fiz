@@ -47,7 +47,7 @@ done
 
 # --- Sekwencja ETL (Kroki 50-150) ---
 
-:krok50
+# krok50
 echo "Krok 50: Uruchamiam run_import_gpw.sh"
 /bin/bash "$BASE_PATH/run_import_gpw.sh"
 

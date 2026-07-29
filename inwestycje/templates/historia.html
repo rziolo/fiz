@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
+<style>
+    /* Wspólne style dla tabel w module historia */
+    .custom-hist-table thead th {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border-color: #333333 !important;
+    }
+    .custom-hist-table tbody tr {
+        background-color: #f8f9fa !important;
+    }
+    .custom-hist-table tbody tr:hover {
+        background-color: #e9ecef !important;
+    }
+    .sort-icon {
+        cursor: pointer;
+        user-select: none;
+    }
+</style>
+
 <div class="container-fluid mt-3">
     <div class="card shadow-sm">
         <div class="card-header bg-white">
@@ -8,15 +27,24 @@
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-r">Rok</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-hi">Historia Inwestycji</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-orm">Obroty Rok Miesiąc</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-or">Obroty Rok</button></li>
             </ul>
         </div>
         <div class="card-body">
             <div class="tab-content">
+                
+                <!-- 1. Rok Miesiąc -->
                 <div class="tab-pane fade show active" id="tab-rm">
-                    <table class="table table-sm table-hover border small">
-                        <thead class="table-light text-end">
+                    <table class="table table-sm border small custom-hist-table">
+                        <thead class="text-end">
                             <tr>
-                                <th class="text-start">Rok miesiąc</th><th>Wkład</th><th>Wartość</th><th>Bilans ogólny</th><th>Średni wkład</th><th>Zysk operacyjny</th><th>Zysk %</th>
+                                <th class="text-start">Rok miesiąc</th>
+                                <th>Wkład</th>
+                                <th>Wartość</th>
+                                <th>Bilans ogólny</th>
+                                <th>Średni wkład</th>
+                                <th>Zysk (bez dywidend)</th>
+                                <th>Zysk %</th>
                             </tr>
                         </thead>
                         <tbody class="text-end">
@@ -38,9 +66,10 @@
                     </table>
                 </div>
 
+                <!-- 2. Rok -->
                 <div class="tab-pane fade" id="tab-r">
-                    <table class="table table-sm table-hover border small w-50 mx-auto">
-                        <thead class="table-light text-end">
+                    <table class="table table-sm border small w-50 mx-auto custom-hist-table">
+                        <thead class="text-end">
                             <tr><th class="text-start">Rok</th><th>Wkład</th><th>Wartość</th><th>Bilans</th></tr>
                         </thead>
                         <tbody class="text-end">
@@ -57,30 +86,63 @@
                     </table>
                 </div>
 
+                <!-- 3. Historia Inwestycji -->
                 <div class="tab-pane fade" id="tab-hi">
-                    <table class="table table-sm table-hover border small">
-                        <thead class="table-light">
-                            <tr><th>Ticker</th><th>Zakup data</th><th class="text-end">Zakup cena</th><th class="text-end">Zakup ilość</th><th>Sprzedaż data</th><th class="text-end">Sprzedaż cena</th><th>Platforma</th></tr>
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            <select id="tickerFilter" class="form-select form-select-sm" onchange="filterHistoriaTable()">
+                                <option value="">-- Wszystkie Ticker --</option>
+                                {% set tickers = [] %}
+                                {% for r in historia_inw %}
+                                    {% if r.ticker_nm and r.ticker_nm not in tickers %}
+                                        {% set _ = tickers.append(r.ticker_nm) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for t in tickers|sort %}
+                                    <option value="{{ t }}">{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <table class="table table-sm border small custom-hist-table" id="tableHistoria">
+                        <thead>
+                            <tr>
+                                <th onclick="sortHistoriaTable(0)" class="sort-icon">Ticker <i class="bi bi-arrow-down-up ms-1"></i></th>
+                                <th onclick="sortHistoriaTable(1)" class="sort-icon">Zakup data <i class="bi bi-arrow-down-up ms-1"></i></th>
+                                <th class="text-end">Zakup cena</th>
+                                <th class="text-end">Zakup ilość</th>
+                                <th onclick="sortHistoriaTable(4)" class="sort-icon">Sprzedaż data <i class="bi bi-arrow-down-up ms-1"></i></th>
+                                <th class="text-end">Sprzedaż cena</th>
+                                <th class="text-center">Uwagi</th>
+                                <th>Platforma</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for r in historia_inw %}
                             <tr>
-                                <td>{{ r.ticker_nm }}</td>
+                                <td class="col-ticker">{{ r.ticker_nm }}</td>
                                 <td>{{ r.zakup_data }}</td>
                                 <td class="text-end">{{ r.zakup_cena | format_pl }}</td>
                                 <td class="text-end">{{ r.zakup_ilosc }}</td>
                                 <td>{{ r.sprzedaz_data if r.sprzedaz_data else '' }}</td>
                                 <td class="text-end">{{ r.sprzedaz_cena | format_pl if r.sprzedaz_cena else '' }}</td>
-                                <td>{{ r.platforma_nm }}</td>
+                                <td class="text-center">
+                                    {% if r.uwagi and r.uwagi|string|trim != '' %}
+                                        <i class="bi bi-file-earmark-text text-primary fs-6" style="cursor: pointer;" 
+                                           ondblclick="showNoteModal('{{ r.uwagi | replace('\'', '\\\'') | replace('\n', ' ') }}')"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ r.platforma if r.platforma else (r.platforma_nm if r.platforma_nm else '') }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
 
+                <!-- 4. Obroty Rok Miesiąc -->
                 <div class="tab-pane fade" id="tab-orm">
-                    <table class="table table-sm table-hover border small">
-                        <thead class="table-light text-end">
+                    <table class="table table-sm border small custom-hist-table">
+                        <thead class="text-end">
                             <tr><th class="text-start">Rok-Miesiąc</th><th>Zakup zł</th><th>Zakup ilość</th><th>Sprzedaż zł</th><th>Sprzedaż ilość</th><th>Dywidenda zł</th><th>Dywidenda ilość</th></tr>
                         </thead>
                         <tbody class="text-end">
@@ -95,8 +157,100 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 5. Obroty Rok -->
+                <div class="tab-pane fade" id="tab-or">
+                    <table class="table table-sm border small custom-hist-table">
+                        <thead class="text-end">
+                            <tr><th class="text-start">Rok</th><th>Zakup zł</th><th>Zakup ilość</th><th>Sprzedaż zł</th><th>Sprzedaż ilość</th><th>Dywidenda zł</th><th>Dywidenda ilość</th></tr>
+                        </thead>
+                        <tbody class="text-end">
+                            {% for r in obroty_r %}
+                            <tr>
+                                <td class="text-start fw-bold">{{ r.r }}</td>
+                                <td>{{ r.zakup_zl | format_pl }}</td><td>{{ r.zakup_ilosc }}</td>
+                                <td>{{ r.sprzedaz_zl | format_pl }}</td><td>{{ r.sprzedaz_ilosc }}</td>
+                                <td>{{ r.dywidenda_zl | format_pl }}</td><td>{{ r.dywidenda_ilosc }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal dla Uwag -->
+<div class="modal fade" id="noteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-sticky me-2"></i>Uwagi / Notatka</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body" id="noteModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Zamknij</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Wyświetlanie modalu z uwagami
+function showNoteModal(text) {
+    document.getElementById('noteModalBody').innerText = text;
+    var myModal = new bootstrap.Modal(document.getElementById('noteModal'));
+    myModal.show();
+}
+
+// Filtrowanie po Ticker
+function filterHistoriaTable() {
+    var filterValue = document.getElementById('tickerFilter').value.toUpperCase();
+    var table = document.getElementById('tableHistoria');
+    var tr = table.getElementsByTagName('tr');
+
+    for (var i = 1; i < tr.length; i++) {
+        var td = tr[i].getElementsByClassName('col-ticker')[0];
+        if (td) {
+            var txtValue = td.textContent || td.innerText;
+            if (filterValue === "" || txtValue.toUpperCase() === filterValue) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+
+// Sortowanie ASC/DESC dla wskazanych kolumn
+var sortDirections = {};
+function sortHistoriaTable(colIndex) {
+    var table = document.getElementById('tableHistoria');
+    var tbody = table.querySelector('tbody');
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    var dir = sortDirections[colIndex] === 'asc' ? 'desc' : 'asc';
+    sortDirections[colIndex] = dir;
+
+    rows.sort(function(a, b) {
+        var cellA = a.children[colIndex].innerText.trim();
+        var cellB = b.children[colIndex].innerText.trim();
+        
+        if (cellA === cellB) return 0;
+        if (dir === 'asc') {
+            return cellA.localeCompare(cellB, 'pl', { numeric: true });
+        } else {
+            return cellB.localeCompare(cellA, 'pl', { numeric: true });
+        }
+    });
+
+    rows.forEach(function(row) {
+        tbody.appendChild(row);
+    });
+}
+</script>
 {% endblock %}

@@ -59,7 +59,8 @@ def main():
         {"ticker": "TKC", "name": "Turkcell", "full_name": "TURKCELL", "is_ticker": "TKC", "currency": "USD", "rate": usd_rate, "mult": 1.0},
         {"ticker": "BCC", "name": "Boise Cascade", "full_name": "BOISE CASCADE", "is_ticker": "BCC", "currency": "USD", "rate": usd_rate, "mult": 1.0},
         {"ticker": "DHT", "name": "DHT Holdings", "full_name": "DHT HOLDINGS INC", "is_ticker": "DHT", "currency": "USD", "rate": usd_rate, "mult": 1.0},
-        {"ticker": "MP", "name": "MP Materials", "full_name": "MP MATERIALS CORP", "is_ticker": "MP", "currency": "USD", "rate": usd_rate, "mult": 1.0}
+        {"ticker": "MP", "name": "MP Materials", "full_name": "MP MATERIALS CORP", "is_ticker": "MP", "currency": "USD", "rate": usd_rate, "mult": 1.0},
+        {"ticker": "RPRX", "name": "Royalty Pharma", "full_name": "ROYALTY PHARMA PLC", "is_ticker": "RPRX", "currency": "USD", "rate": usd_rate, "mult": 1.0}
     ]
 
     csv_rows = []

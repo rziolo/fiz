@@ -11,7 +11,7 @@ if [ -f "$APP_DIR/.env" ]; then
 fi
 
 # Używamy ścieżki do Pythona z venv, jeśli go używasz
-PYTHON_BIN="$APP_DIR/venv/bin/python3"
+PYTHON_BIN="/var/www/html/flask/venv/bin/python3"
 if [ ! -f "$PYTHON_BIN" ]; then
     PYTHON_BIN="/usr/bin/python3"
 fi
