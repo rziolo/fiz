@@ -21,6 +21,7 @@ def get_form_data():
     db.close()
     return tickers, platforms
 
+@obroty_bp.route('')
 @obroty_bp.route('/')
 def index():
     # Domyślnie pokazujemy obecne, chyba że jawnie zażądamy wszystkich przez filter=all

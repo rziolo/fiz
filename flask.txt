@@ -1,0 +1,132 @@
+.
+├── aplikacje
+│   ├── aplikacje.py
+│   ├── __pycache__
+│   │   └── aplikacje.cpython-313.pyc
+│   └── templates
+│       └── index.html
+├── finanse
+│   ├── etl
+│   │   ├── csv
+│   │   └── python
+│   ├── finanse.py
+│   ├── __pycache__
+│   │   └── finanse.cpython-313.pyc
+│   ├── routes
+│   │   ├── bilans.py
+│   │   ├── car.py
+│   │   ├── chart.py
+│   │   ├── __init__.py
+│   │   ├── przychody.py
+│   │   ├── __pycache__
+│   │   ├── ror.py
+│   │   └── wydatki.py
+│   └── templates
+│       ├── base.html
+│       ├── base.html.old
+│       ├── bilans.html
+│       ├── car.html
+│       ├── chart.html
+│       ├── index.html
+│       ├── przychody_create.html
+│       ├── przychody.html
+│       ├── ror_create.html
+│       ├── ror.html
+│       ├── wydatki_create.html
+│       └── wydatki.html
+├── flask.txt
+├── inwestycje
+│   ├── etl
+│   │   ├── bash
+│   │   ├── csv
+│   │   ├── excel
+│   │   └── python
+│   ├── inwestycje.py
+│   ├── __pycache__
+│   │   ├── inwestycje.cpython-313.pyc
+│   │   └── utils.cpython-313.pyc
+│   ├── README.md
+│   ├── routes
+│   │   ├── chart.py
+│   │   ├── dane_dzienne.py
+│   │   ├── dane.py
+│   │   ├── historia.py
+│   │   ├── __init__.py
+│   │   ├── obroty.py
+│   │   ├── platforma.py
+│   │   ├── __pycache__
+│   │   ├── sprzedaj.py
+│   │   └── ticker.py
+│   ├── templates
+│   │   ├── chart.html
+│   │   ├── dane_create.html
+│   │   ├── dane_dzienne_create.html
+│   │   ├── dane_dzienne.html
+│   │   ├── dane.html
+│   │   ├── historia.html
+│   │   ├── index.html
+│   │   ├── obroty_create.html
+│   │   ├── obroty.html
+│   │   ├── platforma_create.html
+│   │   ├── platforma.html
+│   │   ├── sprzedaj.html
+│   │   ├── ticker_create.html
+│   │   └── ticker.html
+│   └── utils.py
+├── README.md
+├── requirements.txt
+├── shared
+│   ├── bash
+│   │   └── update_base.sh
+│   ├── kursy_nbp.py
+│   ├── __pycache__
+│   │   └── kursy_nbp.cpython-313.pyc
+│   └── templates
+│       └── base.html
+├── venv
+│   ├── bin
+│   │   ├── activate
+│   │   ├── activate.csh
+│   │   ├── activate.fish
+│   │   ├── Activate.ps1
+│   │   ├── curl-cffi
+│   │   ├── dotenv
+│   │   ├── f2py
+│   │   ├── flask
+│   │   ├── gunicorn
+│   │   ├── markdown-it
+│   │   ├── normalizer
+│   │   ├── numpy-config
+│   │   ├── pip
+│   │   ├── pip3
+│   │   ├── pip3.13
+│   │   ├── pwiz
+│   │   ├── __pycache__
+│   │   ├── pygmentize
+│   │   ├── python -> python3
+│   │   ├── python3 -> /usr/bin/python3
+│   │   ├── python3.13 -> python3
+│   │   ├── runxlrd.py
+│   │   ├── sample
+│   │   └── websockets
+│   ├── include
+│   │   └── python3.13
+│   ├── lib
+│   │   └── python3.13
+│   ├── lib64 -> lib
+│   └── pyvenv.cfg
+└── zdrowie
+    ├── __pycache__
+    │   └── zdrowie.cpython-313.pyc
+    ├── routes
+    │   ├── ha_vita_pressure.py
+    │   ├── __init__.py
+    │   └── __pycache__
+    ├── templates
+    │   ├── ha_vita_pressure_create.html
+    │   ├── ha_vita_pressure.html
+    │   ├── ha_vita_pressure_print.html
+    │   └── index.html
+    └── zdrowie.py
+
+39 directories, 91 files

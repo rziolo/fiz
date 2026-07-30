@@ -162,7 +162,13 @@
                 <div class="tab-pane fade" id="tab-or">
                     <table class="table table-sm border small custom-hist-table">
                         <thead class="text-end">
-                            <tr><th class="text-start">Rok</th><th>Zakup zł</th><th>Zakup ilość</th><th>Sprzedaż zł</th><th>Sprzedaż ilość</th><th>Dywidenda zł</th><th>Dywidenda ilość</th></tr>
+                            <tr>
+                                <th class="text-start">Rok</th>
+                                <th>Zakup zł</th><th>Zakup ilość</th>
+                                <th>Sprzedaż zł</th><th>Sprzedaż ilość</th>
+                                <th>Dywidenda zł</th><th>Dywidenda ilość</th>
+                                <th>Wartość</th><th>Spółek</th>
+                            </tr>
                         </thead>
                         <tbody class="text-end">
                             {% for r in obroty_r %}
@@ -171,6 +177,8 @@
                                 <td>{{ r.zakup_zl | format_pl }}</td><td>{{ r.zakup_ilosc }}</td>
                                 <td>{{ r.sprzedaz_zl | format_pl }}</td><td>{{ r.sprzedaz_ilosc }}</td>
                                 <td>{{ r.dywidenda_zl | format_pl }}</td><td>{{ r.dywidenda_ilosc }}</td>
+                                <td class="fw-bold">{{ r.wartosc | format_pl if r.wartosc else '' }}</td>
+                                <td>{{ r.spolki_ilosc if r.spolki_ilosc is not none else '' }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

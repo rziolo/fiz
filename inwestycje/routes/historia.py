@@ -53,7 +53,7 @@ def index():
             SUM(dyw_zl) as dywidenda_zl, SUM(dywidenda_ilosc) as dywidenda_ilosc
         FROM (
             SELECT DATE_FORMAT(zakup_data, '%Y-%m') as rm, zakup_cena as zakup_zl,
-                   CASE WHEN sprzedaz_data IS NULL THEN 1 ELSE 0 END as zakup_il, 0 as sprz_zl, 0 as sprzedaz_ilosc, 0 as dyw_zl, 0 as dywidenda_ilosc
+                   1 as zakup_il, 0 as sprz_zl, 0 as sprzedaz_ilosc, 0 as dyw_zl, 0 as dywidenda_ilosc
             FROM obroty WHERE ticker_nm != 'dywidenda'
             UNION ALL
             SELECT DATE_FORMAT(sprzedaz_data, '%Y-%m') as rm, 0, 0, sprzedaz_cena, 1, 0, 0
@@ -66,16 +66,29 @@ def index():
     """)
     obroty_rm = cursor.fetchall()
 
-    # 5. OBROTY ROK
+    # 5. OBROTY ROK (rozbudowane o Wartość i Spółki dla ostatniego dnia roku)
     cursor.execute("""
         SELECT
-            r,
-            SUM(zakup_zl) as zakup_zl, SUM(zakup_il) as zakup_ilosc,
-            SUM(sprz_zl) as sprzedaz_zl, SUM(sprzedaz_ilosc) as sprzedaz_ilosc,
-            SUM(dyw_zl) as dywidenda_zl, SUM(dywidenda_ilosc) as dywidenda_ilosc
+            c.r,
+            SUM(c.zakup_zl) as zakup_zl, SUM(c.zakup_il) as zakup_ilosc,
+            SUM(c.sprz_zl) as sprzedaz_zl, SUM(c.sprzedaz_ilosc) as sprzedaz_ilosc,
+            SUM(c.dyw_zl) as dywidenda_zl, SUM(c.dywidenda_ilosc) as dywidenda_ilosc,
+            (
+                SELECT d.wartosc 
+                FROM dane_dzienne d 
+                WHERE DATE_FORMAT(d.data, '%Y') = c.r 
+                ORDER BY d.data DESC LIMIT 1
+            ) as wartosc,
+            (
+                SELECT COUNT(DISTINCT o.ticker_nm)
+                FROM obroty o
+                WHERE o.ticker_nm != 'dywidenda'
+                  AND o.zakup_data <= (SELECT MAX(d.data) FROM dane_dzienne d WHERE DATE_FORMAT(d.data, '%Y') = c.r)
+                  AND (o.sprzedaz_data IS NULL OR o.sprzedaz_data > (SELECT MAX(d.data) FROM dane_dzienne d WHERE DATE_FORMAT(d.data, '%Y') = c.r))
+            ) as spolki_ilosc
         FROM (
             SELECT DATE_FORMAT(zakup_data, '%Y') as r, zakup_cena as zakup_zl,
-                   CASE WHEN sprzedaz_data IS NULL THEN 1 ELSE 0 END as zakup_il, 0 as sprz_zl, 0 as sprzedaz_ilosc, 0 as dyw_zl, 0 as dywidenda_ilosc
+                   1 as zakup_il, 0 as sprz_zl, 0 as sprzedaz_ilosc, 0 as dyw_zl, 0 as dywidenda_ilosc
             FROM obroty WHERE ticker_nm != 'dywidenda'
             UNION ALL
             SELECT DATE_FORMAT(sprzedaz_data, '%Y') as r, 0, 0, sprzedaz_cena, 1, 0, 0
@@ -83,8 +96,8 @@ def index():
             UNION ALL
             SELECT DATE_FORMAT(sprzedaz_data, '%Y') as r, 0, 0, 0, 0, sprzedaz_cena, 1
             FROM obroty WHERE ticker_nm = 'dywidenda'
-        ) as combined
-        GROUP BY r ORDER BY r DESC
+        ) as c
+        GROUP BY c.r ORDER BY c.r DESC
     """)
     obroty_r = cursor.fetchall()
 
