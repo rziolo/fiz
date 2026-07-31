@@ -29,6 +29,7 @@
     .bg-light-yellow { background-color: #fff9c4 !important; }
     .bg-light-blue { background-color: #e3f2fd !important; }
     .bg-light-pink { background-color: #fce4ec !important; }
+    .bg-light-green { background-color: #d4edda !important; } /* Jasnozielone tło komórek */
     
     /* Kolory tekstu */
     .text-red { color: #d32f2f !important; font-weight: bold; }
@@ -44,6 +45,17 @@
         font-weight: bold; 
     }
     .table-link { font-size: 0.8rem; text-decoration: underline !important; color: #0d6efd; }
+    
+    /* Jasnozielony przycisk LOAD do bazy */
+    .btn-load-green {
+        background-color: #28a745 !important;
+        color: white !important;
+        border: 1px solid #1e7e34 !important;
+    }
+    .btn-load-green:hover {
+        background-color: #218838 !important;
+        color: white !important;
+    }
 </style>
 
 <div class="d-flex align-items-center mb-3">
@@ -112,14 +124,15 @@
     <table class="table table-sm table-bordered text-center m-0 align-middle" style="font-size: 0.8rem;">
         <thead>
             <tr>
-                <th class="bg-light-yellow">GPW-NC</th><th class="bg-light-yellow">Zagraniczne</th><th class="bg-light-yellow">Statystyki</th>
+                <th class="bg-light-yellow">GPW-NC</th>
+                <th class="bg-light-yellow">Zagraniczne</th>
+                <th class="bg-light-yellow">Statystyki</th>
                 <th class="bg-light-blue">GPW</th>
                 <th class="bg-light-blue">
                     <button onclick="runGpwCheck()" class="btn btn-outline-dark btn-sm py-0 fw-bold w-100" style="font-size: 0.75rem;">
-                        SPRAWDŹ <i class="fas fa-sync-alt" id="icon-gpw-check"></i>
+                        SPRAWDŹ GPW<i class="fas fa-sync-alt" id="icon-gpw-check"></i>
                     </button>
                 </th>
-                <th class="bg-light-blue {{ 'text-green' if s.data_dane == s.today else 'text-red' }}">w bazie {{ s.data_dane }}</th>
             </tr>
         </thead>
         <tbody>
@@ -136,24 +149,27 @@
                 <td class="bg-light-blue">
                     <button class="date-status-link {{ 'text-green' if s.data_import_gpw == s.today else 'text-red' }}" onclick="openCsvModal('import_gpw.csv')">{{ s.data_import_gpw }}</button>
                 </td>
-                <td class="bg-light-blue {{ 'text-green' if s.gpw_archiwum_ok else 'text-red' }}">{{ s.gpw_archiwum_status }}</td>
-                <td class="bg-light-blue"><button onclick="runGpwImport()" class="btn btn-primary btn-sm py-0 w-100 fw-bold">IMPORTUJ</button></td>
+                <td class="bg-light-blue"><button onclick="runGpwImport()" class="btn btn-primary btn-sm py-0 w-100 fw-bold">IMPORTUJ GPW</button></td>
             </tr>
             <tr>
                 <td class="bg-light-yellow"><a href="https://newconnect.pl/notowania" target="_blank" class="table-link">notowania GPW-NC</a></td>
                 <td class="bg-light-yellow"><a href="https://www.investing.com/portfolio/" target="_blank" class="table-link">notowania zagraniczne</a></td>
                 <td class="bg-light-yellow"><a href="https://stooq.pl/t/s/?m=plws" target="_blank" class="table-link">statystyki</a></td>
                 <td class="bg-light-blue"><a href="https://www.gpw.pl/archiwum-notowan" target="_blank" class="table-link">notowania GPW</a></td>
-                <td class="fw-bold">453</td>
-                <td><button onclick="runLoadDane()" class="btn btn-outline-dark btn-sm py-0 w-100 fw-bold">LOAD</button></td>
+                <!-- Komórka z jasnozielonym tłem oraz jasnozielonym przyciskiem LOAD do bazy -->
+                <td class="bg-light-green">
+                    <button onclick="runLoadDane()" class="btn btn-load-green btn-sm py-0 w-100 fw-bold">LOAD do bazy</button>
+                </td>
             </tr>
             <tr>
-                <td>414</td>
-                <td><button onclick="runEtlImport()" class="btn btn-sm w-100 py-0 fw-bold" style="background-color: #ffeb3b; border: 1px solid #fbc02d;">AKTUALIZUJ</button></td>
-                <td>434</td>
-                <td>444</td>
+                <td><button onclick="runEtlImport()" class="btn btn-sm w-100 py-0 fw-bold" style="background-color: #ffeb3b; border: 1px solid #fbc02d;">AKTUALIZUJ rynki</button></td>
                 <td class="bg-light-pink {{ 'text-green' if s.data_dane_dzienne == s.today else 'text-red' }}">dzienne {{ s.data_dane_dzienne }}</td>
-                <td class="bg-light-pink"><a href="/inwestycje/dane_dzienne/create" class="btn btn-warning btn-sm py-0 w-100 fw-bold border-dark">AKTUALIZUJ</a></td>
+                <td class="bg-light-pink"><a href="/inwestycje/dane_dzienne/create" class="btn btn-warning btn-sm py-0 w-100 fw-bold border-dark">AKTUALIZUJ dzienne</a></td>
+                <td class="bg-light-blue {{ 'text-green' if s.gpw_archiwum_ok else 'text-red' }}">{{ s.gpw_archiwum_status }}</td>
+                <!-- Komórka z jasnozielonym tłem dla w bazie -->
+                <td class="bg-light-green {{ 'text-green' if s.data_dane == s.today else 'text-red' }} fw-bold">
+                    w bazie {{ s.data_dane }}
+                </td>
             </tr>
         </tbody>
     </table>

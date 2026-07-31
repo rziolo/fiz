@@ -1,114 +1,148 @@
 {% extends "base.html" %}
 {% set tytul_aplikacji = "HUB Aplikacji" %}
 {% block content %}
-<div class="row row-cols-1 row-cols-md-3 row-cols-xl-6 g-4 text-center mt-4">
+<style>
+    /* Nadpisanie domyślnych paddingów Bootstrapa dla zwartości */
+    .compact-hub .card {
+        border-radius: 10px;
+    }
+    .compact-hub .card-body {
+        padding: 0.75rem !important;
+    }
+    .compact-hub i.app-icon {
+        font-size: 2.2rem;
+    }
+    .compact-hub h2.app-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+    .compact-hub .btn-sm-custom {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+    }
+</style>
 
+<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-4 row-cols-xl-4 g-2 g-md-3 text-center mt-1 compact-hub">
+
+    <!-- AI Proxy -->
     <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
+        <div class="card h-100 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between">
                 <div>
-                    <i class="fas fa-brain fa-4x mb-4" style="color: #6f42c1;"></i>
-                    <h2 class="h3 mb-4">AI Proxy</h2>
+                    <i class="fas fa-brain app-icon" style="color: #6f42c1;"></i>
+                    <h2 class="app-title">AI Proxy</h2>
                 </div>
-                <div class="d-flex flex-column gap-2">
-                    <a href="http://192.168.1.130:20128/home" target="_blank" class="btn btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">OmniR.</a>
-                    <a href="http://192.168.1.130:3001/" target="_blank" class="btn btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">....WebUI</a>
-                    <a href="http://192.168.1.130:3005/" target="_blank" class="btn btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">Video</a>
+                <div class="d-flex flex-column gap-1">
+                    <a href="http://192.168.1.130:20128/home" target="_blank" class="btn btn-sm-custom btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">OmniR.</a>
+                    <a href="http://192.168.1.130:3001/" target="_blank" class="btn btn-sm-custom btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">....WebUI</a>
+                    <a href="http://192.168.1.130:3005/" target="_blank" class="btn btn-sm-custom btn-outline-purple w-100" style="border-color: #6f42c1; color: #6f42c1;">Video</a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Automatyzacja -->
     <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
+        <div class="card h-100 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between">
                 <div>
-                    <i class="fas fa-project-diagram fa-4x mb-4" style="color: #ff6d5a;"></i>
-                    <h2 class="h3 mb-4">Automatyzacja</h2>
+                    <i class="fas fa-project-diagram app-icon" style="color: #ff6d5a;"></i>
+                    <h2 class="app-title">Automatyzacja</h2>
                 </div>
-                <a href="http://192.168.1.170:5678/" target="_blank" class="btn btn-outline-warning w-100" style="border-color: #ff6d5a; color: #ff6d5a;">n8n</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <i class="fas fa-wallet fa-4x mb-4 text-primary"></i>
-                    <h2 class="h3 mb-4">Finanse</h2>
-                </div>
-                <a href="/finanse" class="btn btn-outline-primary w-100">Otwórz</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <i class="fas fa-calendar-alt fa-4x mb-4 text-info"></i>
-                    <h2 class="h3 mb-4">Harmonogram</h2>
-                </div>
-                <a href="http://192.168.1.170/cron/" target="_blank" class="btn btn-outline-info w-100">crontab</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <i class="fas fa-chart-line fa-4x mb-4 text-success"></i>
-                    <h2 class="h3 mb-4">Inwestycje</h2>
-                </div>
-                <a href="/inwestycje" class="btn btn-outline-success w-100">Otwórz</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <i class="fas fa-anchor fa-4x mb-4 text-secondary"></i>
-                    <h2 class="h3 mb-4">Oprogramowanie</h2>
-                </div>
-                <div class="d-flex flex-column gap-2">
-                    <a href="http://192.168.1.170:3000" target="_blank" class="btn btn-outline-secondary w-100">ConvertX</a>
-                    <a href="http://192.168.1.130:3000" target="_blank" class="btn btn-outline-secondary w-100">worldmonitor</a>
+                <div class="d-flex flex-column gap-1">
+                    <a href="http://rziolo.duckdns.org/" target="_blank" class="btn btn-sm-custom btn-outline-warning w-100" style="border-color: #ff6d5a; color: #ff6d5a;">Home Assistant</a>
+                    <a href="http://192.168.1.170:5678/" target="_blank" class="btn btn-sm-custom btn-outline-warning w-100" style="border-color: #ff6d5a; color: #ff6d5a;">n8n</a>
                 </div>
             </div>
         </div>
     </div>
 
-
+    <!-- Finanse -->
     <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
+        <div class="card h-100 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between">
                 <div>
-                    <i class="fas fa-server fa-4x mb-4 text-secondary"></i>
-                    <h2 class="h3 mb-4">Sprzęt</h2>
+                    <i class="fas fa-wallet app-icon text-primary"></i>
+                    <h2 class="app-title">Finanse</h2>
                 </div>
-                <div class="d-flex flex-column gap-2">
-                    <a href="http://192.168.1.170:8090" target="_blank" class="btn btn-outline-indigo w-100" style="border-color: #4f46e5; color: #4f46e5;">Beszel</a>
-                    <a href="http://192.168.1.170/mon/" target="_blank" class="btn btn-outline-secondary w-100">Glances</a>
-                    <a href="http://192.168.1.170:291" target="_blank" class="btn btn-outline-secondary w-100">Orangutan</a>
+                <a href="/finanse" class="btn btn-sm-custom btn-outline-primary w-100">Otwórz</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Harmonogram -->
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <i class="fas fa-calendar-alt app-icon text-info"></i>
+                    <h2 class="app-title">Harmonogram</h2>
+                </div>
+                <a href="http://192.168.1.170/cron/" target="_blank" class="btn btn-sm-custom btn-outline-info w-100">crontab</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inwestycje -->
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <i class="fas fa-chart-line app-icon text-success"></i>
+                    <h2 class="app-title">Inwestycje</h2>
+                </div>
+                <a href="/inwestycje" class="btn btn-sm-custom btn-outline-success w-100">Otwórz</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Oprogramowanie -->
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <i class="fas fa-anchor app-icon text-secondary"></i>
+                    <h2 class="app-title">Oprogramowanie</h2>
+                </div>
+                <div class="d-flex flex-column gap-1">
+                    <a href="http://192.168.1.170:3000" target="_blank" class="btn btn-sm-custom btn-outline-secondary w-100">ConvertX</a>
+                    <a href="http://192.168.1.130:3000" target="_blank" class="btn btn-sm-custom btn-outline-secondary w-100">worldmonitor</a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Sprzęt -->
     <div class="col">
-        <div class="card h-100 p-3 shadow-sm">
+        <div class="card h-100 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between">
                 <div>
-                    <i class="fas fa-heartbeat fa-4x mb-4 text-danger"></i>
-                    <h2 class="h3 mb-4">Zdrowie</h2>
+                    <i class="fas fa-server app-icon text-secondary"></i>
+                    <h2 class="app-title">Sprzęt</h2>
                 </div>
-                <a href="/zdrowie" class="btn btn-outline-danger w-100">Otwórz</a>
+                <div class="d-flex flex-column gap-1">
+                    <a href="http://192.168.1.170:8090" target="_blank" class="btn btn-sm-custom btn-outline-indigo w-100" style="border-color: #4f46e5; color: #4f46e5;">Beszel</a>
+                    <a href="http://192.168.1.170/mon/" target="_blank" class="btn btn-sm-custom btn-outline-secondary w-100">Glances</a>
+                    <a href="http://192.168.1.170:291" target="_blank" class="btn btn-sm-custom btn-outline-secondary w-100">Orangutan</a>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Zdrowie -->
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <i class="fas fa-heartbeat app-icon text-danger"></i>
+                    <h2 class="app-title">Zdrowie</h2>
+                </div>
+                <a href="/zdrowie" class="btn btn-sm-custom btn-outline-danger w-100">Otwórz</a>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
