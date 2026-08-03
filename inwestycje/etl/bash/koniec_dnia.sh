@@ -45,7 +45,7 @@ while true; do
     fi
 done
 
-# --- Sekwencja ETL (Kroki 50-150) ---
+# --- Sekwencja ETL (Kroki 50-160) ---
 
 # krok50
 echo "Krok 50: Uruchamiam run_import_gpw.sh"
@@ -60,15 +60,13 @@ if [ -f "$CSV_GPW" ]; then
     # Wyciąga pierwsze pole z drugiego wiersza
     DATA_IMPORT_GPW=$(awk -F',' 'NR==2 {print $1}' "$CSV_GPW")
     echo "Krok 60: Sprawdzam datę importu: $DATA_IMPORT_GPW (Dzisiaj: $TODAY)"
-    
+
     if [ "$DATA_IMPORT_GPW" == "$TODAY" ]; then
         echo "Krok 60: Data poprawna. Idę do kroku 70."
     else
         echo "Krok 60: Data nie zgadza się. Czekam 10 minut i ponawiam Krok 50..."
         sleep 600
-        # Powrót do etykiety krok50 (używając pętli logicznej lub bezpośrednio wywołując sekwencję)
-        # W bashu najbezpieczniej powtórzyć logikę przez restart/skok:
-        exec /bin/bash "$0" # Restartuje skrypt od początku lub można użyć pętli while
+        exec /bin/bash "$0"
     fi
 else
     echo "BŁĄD: Plik $CSV_GPW nie istnieje. Czekam 10 minut..."
@@ -94,6 +92,10 @@ sleep 10
 
 echo "Krok 150: Uruchamiam run_raport_akcje.sh"
 /bin/bash "$BASE_PATH/run_raport_akcje.sh"
+sleep 10
+
+echo "Krok 160: Uruchamiam update_obroty_arch.sh"
+/bin/bash "$BASE_PATH/update_obroty_arch.sh"
 
 echo "SUKCES: Proces Koniec Dnia zakończony: $(date)"
 echo "---------------------------------------------------------------"
