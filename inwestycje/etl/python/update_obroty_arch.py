@@ -26,7 +26,7 @@ def update_obroty_arch():
         # Zapytanie wybierające rekordy z najwyższym id_obroty dla każdego ticker_nm,
         # gdzie akcja jest nadal aktywna (sprzedaz_data IS NULL)
         select_query = """
-            SELECT o.ticker_nm, o.stop_loss
+            SELECT o.zakup_data, o.ticker_nm, o.stop_loss
             FROM obroty o
             INNER JOIN (
                 SELECT ticker_nm, MAX(id_obroty) AS max_id
@@ -41,10 +41,10 @@ def update_obroty_arch():
         if rows:
             today = datetime.date.today()
             insert_query = """
-                INSERT INTO obroty_arch (data_arch, ticker_nm, stop_loss)
-                VALUES (%s, %s, %s)
+                INSERT INTO obroty_arch (data_arch, zakup_data_arch, ticker_nm, stop_loss)
+                VALUES (%s, %s, %s, %s)
             """
-            data_to_insert = [(today, ticker_nm, stop_loss) for ticker_nm, stop_loss in rows]
+            data_to_insert = [(today, zakup_data, ticker_nm, stop_loss) for zakup_data, ticker_nm, stop_loss in rows]
             cursor.executemany(insert_query, data_to_insert)
             conn.commit()
             print(f"[{datetime.datetime.now()}] Dodano {cursor.rowcount} rekordów do obroty_arch.")
