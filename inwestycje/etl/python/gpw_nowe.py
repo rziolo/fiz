@@ -18,24 +18,26 @@ def get_db_connection():
     )
 
 def get_new_tickers():
-    """Porównuje tickery w tabeli 'dane' z tabelą 'ticker'"""
+    """Porównuje przycięte z białych znaków tickery z ostatniej sesji w tabeli 'dane' z tabelą 'ticker'"""
     nowe = []
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        
-        # SQL wybierający unikalne tickery z 'dane', których nie ma w 'ticker'
+
+        # SQL obcina spacje/znaki nowej linii (TRIM) przed porównaniem
         query = """
-            SELECT DISTINCT d.ticker 
-            FROM dane d 
-            LEFT JOIN ticker t ON d.ticker = t.ticker_name 
-            WHERE t.ticker_name IS NULL
+            SELECT DISTINCT TRIM(d.ticker) AS ticker_clean
+            FROM dane d
+            LEFT JOIN ticker t ON TRIM(d.ticker) = TRIM(t.ticker_name)
+            WHERE d.data = (SELECT MAX(data) FROM dane)
+              AND t.ticker_name IS NULL
+              AND TRIM(d.ticker) != ''
         """
-        
+
         cur.execute(query)
         rows = cur.fetchall()
-        nowe = [row[0].strip() for row in rows if row[0]]
-        
+        nowe = [row[0] for row in rows if row[0]]
+
         cur.close()
         conn.close()
     except Exception as e:
@@ -43,14 +45,13 @@ def get_new_tickers():
     return nowe
 
 def main():
-    print("🔍 Szukanie nowych spółek w bazie danych (dane vs ticker)...")
-    
+    print("🔍 Szukanie nowych spółek z ostatniej sesji (dane vs ticker)...")
+
     nowe_spolki = get_new_tickers()
-    
+
     try:
-        # Zapewnij istnienie katalogu na plik wynikowy dla dashboardu
         os.makedirs(CSV_DIR, exist_ok=True)
-        
+
         with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
             if nowe_spolki:
                 wynik = ', '.join(sorted(nowe_spolki))
@@ -59,7 +60,7 @@ def main():
             else:
                 f.write('brak')
                 print("✅ Brak nowych spółek. Słownik 'ticker' jest aktualny.")
-                
+
     except Exception as e:
         print(f"❌ Błąd zapisu pliku wynikowego: {e}")
 
