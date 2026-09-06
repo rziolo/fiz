@@ -1,10 +1,10 @@
 # Moje Aplikacje (Flask Applications Suite)
 
-Zestaw mikroserwisów opartych na frameworku Flask, działających w architekturze jednouzłowej (standalone) bezpośrednio na Raspberry Pi 5 (`rz-rpi-05`).
+Zestaw mikroserwisów opartych na frameworku Flask, działających w architekturze jednouzłowej (standalone) bezpośrednio na Raspberry Pi 4 (`rz-rpi-05`).
 
 ## Features
 
-- 🍓 Dedykowane środowisko produkcyjne uruchomione na Raspberry Pi 5.
+- 🍓 Dedykowane środowisko produkcyjne uruchomione na Raspberry Pi 4.
 - 🐍 Aplikacje napisane w języku Python z wykorzystaniem Flask.
 - ⚡ Szybki dostęp proxy za pośrednictwem serwera Apache2.
 - 📊 Dedykowane moduły do zarządzania finansami, inwestycjami i danymi zdrowotnymi.
