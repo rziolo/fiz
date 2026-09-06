@@ -1,52 +1,139 @@
-# Moje Aplikacje - Klaster Flask HA
+# Moje Aplikacje (Flask Applications Suite)
 
-System mikroserwisów oparty na Flasku, działający w architekturze wysokiej dostępności (High Availability) na klastrze Raspberry Pi.
+Zestaw mikroserwisów opartych na frameworku Flask, działających w architekturze jednouzłowej (standalone) bezpośrednio na Raspberry Pi 5 (`rz-rpi-05`).
 
-## 🏗 Architektura Systemu
-- **Adres VIP:** `192.168.1.156` (zarządzany przez Keepalived).
-- **Load Balancer:** Apache2 z modułem `mod_proxy_balancer`.
-- **Logic:**
-    - **Mirroring:** `/inwestycje`, `/finanse`, `/zdrowie` (aplikacje mają prefiksy w kodzie Pythona).
-    - **Stripping:** `/aplikacje` (HUB - przekierowanie na korzeń `/` aplikacji).
-- **Storage:** GlusterFS (zsynchronizowany wolumen `/var/www/html/html` podpięty pod `/var/www/html`).
-- **Integracje:** Eksport danych finansowych do Home Assistant via JSON/SSH.
-- **Konfiguracja:** Wartości środowiskowe zdefiniowane w plikach `.env` poszczególnych modułów.
+## Features
 
-## 🚀 Wykaz Aplikacji i Portów (Pełne HA / Integracje)
-| Aplikacja | Ścieżka URL | Port Lokalny | Status / Baza Danych |
-| :--- | :--- | :--- | :--- |
-| **Aplikacje** | `/aplikacje` | 5000 | **HA** (Local Galera) |
-| **Finanse** | `/finanse` | 5001 | **HA** (Local Galera) |
-| **Inwestycje**| `/inwestycje`| 5002 | **HA** (Local Galera) |
-| **Zdrowie** | `/zdrowie` | 5003 | **HA** (SQLite/GlusterFS) |
-| **Open WebUI** | `http://192.168.1.130:3000` | 3000 | **External** (rz-rpi-02 / Docker) |
-| **n8n** | `http://192.168.1.170:5678/` | 5678 | **External** (rz-rpi-07) |
-| **Beszel Hub (Mon.)** | `http://192.168.1.170:8090` | 8090 | **External** (rz-rpi-07) |
-| **Sprzęt (Glances)** | `http://192.168.1.170/mon/` | 80 (Apache) | **External** (rz-rpi-07) |
+- 🍓 Dedykowane środowisko produkcyjne uruchomione na Raspberry Pi 5.
+- 🐍 Aplikacje napisane w języku Python z wykorzystaniem Flask.
+- ⚡ Szybki dostęp proxy za pośrednictwem serwera Apache2.
+- 📊 Dedykowane moduły do zarządzania finansami, inwestycjami i danymi zdrowotnymi.
+- 🔐 Bezpieczna konfiguracja zmiennych środowiskowych z plikami `.env`.
 
-## 📈 Kluczowe zmiany i poprawki (Knowledge Base - App)
-- **Rekonstrukcja storage SSD na rz-rpi-06 oraz obsługa Gita (29.07.2026):** Naprawiono tabelę partycji GPT na zewnętrznym dysku USB SSD (`/dev/sda1`), sformatowano go do Ext4 i zamontowano trwale w `/mnt/ssd`, co przywróciło prawidłowe odczyty w Home Assistant (111 GB). Zaktualizowano skrypt `git_backup.sh` i crontab do automatycznego tworzenia backupu kodu aplikacji Flask w repozytorium `flask_aplikacje`.
-- **Wdrożenie lokalnego LLM i Open WebUI (09.07.2026):** Zainstalowano stos Docker (Ollama + Open WebUI) na węźle `rz-rpi-02` (RPi 4 8GB). Skonfigurowano lekki model językowy `llama3.2:1b` dedykowany dla CPU ARM64. Dodano bezpośrednie przekierowanie w kaflu "AI Proxy" w głównym HUB-ie aplikacji.
-- **Rozszerzenie monitoringu infrastruktury o Beszel (06.07.2026):** Zainstalowano Beszel Hub w Dockerze na `rz-rpi-07`. Skonfigurowano i spięto agentów monitorujących dla całego środowiska sieciowego: malin klastra (`rz-rpi-02` do `rz-rpi-06`), stacji roboczej Windows oraz centrali Home Assistant (`192.168.1.129`). Dodano dedykowany przycisk przekierowania w kaflu "Sprzęt" na HUB-ie.
-- **Korekta mnożników walutowych ETL (28.05.2026):** Naprawiono problem błędnych wartości cenowych w module Inwestycji. Zmodyfikowano `import_zagr.py` w celu obsługi walut w centach EUR/USD i wdrożono parametr `"mult"` (mnożnik jednostkowy), zapewniając prawidłowe przeliczenia na PLN.
-- **Obsługa awarii sprzętowej dysku i I/O (26.05.2026):** Usunięto krytyczny błąd blokady operacji wejścia/wyjścia na węźle `rz-rpi-06` spowodowany degradacją kabla USB/SATA. Wymieniono okablowanie, stabilizując zasilanie dysku SSD.
-- **Naprawa systemu plików i logicznego storage (26.05.2026):** Przeprowadzono naprawę uszkodzonych i-węzłów za pomocą `fsck`, odtworzono brakujący punkt montowania `/var/www/html` dla GlusterFS oraz przywrócono poprawną lokalizację partycji `/dev/sda1` w `/mnt/ssd` na potrzeby skryptu zdrowia klastra.
-- **Centrum Monitoringu w HUB-ie (24.05.2026):** Do panelu głównego `/aplikacje` dodano piąty kafelek "Sprzęt" linkujący do zewnętrznego systemu `lan_glances` na `rz-rpi-02` (`/mon/`), agregującego teledane z klastra, urządzeń mobilnych i Home Assistant.
-- **Optymalizacja Grid UI (24.05.2026):** Przebudowano układ siatki na stronie głównej HUB-u przy użyciu klas `row-cols-xl-5` oraz Flexbox, zapewniając idealne wyrównanie przycisków i płynne skalowanie.
-- **Automatyzacja Szablonów (Crontab):** Wdrożono skrypt bash `/var/www/html/flask/shared/bash/update_base.sh` uruchamiany codziennie o 00:25, automatycznie synchronizujący nadrzędny plik `base.html` do modułu Finansów.
+## Architecture
 
-## 🛠 Zarządzanie
-- **Montowanie zasobów klastra:** `sudo mount -t glusterfs localhost:/gvol0 /var/www/html`
-- **Restart wszystkich usług:** `sudo systemctl restart flask-aplikacje flask-finanse flask-inwestycje flask-zdrowie`
-- **Status klastra i aplikacji:** `sudo systemctl status "flask-*"` lub `~/klaster-rpi0506/check_disk_health.sh`
-- **Logi Apache:** `tail -f /var/log/apache2/access.log`
-- **Test JSON HA:** `python3 /var/www/html/flask/finanse/etl/python/get_finanse_json.py`
-- **Ręczna synchronizacja szablonu:** `/bin/bash /var/www/html/flask/shared/bash/update_base.sh`
+┌────────────────────────────────────────────────────────┐
+│                    Client Browser                      │
+└───────────────────────────┬────────────────────────────┘
+                            │ (HTTP / 192.168.1.133)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│               Apache2 Web Server (Proxy)               │
+└─────┬──────────────┬──────────────┬──────────────┬─────┘
+      │ /aplikacje   │ /finanse     │ /inwestycje  │ /zdrowie
+      ▼              ▼              ▼              ▼
+┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+│ App: 5000 │  │ App: 5001 │  │ App: 5002 │  │ App: 5003 │
+└─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘
+      │              │              │              │
+      ▼              ▼              ▼              ▼
+┌──────────────────────────┐  ┌──────────────────────────┐
+│     MariaDB Database     │  │   SQLite / HA Database   │
+└──────────────────────────┘  └──────────────────────────┘
+
+## Project Structure
+
+flask/
+├── aplikacje/
+│   ├── .env.example
+│   └── app.py
+├── finanse/
+│   ├── .env.example
+│   ├── app.py
+│   └── strukture_finanse.sql
+├── inwestycje/
+│   ├── .env.example
+│   ├── app.py
+│   └── structure_inwestycje.sql
+├── zdrowie/
+│   ├── .env.example
+│   ├── app.py
+│   └── structure_table_vita_pressure.sql
+├── shared/
+├── venv/
+├── README.md
+└── requirements.txt
+
+## File Description
+
+| Plik / Katalog | Opis |
+|---|---|
+| `aplikacje/` | Główny panel nawigacyjny i powiązane mikroserwisy. |
+| `finanse/` | Aplikacja do zarządzania finansami osobistymi. |
+| `inwestycje/` | Moduł śledzenia portfela inwestycyjnego i notowań GPW. |
+| `zdrowie/` | Aplikacja do rejestracji pomiarów ciśnienia i parametrów zdrowotnych. |
+| `shared/` | Wspólne komponenty, szablony HTML oraz moduły pomocnicze. |
+| `*.sql` | Skrypty ze strukturą baz danych dla poszczególnych modułów. |
+| `.env.example` | Szablony zmiennych środowiskowych. |
+
+## Installation
+
+1. Przejdź do katalogu aplikacji:
+   cd /mnt/data/brick_www/flask
+
+2. Aktywuj wirtualne środowisko Pythona:
+   source venv/bin/activate
+
+3. Zainstaluj wymagane zależności:
+   pip install -r requirements.txt
+
+## Configuration
+
+Przed uruchomieniem aplikacji należy skonfigurować pliki `.env` w poszczególnych podkatalogach (`finanse`, `inwestycje`, `zdrowie`).
+
+Skopiuj wzorzec dla każdej aplikacji:
+
+cp finanse/.env.example finanse/.env
+cp inwestycje/.env.example inwestycje/.env
+cp zdrowie/.env.example zdrowie/.env
+
+Uzupełnij właściwe parametry dostępowe:
+
+DB_HOST=192.168.x.xxx
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=your_database
+
+## Security
+
+Nigdy nie należy dodawać produkcyjnych plików `.env` do kontroli wersji Git:
+
+.env
+*.key
+*.pem
+
+Upewnij się, że plik `.gitignore` zawiera wpis `.env`, aby zapobiec wyciekowi poświadczeń.
+
+## Troubleshooting
+
+### Usługa nie odpowiada
+
+Sprawdź status usług Flask w systemie:
+
+sudo systemctl status "flask-*"
+
+### Restart usług
+
+Zrestartuj wszystkie mikroserwisy:
+
+sudo systemctl restart flask-aplikacje flask-finanse flask-inwestycje flask-zdrowie
+
+### Sprawdzanie logów
+
+journalctl -u flask-finanse -f
+
+## Quick Start
+
+Uruchomienie produkcyjne wszystkich usług:
+
+sudo systemctl start flask-aplikacje flask-finanse flask-inwestycje flask-zdrowie
+
+Weryfikacja działania w przeglądarce:
+
+http://192.168.1.133/aplikacje
 
 ---
 
-## 🔗 Powiązane komponenty i infrastruktura
-* **Konfiguracja sprzętowa i sieciowa klastra HA:** Dokumentacja konfiguracji GlusterFS, Galera, Keepalived oraz skryptów monitorujących zdrowie dysków znajduje się pod ścieżką: `/home/rz-rpi-06/klaster-rpi0506/README.md`
+## Credits
 
----
-*Ostatnia aktualizacja: 2026-07-29 09:52
+Opracowanie Robert Zioło + AI, plik zaktualizowano 2026-09-06 17:35
