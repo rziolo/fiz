@@ -18,14 +18,19 @@ def list_bilans():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
-    # Zapytanie łączące przychody, wydatki i stan kont ror z przeliczeniem walut
+    # Zapytanie łączące przychody, wydatki i stan kont ror wraz z uwagami
     query = """
     SELECT 
         DATE_FORMAT(p.data, '%Y-%m') as rok_miesiac,
         SUM(p.ZUS_Iwona + p.ZUS_Robert + p.gielda + p.odsetki + p.urzad + p.inne) as przychody,
+        p.uwagi as przychody_uwagi,
         (SELECT SUM(zywnosc + niezywnosc + car_cost + oplaty + inne + medycyna) 
          FROM wydatki 
          WHERE DATE_FORMAT(data, '%Y-%m') = DATE_FORMAT(p.data, '%Y-%m')) as wydatki,
+        (SELECT uwagi 
+         FROM wydatki 
+         WHERE DATE_FORMAT(data, '%Y-%m') = DATE_FORMAT(p.data, '%Y-%m')
+         LIMIT 1) as wydatki_uwagi,
         (SELECT (PKO + mBank + Millenium + obligacje + fundusze + lokaty + gotowka + ike_ikze + gielda + (EURO * EURO_kurs) + (USD * USD_kurs))
          FROM ror 
          WHERE DATE_FORMAT(data, '%Y-%m') = DATE_FORMAT(p.data, '%Y-%m')

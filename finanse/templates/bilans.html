@@ -7,6 +7,10 @@
     .text-success-custom { color: #198754 !important; font-weight: bold; }
     .text-danger-custom { color: #dc3545 !important; font-weight: bold; }
     .table thead th { background-color: #212529; color: white; border: none; padding: 12px; }
+
+    /* Kolory tła dla sekcji Przychody (jasnozielony) i Wydatki (różowy) */
+    .bg-przychody { background-color: #e6ffed !important; }
+    .bg-wydatki { background-color: #ffe6e6 !important; }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -24,7 +28,9 @@
                 <tr>
                     <th class="ps-4">Rok-Miesiąc</th>
                     <th class="text-end">Przychody</th>
+                    <th class="text-center" style="width: 40px;"><i class="bi bi-sticky" title="Uwagi do przychodów"></i></th>
                     <th class="text-end">Wydatki</th>
+                    <th class="text-center" style="width: 40px;"><i class="bi bi-sticky" title="Uwagi do wydatków"></i></th>
                     <th class="text-end">Bilans miesięczny</th>
                     <th class="text-end pe-4">ROR i lokaty</th>
                 </tr>
@@ -33,8 +39,45 @@
                 {% for r in rows %}
                 <tr>
                     <td class="ps-4 fw-bold text-muted">{{ r.rok_miesiac }}</td>
-                    <td class="val-cell">{{ format_pl(r.przychody) }}</td>
-                    <td class="val-cell">{{ format_pl(r.wydatki) }}</td>
+                    
+                    <!-- Przychody i Uwagi (Jasnozielone tło) -->
+                    <td class="val-cell bg-przychody">{{ format_pl(r.przychody) }}</td>
+                    <td class="text-center align-middle bg-przychody">
+                        {% if r.przychody_uwagi %}
+                        <i class="bi bi-sticky text-warning" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#mp_{{ loop.index }}"></i>
+                        <div class="modal fade" id="mp_{{ loop.index }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content text-start">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Uwagi Przychody - {{ r.rok_miesiac }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">{{ r.przychody_uwagi }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Wydatki i Uwagi (Różowe tło) -->
+                    <td class="val-cell bg-wydatki">{{ format_pl(r.wydatki) }}</td>
+                    <td class="text-center align-middle bg-wydatki">
+                        {% if r.wydatki_uwagi %}
+                        <i class="bi bi-sticky text-warning" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#mw_{{ loop.index }}"></i>
+                        <div class="modal fade" id="mw_{{ loop.index }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content text-start">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Uwagi Wydatki - {{ r.rok_miesiac }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">{{ r.wydatki_uwagi }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </td>
+
                     <td class="val-cell {% if r.bilans > 0 %}text-success-custom{% elif r.bilans < 0 %}text-danger-custom{% endif %}">
                         {{ format_pl(r.bilans) }}
                     </td>
