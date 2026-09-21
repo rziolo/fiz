@@ -3,6 +3,7 @@ import mysql.connector
 import os
 from dotenv import load_dotenv
 from routes.ha_vita_pressure import pressure_bp
+from routes.health_connect import health_connect_bp
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
@@ -10,8 +11,9 @@ load_dotenv(os.path.join(basedir, '.env'))
 app = Flask(__name__, template_folder='templates')
 app.jinja_loader.searchpath.append('/var/www/html/flask/shared/templates')
 
-# Rejestrujemy blueprint pod konkretnym prefiksem bezpośrednio we Flasku
+# Rejestrujemy blueprinty
 app.register_blueprint(pressure_bp, url_prefix='/zdrowie')
+app.register_blueprint(health_connect_bp, url_prefix='/zdrowie')
 
 def check_db():
     try:

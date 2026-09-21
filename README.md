@@ -9,6 +9,7 @@ Zestaw mikroserwisów opartych na frameworku Flask, działających w architektur
 - ⚡ Szybki dostęp proxy za pośrednictwem serwera Apache2.
 - 📊 Dedykowane moduły do zarządzania finansami, inwestycjami i danymi zdrowotnymi.
 - 🔐 Bezpieczna konfiguracja zmiennych środowiskowych z plikami `.env`.
+- 🔄 Automatyczny pobór danych ETL dla Health Connect z Dysku Google.
 
 ## Architecture
 
@@ -28,7 +29,7 @@ Zestaw mikroserwisów opartych na frameworku Flask, działających w architektur
       │              │              │              │
       ▼              ▼              ▼              ▼
 ┌──────────────────────────┐  ┌──────────────────────────┐
-│     MariaDB Database     │  │   SQLite / HA Database   │
+│     MariaDB Database     │  │ SQLite / HA / Health DB  │
 └──────────────────────────┘  └──────────────────────────┘
 
 ## Project Structure
@@ -40,12 +41,18 @@ flask/
 ├── finanse/
 │   ├── .env.example
 │   ├── app.py
-│   └── strukture_finanse.sql
+│   └── structure_finanse.sql
 ├── inwestycje/
 │   ├── .env.example
 │   ├── app.py
 │   └── structure_inwestycje.sql
 ├── zdrowie/
+│   ├── etl/
+│   │   ├── bash/
+│   │   │   └── download_health_connect.sh
+│   │   └── db/
+│   │       └── health_connect/
+│   │           └── health_connect_export.db
 │   ├── .env.example
 │   ├── app.py
 │   └── structure_table_vita_pressure.sql
@@ -61,7 +68,7 @@ flask/
 | `aplikacje/` | Główny panel nawigacyjny i powiązane mikroserwisy. |
 | `finanse/` | Aplikacja do zarządzania finansami osobistymi. |
 | `inwestycje/` | Moduł śledzenia portfela inwestycyjnego i notowań GPW. |
-| `zdrowie/` | Aplikacja do rejestracji pomiarów ciśnienia i parametrów zdrowotnych. |
+| `zdrowie/` | Aplikacja do rejestracji pomiarów ciśnienia oraz analizy danych z Health Connect (`health_connect_export.db`). |
 | `shared/` | Wspólne komponenty, szablony HTML oraz moduły pomocnicze. |
 | `*.sql` | Skrypty ze strukturą baz danych dla poszczególnych modułów. |
 | `.env.example` | Szablony zmiennych środowiskowych. |
@@ -69,7 +76,7 @@ flask/
 ## Installation
 
 1. Przejdź do katalogu aplikacji:
-   cd /mnt/data/brick_www/flask
+   cd /var/www/html/flask
 
 2. Aktywuj wirtualne środowisko Pythona:
    source venv/bin/activate
@@ -120,7 +127,7 @@ sudo systemctl restart flask-aplikacje flask-finanse flask-inwestycje flask-zdro
 
 ### Sprawdzanie logów
 
-journalctl -u flask-finanse -f
+journalctl -u flask-zdrowie -f
 
 ## Quick Start
 
@@ -136,4 +143,4 @@ http://192.168.1.133/aplikacje
 
 ## Credits
 
-Opracowanie Robert Zioło + AI, plik zaktualizowano 2026-09-06 17:35
+Opracowanie Robert Zioło + AI, plik zaktualizowano 2026-09-21

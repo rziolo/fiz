@@ -10,14 +10,31 @@
     {% endif %}
 </div>
 
-<div class="row justify-content-center">
+<div class="row justify-content-center g-4">
+    <!-- Karta 1: Ciśnienie -->
     <div class="col-md-5">
-        <div class="card text-center shadow-sm p-4">
-            <div class="card-body">
-                <i class="fas fa-heartbeat fa-5x text-danger mb-4"></i>
-                <h2 class="mb-3">Ciśnienie</h2>
-                <p class="text-muted mb-4">Rejestracja pomiarów i historia</p>
+        <div class="card text-center shadow-sm p-4 h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <i class="fas fa-heartbeat fa-5x text-danger mb-4"></i>
+                    <h2 class="mb-3">Ciśnienie</h2>
+                    <p class="text-muted mb-4">Rejestracja pomiarów i historia</p>
+                </div>
                 <a href="{{ url_for('pressure.list_pressure') }}" class="btn btn-outline-danger btn-lg w-100">Otwórz panel</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Karta 2: Health Connect -->
+    <div class="col-md-5">
+        <div class="card text-center shadow-sm p-4 h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <i class="fas fa-heartpulse fa-5x text-primary mb-4"></i>
+                    <h2 class="mb-3">Health Connect</h2>
+                    <p class="text-muted mb-4">Pomiary wagi, kroków, tętna i snu</p>
+                </div>
+                <a href="{{ url_for('health_connect.index') }}" class="btn btn-outline-primary btn-lg w-100">Otwórz panel</a>
             </div>
         </div>
     </div>
