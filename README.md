@@ -143,4 +143,4 @@ http://192.168.1.133/aplikacje
 
 ## Credits
 
-Opracowanie Robert Zioło + AI, plik zaktualizowano 2026-09-21
+Opracowanie Robert Zioło + AI, plik zaktualizowano 2026-09-22

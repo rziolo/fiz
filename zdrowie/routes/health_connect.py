@@ -1,167 +1,199 @@
-import os
+from flask import Blueprint, render_template
 import sqlite3
-import subprocess
-from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, send_file, abort
 
 health_connect_bp = Blueprint('health_connect', __name__)
 DB_PATH = '/var/www/html/flask/zdrowie/etl/db/health_connect/health_connect_export.db'
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+EXERCISE_TYPE_MAP = {
+    0: "Inny / Ogólny",
+    1: "Badminton",
+    2: "Baseball",
+    3: "Koszykówka",
+    4: "Koszykówka",
+    5: "Boks",
+    8: "Kolarstwo",
+    9: "Kolarstwo stacjonarne",
+    10: "Orbitrek",
+    11: "Taniec",
+    13: "Piłka nożna",
+    26: "Gimnastyka",
+    27: "Piłka ręczna",
+    28: "Wędrówka",
+    29: "Jazda na łyżwach",
+    31: "Sztuki walki",
+    33: "Pilates",
+    34: "Wioślarstwo",
+    35: "Wioślarstwo stacjonarne",
+    37: "Bieganie",
+    38: "Bieżnia elektryczna",
+    39: "Żeglarstwo",
+    44: "Narciarstwo",
+    46: "Snowboard",
+    48: "Squash",
+    49: "Schody",
+    50: "Strajder",
+    52: "Pływanie",
+    53: "Spacer",
+    54: "Tenis stołowy",
+    55: "Tenis",
+    56: "Siatkówka",
+    57: "Nordic Walking",
+    58: "Trening siłowy",
+    59: "Rozciąganie",
+    60: "Joga",
+    62: "Zumba"
+}
+
+def pl_num(val, decimals=2):
+    if val is None:
+        return ""
+    try:
+        val_float = float(val)
+        formatted = f"{val_float:,.{decimals}f}"
+        return formatted.replace(",", " ").replace(".", ",")
+    except (ValueError, TypeError):
+        return str(val)
+
+def format_duration(minutes):
+    if not minutes or minutes <= 0:
+        return "0min"
+    mins = int(round(minutes))
+    hours = mins // 60
+    rem_mins = mins % 60
+    if hours > 0 and rem_mins > 0:
+        return f"{hours}h {rem_mins}min"
+    elif hours > 0:
+        return f"{hours}h"
+    else:
+        return f"{rem_mins}min"
 
 def get_db_connection():
     conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True)
     conn.row_factory = sqlite3.Row
     return conn
 
-@health_connect_bp.route('/health-connect/pdf')
-def serve_pdf():
-    today_dt = datetime.now()
-    default_date_to = today_dt.strftime('%Y-%m-%d')
-    default_date_from = (today_dt - timedelta(days=30)).strftime('%Y-%m-%d')
-
-    date_from = request.args.get('date_from', default_date_from)
-    date_to = request.args.get('date_to', default_date_to)
-    tab = request.args.get('tab', 'weight')
-
-    gen_script = os.path.join(BASE_DIR, 'etl', 'generuj_wykres.py')
-    pdf_path = os.path.join(BASE_DIR, 'static', 'wykres.pdf')
-    
-    if os.path.exists(gen_script):
-        try:
-            subprocess.run(['python3', gen_script, date_from, date_to, tab], check=True, timeout=10)
-        except Exception as e:
-            print(f"Błąd generowania PDF: {e}")
-
-    if os.path.exists(pdf_path):
-        return send_file(pdf_path, mimetype='application/pdf')
-    else:
-        abort(404, description="Brak wygenerowanego pliku wykres.pdf w katalogu static.")
-
 @health_connect_bp.route('/health-connect')
-def index():
+def health_connect_view():
     conn = get_db_connection()
-    
-    today_dt = datetime.now()
-    default_date_to = today_dt.strftime('%Y-%m-%d')
-    default_date_from = (today_dt - timedelta(days=30)).strftime('%Y-%m-%d')
+    cursor = conn.cursor()
 
-    date_from = request.args.get('date_from', default_date_from)
-    date_to = request.args.get('date_to', default_date_to)
-    active_tab = request.args.get('tab', 'weight')
+    # 1. Tkanka tłuszczowa
+    raw_body_fat = cursor.execute("""
+        SELECT strftime('%Y-%m-%d %H:%M', time/1000, 'unixepoch', 'localtime') as date, AVG(percentage) as percentage
+        FROM body_fat_record_table
+        GROUP BY date
+        ORDER BY MIN(time) DESC LIMIT 50
+    """).fetchall()
+    body_fat = [{'date': r['date'], 'percentage_str': pl_num(r['percentage'], 2)} for r in raw_body_fat]
 
-    from_ms = int(datetime.strptime(f"{date_from} 00:00:00", '%Y-%m-%d %H:%M:%S').timestamp() * 1000)
-    to_ms = int(datetime.strptime(f"{date_to} 23:59:59", '%Y-%m-%d %H:%M:%S').timestamp() * 1000)
+    # 2. Ciśnienie krwi
+    raw_bp = cursor.execute("""
+        SELECT strftime('%Y-%m-%d %H:%M', time/1000, 'unixepoch', 'localtime') as date, systolic, diastolic
+        FROM blood_pressure_record_table ORDER BY time DESC LIMIT 50
+    """).fetchall()
+    blood_pressure = [{
+        'date': r['date'], 
+        'systolic_str': pl_num(r['systolic'], 0), 
+        'diastolic_str': pl_num(r['diastolic'], 0)
+    } for r in raw_bp]
 
-    weight_raw = conn.execute('''
-        SELECT * FROM weight_record_table
-        WHERE time BETWEEN ? AND ?
-        ORDER BY time DESC
-    ''', (from_ms, to_ms)).fetchall()
+    # 3. Tętno spoczynkowe
+    raw_rhr = cursor.execute("""
+        SELECT strftime('%Y-%m-%d', time/1000, 'unixepoch', 'localtime') as date, beats_per_minute as rate
+        FROM resting_heart_rate_record_table ORDER BY time DESC LIMIT 50
+    """).fetchall()
+    resting_hr = [{'date': r['date'], 'rate_str': pl_num(r['rate'], 0)} for r in raw_rhr]
 
-    daily_weight = {}
-    for row in weight_raw:
-        row_dict = dict(row)
-        time_ms = row_dict.get('time') or 0
-        dzien = conn.execute("SELECT date(?, 'unixepoch', 'localtime')", (time_ms / 1000,)).fetchone()[0]
-        dt_minute = conn.execute("SELECT strftime('%Y-%m-%d %H:%M', ?, 'unixepoch', 'localtime')", (time_ms / 1000,)).fetchone()[0]
-        
-        if dzien not in daily_weight:
-            raw_w = 0
-            for col_name in ['weight', 'weight_in_kg', 'weight_kg', 'weight_grams']:
-                if col_name in row_dict and row_dict[col_name] is not None:
-                    raw_w = row_dict[col_name]
-                    break
-            
-            val_kg = raw_w / 1000.0 if raw_w > 1000 else float(raw_w)
-            val_formatted = f"{val_kg:,.1f}".replace(',', ' ').replace('.', ',')
-            
-            daily_weight[dzien] = {
-                'data_pomiaru': dt_minute,
-                'weight_in_kg_str': val_formatted
-            }
+    # 4. Saturacja (SpO2)
+    raw_spo2 = cursor.execute("""
+        SELECT strftime('%Y-%m-%d %H:%M', time/1000, 'unixepoch', 'localtime') as date, AVG(percentage) as percentage
+        FROM oxygen_saturation_record_table
+        GROUP BY date
+        ORDER BY MIN(time) DESC LIMIT 50
+    """).fetchall()
+    oxygen_saturation = [{'date': r['date'], 'percentage_str': pl_num(r['percentage'], 1)} for r in raw_spo2]
 
-    weight_data = list(daily_weight.values())
-
-    steps_raw = conn.execute('''
-        SELECT date(start_time/1000, 'unixepoch', 'localtime') as dzien,
-               MAX(count) as max_krokow,
-               SUM(count) as suma_krokow
-        FROM steps_record_table
-        WHERE start_time BETWEEN ? AND ?
-        GROUP BY dzien
-        ORDER BY dzien DESC
-    ''', (from_ms, to_ms)).fetchall()
-
-    steps_data = []
-    for row in steps_raw:
-        kroki = row['max_krokow'] if row['suma_krokow'] > 15000 and row['max_krokow'] > 0 else row['suma_krokow']
-        steps_data.append({
-            'dzien': row['dzien'],
-            'suma_krokow_str': f"{int(kroki):,}".replace(',', ' ')
-        })
-
-    hr_raw = conn.execute('''
+    # 5. Treningi
+    raw_exercise = cursor.execute("""
         SELECT 
-            s.beats_per_minute,
-            s.epoch_millis,
-            e.title as exercise_title
-        FROM heart_rate_record_series_table s
-        JOIN heart_rate_record_table r ON s.parent_key = r.row_id
-        LEFT JOIN exercise_session_record_table e 
-            ON s.epoch_millis BETWEEN e.start_time AND e.end_time
-        WHERE s.epoch_millis BETWEEN ? AND ?
-        ORDER BY s.epoch_millis DESC
-        LIMIT 500
-    ''', (from_ms, to_ms)).fetchall()
+            strftime('%Y-%m-%d %H:%M', start_time/1000, 'unixepoch', 'localtime') as start_date,
+            title,
+            exercise_type,
+            ROUND((end_time - start_time) / 60000.0, 1) as duration_min
+        FROM exercise_session_record_table ORDER BY start_time DESC LIMIT 50
+    """).fetchall()
 
-    heart_rate_data = []
-    for row in hr_raw:
-        time_ms = row['epoch_millis'] or 0
-        dt_str = conn.execute("SELECT strftime('%Y-%m-%d %H:%M', ?, 'unixepoch', 'localtime')", (time_ms / 1000,)).fetchone()[0]
-        info = row['exercise_title'] if row['exercise_title'] else "Spoczynek / Aktywność"
+    exercise = []
+    for item in raw_exercise:
+        row = dict(item)
+        type_code = row.get('exercise_type')
+        type_name = EXERCISE_TYPE_MAP.get(type_code, f"Trening (typ: {type_code})")
         
-        heart_rate_data.append({
-            'data_pomiaru': dt_str,
-            'rate': row['beats_per_minute'],
-            'info': info
+        if row.get('title') and str(row['title']).strip():
+            display_name = f"{row['title']} ({type_name})"
+        else:
+            display_name = type_name
+            
+        exercise.append({
+            'start_date': row['start_date'],
+            'display_name': display_name,
+            'duration_str': format_duration(row.get('duration_min', 0))
         })
 
-    sleep_raw = conn.execute('''
-        SELECT * FROM sleep_session_record_table
-        WHERE start_time BETWEEN ? AND ?
-        ORDER BY start_time DESC
-    ''', (from_ms, to_ms)).fetchall()
+    # 6. Spalone kalorie (dzielimy przez 1000 jeśli dane w bazie są w surowych dżulach/kaloriach)
+    raw_calories = cursor.execute("""
+        SELECT 
+            strftime('%Y-%m-%d', start_time/1000, 'unixepoch', 'localtime') as day,
+            ROUND(SUM(energy), 0) as total_calories
+        FROM active_calories_burned_record_table
+        GROUP BY day ORDER BY day DESC LIMIT 30
+    """).fetchall()
+    
+    active_calories = []
+    for r in raw_calories:
+        val = r['total_calories']
+        # Korekta w przypadku gdy wartość jest przeliczona na dżule w bazie
+        if val and val > 50000:
+            val = val / 1000.0
+        active_calories.append({
+            'day': r['day'],
+            'calories_str': pl_num(val, 0)
+        })
 
-    daily_sleep = {}
-    for row in sleep_raw:
-        row_dict = dict(row)
-        s_time = row_dict.get('start_time') or 0
-        e_time = row_dict.get('end_time') or 0
-        dzien = conn.execute("SELECT date(?, 'unixepoch', 'localtime')", (s_time / 1000,)).fetchone()[0]
-        
-        duration_minutes = (e_time - s_time) / 60000.0 if e_time > s_time else 0
-        
-        if dzien not in daily_sleep or duration_minutes > daily_sleep[dzien]:
-            daily_sleep[dzien] = duration_minutes
+    # 7. Fazy snu
+    raw_sleep = cursor.execute("""
+        SELECT 
+            s.parent_key,
+            strftime('%Y-%m-%d %H:%M', MIN(s.stage_start_time)/1000, 'unixepoch', 'localtime') as sleep_start,
+            SUM(CASE WHEN s.stage_type = 4 THEN (s.stage_end_time - s.stage_start_time) ELSE 0 END) / 60000.0 as light_sleep_min,
+            SUM(CASE WHEN s.stage_type = 5 THEN (s.stage_end_time - s.stage_start_time) ELSE 0 END) / 60000.0 as deep_sleep_min,
+            SUM(CASE WHEN s.stage_type = 6 THEN (s.stage_end_time - s.stage_start_time) ELSE 0 END) / 60000.0 as rem_sleep_min,
+            SUM(CASE WHEN s.stage_type IN (1, 3) THEN (s.stage_end_time - s.stage_start_time) ELSE 0 END) / 60000.0 as awake_min
+        FROM sleep_stages_table s
+        GROUP BY s.parent_key
+        ORDER BY sleep_start DESC LIMIT 30
+    """).fetchall()
 
-    sleep_data = []
-    for dzien, total_minutes in daily_sleep.items():
-        hours = int(total_minutes // 60)
-        minutes = int(total_minutes % 60)
-        sleep_data.append({
-            'dzien': dzien,
-            'czas_snu_str': f"{hours}h {minutes}m"
+    sleep_stages = []
+    for item in raw_sleep:
+        row = dict(item)
+        sleep_stages.append({
+            'sleep_start': row['sleep_start'],
+            'light_sleep_str': format_duration(row.get('light_sleep_min', 0)),
+            'deep_sleep_str': format_duration(row.get('deep_sleep_min', 0)),
+            'rem_sleep_str': format_duration(row.get('rem_sleep_min', 0)),
+            'awake_str': format_duration(row.get('awake_min', 0))
         })
 
     conn.close()
 
     return render_template(
         'health_connect.html',
-        weight=weight_data,
-        steps=steps_data,
-        heart_rate=heart_rate_data,
-        sleep=sleep_data,
-        date_from=date_from,
-        date_to=date_to,
-        active_tab=active_tab
+        body_fat=body_fat,
+        blood_pressure=blood_pressure,
+        resting_hr=resting_hr,
+        oxygen_saturation=oxygen_saturation,
+        exercise=exercise,
+        active_calories=active_calories,
+        sleep_stages=sleep_stages
     )
