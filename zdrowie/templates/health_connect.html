@@ -1,187 +1,145 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <h2 class="mb-4"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Health Connect - Wskaźniki</h2>
+<div class="container my-4">
+    <h2 class="mb-4"><i class="fa-solid fa-heart-pulse text-danger me-2"></i>Health Connect</h2>
 
     <!-- Nawigacja zakładek -->
-    <ul class="nav nav-tabs" id="healthTabs" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" id="bp-tab" data-bs-toggle="tab" data-bs-target="#bp" type="button" role="tab">Ciśnienie</button>
+    <ul class="nav nav-tabs mb-3" id="healthTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="dane-rozne-tab" data-bs-toggle="tab" data-bs-target="#dane-rozne" type="button" role="tab">Dane różne</button>
         </li>
-        <li class="nav-item">
-            <button class="nav-link" id="rhr-tab" data-bs-toggle="tab" data-bs-target="#rhr" type="button" role="tab">Tętno spoczynkowe</button>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tetno-tab" data-bs-toggle="tab" data-bs-target="#tetno" type="button" role="tab">Tętno</button>
         </li>
-        <li class="nav-item">
-            <button class="nav-link" id="spo2-tab" data-bs-toggle="tab" data-bs-target="#spo2" type="button" role="tab">Saturacja (SpO2)</button>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="treningi-tab" data-bs-toggle="tab" data-bs-target="#treningi" type="button" role="tab">Treningi</button>
         </li>
-        <li class="nav-item">
-            <button class="nav-link" id="fat-tab" data-bs-toggle="tab" data-bs-target="#fat" type="button" role="tab">Tłuszcz ustrojowy</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="exercise-tab" data-bs-toggle="tab" data-bs-target="#exercise" type="button" role="tab">Treningi</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="calories-tab" data-bs-toggle="tab" data-bs-target="#calories" type="button" role="tab">Spalone kalorie</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="sleep-tab" data-bs-toggle="tab" data-bs-target="#sleep" type="button" role="tab">Fazy snu</button>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sen-tab" data-bs-toggle="tab" data-bs-target="#sen" type="button" role="tab">Sen</button>
         </li>
     </ul>
 
-    <!-- Zawartość zakładek -->
-    <div class="tab-content pt-3" id="healthTabsContent">
-
-        <!-- 1. Ciśnienie -->
-        <div class="tab-pane fade show active" id="bp" role="tabpanel">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Data i czas</th>
-                        <th>Skurczowe (mmHg)</th>
-                        <th>Rozkurczowe (mmHg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in blood_pressure %}
-                    <tr>
-                        <td>{{ item.date }}</td>
-                        <td><span class="badge bg-primary fs-6">{{ item.systolic_str }}</span></td>
-                        <td><span class="badge bg-info fs-6">{{ item.diastolic_str }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="tab-content" id="healthTabsContent">
+        <!-- 1. Dane różne -->
+        <div class="tab-pane fade show active" id="dane-rozne" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Data</th>
+                            <th>Waga (kg)</th>
+                            <th>Kroki</th>
+                            <th>Skurczowe</th>
+                            <th>Rozkurczowe</th>
+                            <th>Tętno spoczynkowe</th>
+                            <th>Saturacja</th>
+                            <th>Tłuszcz</th>
+                            <th>Kalorie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in dane_rozne %}
+                        <tr>
+                            <td><strong>{{ item.day }}</strong></td>
+                            
+                            <td>{% if item.weight %}<span class="badge bg-primary fs-6">{{ item.weight }} kg</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                            
+                            <td>{% if item.steps %}<span class="badge bg-success fs-6">{{ item.steps }}</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                            
+                            <td>{% if item.systolic %}<span class="badge bg-danger fs-6">{{ item.systolic }}</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                            
+                            <td>{% if item.diastolic %}<span class="badge bg-warning text-dark fs-6">{{ item.diastolic }}</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                            
+                            <td>{% if item.resting_hr %}<span class="badge bg-info text-dark fs-6">{{ item.resting_hr }}</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                            
+                            <td>{% if item.spo2 %}<span class="badge bg-secondary fs-6">{{ item.spo2 }}%</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                            
+                            <td>{% if item.body_fat %}<span class="badge bg-dark fs-6">{{ item.body_fat }}%</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                            
+                            <td>{% if item.calories %}<span class="badge bg-danger fs-6">{{ item.calories }} kcal</span>{% else %}<span class="bg-secondary bg-opacity-25 text-muted px-2 py-1 rounded small">brak danych</span>{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 2. Tętno spoczynkowe -->
-        <div class="tab-pane fade" id="rhr" role="tabpanel">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Data</th>
-                        <th>Tętno (bpm)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in resting_hr %}
-                    <tr>
-                        <td>{{ item.date }}</td>
-                        <td><span class="badge bg-danger fs-6">{{ item.rate_str }} bpm</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- 2. Tętno -->
+        <div class="tab-pane fade" id="tetno" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Data i czas</th>
+                            <th>Tętno (bpm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in heart_rate_data %}
+                        <tr>
+                            <td>{{ item.time }}</td>
+                            <td><span class="badge bg-danger fs-6">{{ item.bpm }} bpm</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 3. Saturacja (SpO2) -->
-        <div class="tab-pane fade" id="spo2" role="tabpanel">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Data i czas</th>
-                        <th>Saturacja (% SpO2)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in oxygen_saturation %}
-                    <tr>
-                        <td>{{ item.date }}</td>
-                        <td><span class="badge bg-success fs-6">{{ item.percentage_str }} %</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- 3. Treningi -->
+        <div class="tab-pane fade" id="treningi" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Data i czas rozpoczęcia</th>
+                            <th>Nazwa treningu</th>
+                            <th>Czas trwania</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in exercise %}
+                        <tr>
+                            <td>{{ item.start_date }}</td>
+                            <td><strong>{{ item.display_name }}</strong></td>
+                            <td><span class="badge bg-success fs-6">{{ item.duration_str }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 4. Tłuszcz ustrojowy -->
-        <div class="tab-pane fade" id="fat" role="tabpanel">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Data i czas</th>
-                        <th>Poziom tłuszczu (%)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in body_fat %}
-                    <tr>
-                        <td>{{ item.date }}</td>
-                        <td><span class="badge bg-warning text-dark fs-6">{{ item.percentage_str }} %</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- 4. Sen -->
+        <div class="tab-pane fade" id="sen" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Początek snu</th>
+                            <th>Koniec snu</th>
+                            <th>Sen lekki</th>
+                            <th>Sen głęboki</th>
+                            <th>REM</th>
+                            <th>Wybudzenia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in sleep_stages %}
+                        <tr>
+                            <td>{{ item.sleep_start }}</td>
+                            <td>{{ item.sleep_end }}</td>
+                            <td><span class="badge bg-info text-dark fs-6">{{ item.light_sleep_str }}</span></td>
+                            <td><span class="badge bg-primary fs-6">{{ item.deep_sleep_str }}</span></td>
+                            <td><span class="badge bg-secondary fs-6">{{ item.rem_sleep_str }}</span></td>
+                            <td><span class="badge bg-warning text-dark fs-6">{{ item.awake_str }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-        <!-- 5. Treningi -->
-        <div class="tab-pane fade" id="exercise" role="tabpanel">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Data rozpoczęcia</th>
-                        <th>Tytuł / Typ</th>
-                        <th>Czas trwania</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in exercise %}
-                    <tr>
-                        <td>{{ item.start_date }}</td>
-                        <td><strong>{{ item.display_name }}</strong></td>
-                        <td><span class="badge bg-secondary fs-6">{{ item.duration_str }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- 6. Spalone kalorie -->
-        <div class="tab-pane fade" id="calories" role="tabpanel">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Dzień</th>
-                        <th>Suma aktywnych kalorii</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in active_calories %}
-                    <tr>
-                        <td>{{ item.day }}</td>
-                        <td><span class="badge bg-danger fs-6">{{ item.calories_str }} kcal</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- 7. Fazy snu -->
-        <div class="tab-pane fade" id="sleep" role="tabpanel">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Początek snu</th>
-                        <th>Sen lekki</th>
-                        <th>Sen głęboki</th>
-                        <th>REM</th>
-                        <th>Wybudzenia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in sleep_stages %}
-                    <tr>
-                        <td>{{ item.sleep_start }}</td>
-                        <td><span class="badge bg-info text-dark fs-6">{{ item.light_sleep_str }}</span></td>
-                        <td><span class="badge bg-primary fs-6">{{ item.deep_sleep_str }}</span></td>
-                        <td><span class="badge bg-secondary fs-6">{{ item.rem_sleep_str }}</span></td>
-                        <td><span class="badge bg-warning text-dark fs-6">{{ item.awake_str }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
     </div>
 </div>
 {% endblock %}

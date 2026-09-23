@@ -14,12 +14,12 @@ Zestaw mikroserwisów opartych na frameworku Flask, działających w architektur
 ## Architecture
 
 ┌────────────────────────────────────────────────────────┐
-│                    Client Browser                      │
+│                  Client Browser                        │
 └───────────────────────────┬────────────────────────────┘
                             │ (HTTP / 192.168.1.133)
                             ▼
 ┌────────────────────────────────────────────────────────┐
-│               Apache2 Web Server (Proxy)               │
+│                Apache2 Web Server (Proxy)              │
 └─────┬──────────────┬──────────────┬──────────────┬─────┘
       │ /aplikacje   │ /finanse     │ /inwestycje  │ /zdrowie
       ▼              ▼              ▼              ▼
@@ -29,7 +29,7 @@ Zestaw mikroserwisów opartych na frameworku Flask, działających w architektur
       │              │              │              │
       ▼              ▼              ▼              ▼
 ┌──────────────────────────┐  ┌──────────────────────────┐
-│     MariaDB Database     │  │ SQLite / HA / Health DB  │
+│      MariaDB Database    │  │ SQLite / HA / Health DB  │
 └──────────────────────────┘  └──────────────────────────┘
 
 ## Project Structure
@@ -143,4 +143,4 @@ http://192.168.1.133/aplikacje
 
 ## Credits
 
-Opracowanie Robert Zioło + AI, plik zaktualizowano 2026-09-22
+Opracowanie Robert Zioło + AI, plik zaktualizowano 2026-09-23
