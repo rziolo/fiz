@@ -45,7 +45,7 @@ def health_connect_view():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # --- AGREGACJA DANYCH DLA TABELI 'DANE RÓŻNE' ---
+    # --- AGREGACJA DANYCH DLA TABELI 'DANE RÓŻNE' ORAZ PODGLĄDU ---
     combined = {}
 
     def ensure_day(day_str):
@@ -59,7 +59,8 @@ def health_connect_view():
                 'resting_hr': None,
                 'spo2': None,
                 'body_fat': None,
-                'calories': None
+                'calories': None,
+                'sleep_total': None
             }
 
     # 1. Waga
@@ -142,7 +143,21 @@ def health_connect_view():
             val = val / 1000.0
         combined[r['day']]['calories'] = pl_num(val, 0)
 
-    # Sortowanie zbiorczej listy według daty malejąco
+    # 8. Agregacja pełnego czasu snu (Suma trwania od startu do końca danej sesji)
+    raw_sleep_totals = cursor.execute("""
+        SELECT strftime('%Y-%m-%d', MAX(stage_end_time)/1000, 'unixepoch', 'localtime') as day,
+               (MAX(stage_end_time) - MIN(stage_start_time)) / 60000.0 as sleep_min
+        FROM sleep_stages_table
+        GROUP BY parent_key
+        HAVING sleep_min >= 60
+    """).fetchall()
+    
+    for r in raw_sleep_totals:
+        if r['day']:
+            ensure_day(r['day'])
+            combined[r['day']]['sleep_total'] = format_duration(r['sleep_min'])
+
+    # Sortowanie zbiorczej listy według daty malejąco (ORDER DESC)
     dane_rozne = sorted(combined.values(), key=lambda x: x['day'], reverse=True)[:50]
 
     # --- POZOSTAŁE ZAKŁADKI ---
@@ -174,7 +189,7 @@ def health_connect_view():
         display_name = f"{row['title']} ({type_name})" if row.get('title') and str(row['title']).strip() else type_name
         exercise.append({'start_date': row['start_date'], 'display_name': display_name, 'duration_str': format_duration(row.get('duration_min', 0))})
 
-    # Sen
+    # Sen - Zakładka szczegółowa
     raw_sleep = cursor.execute("""
         SELECT sleep_start, sleep_end,
                MAX(light_sleep_min) as light_sleep_min,
