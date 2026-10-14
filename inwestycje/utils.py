@@ -57,7 +57,7 @@ def get_stats():
             SELECT SUM(latest_prices.close * o.zakup_ilosc) as wycena
             FROM obroty o
             JOIN (
-                SELECT d.ticker, d.close 
+                SELECT d.ticker, d.close
                 FROM dane d
                 WHERE d.id_dane IN (SELECT MAX(id_dane) FROM dane GROUP BY ticker)
             ) as latest_prices ON o.ticker_nm = latest_prices.ticker
@@ -66,9 +66,16 @@ def get_stats():
         cursor.execute(query_wartosc)
         stats['dane_dzienne_wartosc'] = cursor.fetchone()['wycena'] or 0
 
-        # 4. WKŁAD
-        cursor.execute("SELECT SUM(COALESCE(sprzedaz_cena, 0) - zakup_cena) as wklad FROM obroty")
-        stats['dane_dzienne_wklad'] = cursor.fetchone()['wklad'] or 0
+        # 4. TEN MIESIĄC (Suma (sprzedaz_cena - zakup_cena) dla sprzedaz_data w obecnym miesiącu)
+        query_miesiac = """
+            SELECT SUM(sprzedaz_cena - zakup_cena) as miesiac 
+            FROM obroty 
+            WHERE sprzedaz_data IS NOT NULL 
+              AND YEAR(sprzedaz_data) = YEAR(CURRENT_DATE()) 
+              AND MONTH(sprzedaz_data) = MONTH(CURRENT_DATE())
+        """
+        cursor.execute(query_miesiac)
+        stats['dane_dzienne_wklad'] = cursor.fetchone()['miesiac'] or 0
 
         # 5. Ostatnia data w dane_dzienne
         cursor.execute("SELECT MAX(data) as d FROM dane_dzienne")
@@ -86,11 +93,11 @@ def get_stats():
                     SUM(CASE WHEN d_now.close > d_past.close THEN 1 ELSE 0 END) as hl,
                     SUM(CASE WHEN d_now.close < d_past.close THEN 1 ELSE 0 END) as nl
                 FROM (
-                    SELECT ticker, close FROM dane 
+                    SELECT ticker, close FROM dane
                     WHERE data = %s AND id_dane IN (SELECT MAX(id_dane) FROM dane WHERE data = %s GROUP BY ticker)
                 ) d_now
                 JOIN (
-                    SELECT ticker, close FROM dane 
+                    SELECT ticker, close FROM dane
                     WHERE data = %s AND id_dane IN (SELECT MAX(id_dane) FROM dane WHERE data = %s GROUP BY ticker)
                 ) d_past ON d_now.ticker = d_past.ticker
             """

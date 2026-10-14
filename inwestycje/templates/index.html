@@ -69,7 +69,7 @@
             <tr class="table-light align-middle">
                 <td>spółek: <b>{{ s.ticker_ilosc }}</b></td>
                 <td>Wartość: <b>{{ s.dane_dzienne_wartosc | format_pl }}</b></td>
-                <td>Wkład: <b>{{ s.dane_dzienne_wklad | replace('-', '') | format_pl }}</b></td>
+                <td>Ten miesiąc: <b style="color: {% if s.dane_dzienne_wklad < 0 %}red{% elif s.dane_dzienne_wklad == 0 %}black{% else %}green{% endif %};">{{ s.dane_dzienne_wklad | format_pl }}</b></td>
                 <td>Nowe: <b class="{{ 'text-green' if s.gpw_nowe == 'brak' else 'text-red' }}">{{ s.gpw_nowe }}</b></td>
             </tr>
         </table>
