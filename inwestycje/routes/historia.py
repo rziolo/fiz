@@ -16,11 +16,19 @@ def index():
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    # 1. ROK MIESIĄC
+    # 1. ROK MIESIĄC (Z bazą 51267.59 dla 2026-09 i narastającym ruchem od 2026-10-01)
     cursor.execute("""
         SELECT
             rm_label as rok_miesiac,
-            (SELECT ABS(wklad) FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y-%m') = rm_label ORDER BY d2.data DESC LIMIT 1) as wklad,
+            CASE 
+                WHEN rm_label = '2026-10' THEN 
+                    51267.59 + (
+                        SELECT COALESCE(SUM(zakup_cena - COALESCE(sprzedaz_cena, 0)), 0)
+                        FROM obroty o2 
+                        WHERE o2.zakup_data >= '2026-10-01' AND o2.ticker_nm != 'dywidenda'
+                    )
+                ELSE (SELECT ABS(wklad) FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y-%m') = rm_label ORDER BY d2.data DESC LIMIT 1)
+            END as wklad,
             (SELECT wartosc FROM dane_dzienne d3 WHERE DATE_FORMAT(d3.data, '%Y-%m') = rm_label ORDER BY d3.data DESC LIMIT 1) as wartosc,
             (SELECT ABS(AVG(wklad)) FROM dane_dzienne d4 WHERE DATE_FORMAT(d4.data, '%Y-%m') = rm_label) as sredni_wklad,
             (SELECT SUM(sprzedaz_cena - zakup_cena) FROM obroty o WHERE DATE_FORMAT(o.sprzedaz_data, '%Y-%m') = rm_label AND ticker_nm != 'dywidenda') as zysk_op
@@ -29,11 +37,19 @@ def index():
     """)
     rok_miesiac = cursor.fetchall()
 
-    # 2. ROK
+    # 2. ROK (Uwzględnienie poprawionego wkładu dla 2026 w oparciu o 2026-10)
     cursor.execute("""
         SELECT
             rok_label as rok,
-            (SELECT ABS(wklad) FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y') = rok_label ORDER BY d2.data DESC LIMIT 1) as wklad,
+            CASE 
+                WHEN rok_label = '2026' THEN 
+                    51267.59 + (
+                        SELECT COALESCE(SUM(zakup_cena - COALESCE(sprzedaz_cena, 0)), 0)
+                        FROM obroty o2 
+                        WHERE o2.zakup_data >= '2026-10-01' AND o2.ticker_nm != 'dywidenda'
+                    )
+                ELSE (SELECT ABS(wklad) FROM dane_dzienne d2 WHERE DATE_FORMAT(d2.data, '%Y') = rok_label ORDER BY d2.data DESC LIMIT 1)
+            END as wklad,
             (SELECT wartosc FROM dane_dzienne d3 WHERE DATE_FORMAT(d3.data, '%Y') = rok_label ORDER BY d3.data DESC LIMIT 1) as wartosc
         FROM (SELECT DISTINCT DATE_FORMAT(data, '%Y') as rok_label FROM dane_dzienne) as years
         ORDER BY rok DESC
@@ -66,7 +82,7 @@ def index():
     """)
     obroty_rm = cursor.fetchall()
 
-    # 5. OBROTY ROK (rozbudowane o Wartość i Spółki dla ostatniego dnia roku)
+    # 5. OBROTY ROK
     cursor.execute("""
         SELECT
             c.r,
@@ -74,9 +90,9 @@ def index():
             SUM(c.sprz_zl) as sprzedaz_zl, SUM(c.sprzedaz_ilosc) as sprzedaz_ilosc,
             SUM(c.dyw_zl) as dywidenda_zl, SUM(c.dywidenda_ilosc) as dywidenda_ilosc,
             (
-                SELECT d.wartosc 
-                FROM dane_dzienne d 
-                WHERE DATE_FORMAT(d.data, '%Y') = c.r 
+                SELECT d.wartosc
+                FROM dane_dzienne d
+                WHERE DATE_FORMAT(d.data, '%Y') = c.r
                 ORDER BY d.data DESC LIMIT 1
             ) as wartosc,
             (

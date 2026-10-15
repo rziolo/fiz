@@ -30,22 +30,22 @@
     .bg-light-blue { background-color: #e3f2fd !important; }
     .bg-light-pink { background-color: #fce4ec !important; }
     .bg-light-green { background-color: #d4edda !important; } /* Jasnozielone tło komórek */
-    
+
     /* Kolory tekstu */
     .text-red { color: #d32f2f !important; font-weight: bold; }
     .text-green { color: #388e3c !important; font-weight: bold; }
-    
-    .date-status-link { 
-        text-decoration: underline !important; 
-        cursor: pointer; 
-        background: none; 
-        border: none; 
-        padding: 0; 
-        font-size: 0.85rem; 
-        font-weight: bold; 
+
+    .date-status-link {
+        text-decoration: underline !important;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 0.85rem;
+        font-weight: bold;
     }
     .table-link { font-size: 0.8rem; text-decoration: underline !important; color: #0d6efd; }
-    
+
     /* Jasnozielony przycisk LOAD do bazy */
     .btn-load-green {
         background-color: #28a745 !important;
@@ -69,7 +69,7 @@
             <tr class="table-light align-middle">
                 <td>spółek: <b>{{ s.ticker_ilosc }}</b></td>
                 <td>Wartość: <b>{{ s.dane_dzienne_wartosc | format_pl }}</b></td>
-                <td>Ten miesiąc: <b style="color: {% if s.dane_dzienne_wklad < 0 %}red{% elif s.dane_dzienne_wklad == 0 %}black{% else %}green{% endif %};">{{ s.dane_dzienne_wklad | format_pl }}</b></td>
+                <td>Ten miesiąc: <b style="color: {% if s.wynik_ten_miesiac < 0 %}red{% elif s.wynik_ten_miesiac == 0 %}black{% else %}green{% endif %};">{{ s.wynik_ten_miesiac | format_pl }}</b></td>
                 <td>Nowe: <b class="{{ 'text-green' if s.gpw_nowe == 'brak' else 'text-red' }}">{{ s.gpw_nowe }}</b></td>
             </tr>
         </table>
@@ -218,16 +218,16 @@ function runGpwCheck() {
     fetch('/inwestycje/run_gpw_check').then(() => { setTimeout(() => location.reload(), 1200); });
 }
 
-function runEtlImport() { 
-    if(confirm('Uruchomić Import (NC/Zagr/Stooq)?')) fetch('/inwestycje/run_etl_import').then(() => location.reload()); 
+function runEtlImport() {
+    if(confirm('Uruchomić Import (NC/Zagr/Stooq)?')) fetch('/inwestycje/run_etl_import').then(() => location.reload());
 }
 
-function runGpwImport() { 
-    if(confirm('Importować GPW?')) fetch('/inwestycje/run_etl_gpw').then(() => location.reload()); 
+function runGpwImport() {
+    if(confirm('Importować GPW?')) fetch('/inwestycje/run_etl_gpw').then(() => location.reload());
 }
 
-function runLoadDane() { 
-    if(confirm('Załadować do bazy?')) fetch('/inwestycje/run_etl_load').then(() => location.reload()); 
+function runLoadDane() {
+    if(confirm('Załadować do bazy?')) fetch('/inwestycje/run_etl_load').then(() => location.reload());
 }
 </script>
 {% endblock %}

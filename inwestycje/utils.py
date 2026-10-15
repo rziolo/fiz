@@ -52,7 +52,7 @@ def get_stats():
         cursor.execute("SELECT COUNT(DISTINCT ticker_nm) as c FROM obroty WHERE sprzedaz_data IS NULL")
         stats['ticker_ilosc'] = cursor.fetchone()['c']
 
-        # 3. WARTOŚĆ (Aktualna wycena portfela) - Poprawione na MAX(id_dane)
+        # 3. WARTOŚĆ (Aktualna wycena portfela)
         query_wartosc = """
             SELECT SUM(latest_prices.close * o.zakup_ilosc) as wycena
             FROM obroty o
@@ -66,23 +66,27 @@ def get_stats():
         cursor.execute(query_wartosc)
         stats['dane_dzienne_wartosc'] = cursor.fetchone()['wycena'] or 0
 
-        # 4. TEN MIESIĄC (Suma (sprzedaz_cena - zakup_cena) dla sprzedaz_data w obecnym miesiącu)
-        query_miesiac = """
-            SELECT SUM(sprzedaz_cena - zakup_cena) as miesiac 
+        # 4. WKŁAD (Oryginalne zapytanie przywrócone w 100%)
+        cursor.execute("SELECT SUM(COALESCE(sprzedaz_cena, 0) - zakup_cena) as wklad FROM obroty")
+        stats['dane_dzienne_wklad'] = cursor.fetchone()['wklad'] or 0
+
+        # 5. WYNIK BIEŻĄCEGO MIESIĄCA (Dedykowana zmienna dla kafelka 'Ten miesiąc')
+        cursor.execute("""
+            SELECT SUM(sprzedaz_cena - zakup_cena) as zysk_m
             FROM obroty 
             WHERE sprzedaz_data IS NOT NULL 
               AND YEAR(sprzedaz_data) = YEAR(CURRENT_DATE()) 
               AND MONTH(sprzedaz_data) = MONTH(CURRENT_DATE())
-        """
-        cursor.execute(query_miesiac)
-        stats['dane_dzienne_wklad'] = cursor.fetchone()['miesiac'] or 0
+        """)
+        res_m = cursor.fetchone()
+        stats['wynik_ten_miesiac'] = res_m['zysk_m'] or 0
 
-        # 5. Ostatnia data w dane_dzienne
+        # 6. Ostatnia data w dane_dzienne
         cursor.execute("SELECT MAX(data) as d FROM dane_dzienne")
         res_dd = cursor.fetchone()
         stats['data_dane_dzienne'] = str(res_dd['d']) if res_dd['d'] else "Brak"
 
-        # 6. Wyliczanie HL i NL (250 sesji wstecz) - Poprawione na MAX(id_dane)
+        # 7. Wyliczanie HL i NL (250 sesji wstecz)
         cursor.execute("SELECT DISTINCT data FROM dane ORDER BY data DESC LIMIT 1 OFFSET 250")
         offset_row = cursor.fetchone()
 
