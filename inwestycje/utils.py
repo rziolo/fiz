@@ -73,13 +73,35 @@ def get_stats():
         # 5. WYNIK BIEŻĄCEGO MIESIĄCA (Dedykowana zmienna dla kafelka 'Ten miesiąc')
         cursor.execute("""
             SELECT SUM(sprzedaz_cena - zakup_cena) as zysk_m
-            FROM obroty 
-            WHERE sprzedaz_data IS NOT NULL 
-              AND YEAR(sprzedaz_data) = YEAR(CURRENT_DATE()) 
+            FROM obroty
+            WHERE sprzedaz_data IS NOT NULL
+              AND YEAR(sprzedaz_data) = YEAR(CURRENT_DATE())
               AND MONTH(sprzedaz_data) = MONTH(CURRENT_DATE())
         """)
         res_m = cursor.fetchone()
         stats['wynik_ten_miesiac'] = res_m['zysk_m'] or 0
+
+        # 5b. WYNIK BIEŻĄCEGO ROKU (Ten rok: ticker_nm != 'dywidenda')
+        cursor.execute("""
+            SELECT SUM(sprzedaz_cena - zakup_cena) as zysk_r
+            FROM obroty
+            WHERE sprzedaz_data IS NOT NULL
+              AND YEAR(sprzedaz_data) = YEAR(CURRENT_DATE())
+              AND ticker_nm != 'dywidenda'
+        """)
+        res_r = cursor.fetchone()
+        stats['wynik_ten_rok'] = res_r['zysk_r'] or 0
+
+        # 5c. DYWIDENDY BIEŻĄCEGO ROKU (Dywidendy rok: ticker_nm == 'dywidenda')
+        cursor.execute("""
+            SELECT SUM(sprzedaz_cena - zakup_cena) as dyw_r
+            FROM obroty
+            WHERE sprzedaz_data IS NOT NULL
+              AND YEAR(sprzedaz_data) = YEAR(CURRENT_DATE())
+              AND ticker_nm = 'dywidenda'
+        """)
+        res_dyw = cursor.fetchone()
+        stats['wynik_dywidendy_rok'] = res_dyw['dyw_r'] or 0
 
         # 6. Ostatnia data w dane_dzienne
         cursor.execute("SELECT MAX(data) as d FROM dane_dzienne")

@@ -70,6 +70,8 @@
                 <td>spółek: <b>{{ s.ticker_ilosc }}</b></td>
                 <td>Wartość: <b>{{ s.dane_dzienne_wartosc | format_pl }}</b></td>
                 <td>Ten miesiąc: <b style="color: {% if s.wynik_ten_miesiac < 0 %}red{% elif s.wynik_ten_miesiac == 0 %}black{% else %}green{% endif %};">{{ s.wynik_ten_miesiac | format_pl }}</b></td>
+                <td>Ten rok: <b style="color: {% if s.wynik_ten_rok < 0 %}red{% elif s.wynik_ten_rok == 0 %}black{% else %}green{% endif %};">{{ s.wynik_ten_rok | format_pl }}</b></td>
+                <td>Dywidendy rok: <b style="color: {% if s.wynik_dywidendy_rok < 0 %}red{% elif s.wynik_dywidendy_rok == 0 %}black{% else %}green{% endif %};">{{ s.wynik_dywidendy_rok | format_pl }}</b></td>
                 <td>Nowe: <b class="{{ 'text-green' if s.gpw_nowe == 'brak' else 'text-red' }}">{{ s.gpw_nowe }}</b></td>
             </tr>
         </table>
