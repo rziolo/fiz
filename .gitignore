@@ -10,10 +10,9 @@ __pycache__/
 
 # Pliki systemowe
 .DS_Store
-*.csv
 *.xls
-.env
-*.env
-venv/
-__pycache__/
-*.pyc
+
+# Ignoruj tylko wybrane pliki raportów i archiwów CSV:
+inwestycje/etl/csv/gpw_archiwum.csv
+inwestycje/etl/csv/raport_akcje.csv
+inwestycje/etl/csv/raport_statystyka.csv
