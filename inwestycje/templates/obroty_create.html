@@ -5,7 +5,7 @@
         <div class="card shadow border-0">
             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
-                    <i class="fas {% if mode == 'view' %}fa-eye text-primary{% elif mode == 'edit' %}fa-pencil-alt text-warning{% else %}fa-plus-circle text-success{% endif %}"></i> 
+                    <i class="fas {% if mode == 'view' %}fa-eye text-primary{% elif mode == 'edit' %}fa-pencil-alt text-warning{% else %}fa-plus-circle text-success{% endif %}"></i>
                     {% if mode == 'view' %}Podgląd{% elif mode == 'edit' %}Edycja{% else %}Nowy Zakup{% endif %}
                 </h5>
             </div>
@@ -56,17 +56,13 @@
                             <label class="form-label text-primary">Cena Sprzedaży</label>
                             <input type="number" step="0.01" name="sprzedaz_cena" class="form-control form-control-sm" value="{{ row.sprzedaz_cena if row }}" {% if mode == 'view' %}readonly{% endif %}>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Kurs Bieżący</label>
-                            <input type="number" step="0.01" name="kurs_biezacy" class="form-control form-control-sm" value="{{ row.kurs_biezacy if row }}" {% if mode == 'view' %}readonly{% endif %}>
-                        </div>
 
                         <div class="col-md-12">
                             <label class="form-label fw-bold">Uwagi</label>
                             <textarea name="uwagi" class="form-control form-control-sm" rows="2" {% if mode == 'view' %}readonly{% endif %}>{{ row.uwagi if row }}</textarea>
                         </div>
                     </div>
-                    
+
                     <div class="mt-4 d-flex justify-content-between">
                         <a href="{{ url_for('obroty.index') }}" class="btn btn-outline-secondary btn-sm px-4">Powrót</a>
                         {% if mode != 'view' %}
