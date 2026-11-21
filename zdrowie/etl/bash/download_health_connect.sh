@@ -11,17 +11,17 @@ mkdir -p "${TEMP_DIR}"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Rozpoczynam pobieranie bazy Health Connect..."
 
-# Pobranie pliku z Google Drive na podstawie adresu ID
-${GDOWN_BIN} "https://drive.google.com/uc?id=1iuSllTbMi8vC6TuLgMvtF4K67ABRM2Mi" -O "${TEMP_DIR}/Health Connect.zip"
+# Pobranie pliku z Google Drive na podstawie nowego adresu
+${GDOWN_BIN} "1gz5Y5_iMLJKtibNmjs3gfvW6lQZ2z4zK" -O "${TEMP_DIR}/Health Connect.zip"
 
 if [ -f "${TEMP_DIR}/Health Connect.zip" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Rozpakowywanie archiwum..."
     rm -rf "${TEMP_DIR}/extracted"
     mkdir -p "${TEMP_DIR}/extracted"
     unzip -o "${TEMP_DIR}/Health Connect.zip" -d "${TEMP_DIR}/extracted"
-    
+
     EXTRACTED_DB=$(find "${TEMP_DIR}/extracted" -type f -name "*.db" | head -n 1)
-    
+
     if [ -n "${EXTRACTED_DB}" ] && [ -f "${EXTRACTED_DB}" ]; then
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Podmieniam bazę na ${TARGET_DB}"
         cp -f "${EXTRACTED_DB}" "${TARGET_DB}"

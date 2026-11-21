@@ -83,7 +83,7 @@ def health_connect_view():
             SELECT strftime('%Y-%m-%d', start_time/1000, 'unixepoch', 'localtime') as day,
                    start_time, MAX(count) as count
             FROM steps_record_table
-            WHERE app_info_id = 7
+            WHERE app_info_id = 3
             GROUP BY start_time
         ) GROUP BY day
     """).fetchall()
